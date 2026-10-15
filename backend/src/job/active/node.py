@@ -67,7 +67,10 @@ class Node(abstract.Node):
         finally:
             task and task.cancel()
             self._task_logic = None
-            repository.retrieve(job.active.Repository)[0].remove(self)
+            # 設定更新でリポジトリが置き換わっている場合は格納先のみから削除
+            for active in repository.retrieve(job.active.Repository):
+                if self in active:
+                    active.remove(self)
             self._logger.info("finish")
 
     def stop(self):
@@ -106,7 +109,7 @@ class Node(abstract.Node):
         Returns:
             Any: 実行結果
         """
-        task = self._task_logic.retrieve_task(id)
+        task = self._task_logic.retrieve_task(id) if self._task_logic else None
         if task is None:
             raise Exception(f"Failed to exec_command: {id=} does not exist")
         try:
