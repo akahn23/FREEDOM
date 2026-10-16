@@ -110,9 +110,9 @@ defined in `nodes.yaml`, which is the site's configuration under version control
 
 Traces for triage:
 
-- UI → ログ (Log): structured, per-node logs stored in PostgreSQL (`freedom_log_*` partitions). Filter by
-  `src.robot.agv` to see `[agv_1] launch ...`; run a job with the 点検 block to see `start: 点検 robot=agv_1 ...`
-  / `finish: ...`.
+- UI → 実行ログ (Log): structured, per-node logs stored in PostgreSQL (`freedom_log_*` partitions). Rows with
+  name `src.robot.agv` show `[agv_1] launch ...`; running a job with the 点検 block adds
+  `start: 点検 robot=agv_1 ...` / `finish: ...` rows.
 - Terminal: `docker compose logs -f backend` shows the same lines plus each hot-reload
   (`changes detected` → `update node='robot.agv' ...`).
 
