@@ -109,7 +109,8 @@ class Node(abstract.Node):
             await self._access.update(node, config)
             self._logger.info(f"update {node=} {config=}")
         elif (config:=await self._access.fetch(node)) is None:
-            await self.update_node(node, dataclasses.asdict(getattr(module, "Domain")()))
+            seed = getattr(self.domain.conf, "seed", dict()).get(node)
+            await self.update_node(node, seed if seed is not None else dataclasses.asdict(getattr(module, "Domain")()))
             return
         if hasattr(module, "Repository"):
             node_cls:type[abstract.Node] = getattr(module, "Repository")

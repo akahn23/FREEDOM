@@ -1,0 +1,25 @@
+# FREEDOM node registry for the docker-compose / devcontainer stack (backend/config/docker.py).
+#
+# One line per node:   <repository>.<node>: [instance names]
+#   - the key registers the node (backend/src/<repository>/<node>/) in the dashboard structure
+#   - the list seeds its instances the first time the node is seen in the database
+#     (afterwards edit them in the UI under 設定 / Config, or reset with `docker compose down -v`)
+#   - long form: <repository>.<node>: {instances: [a, b], <any NodeDomain field>: value}
+#   - no value (e.g. `job.create:`) registers the node with its default config
+# The backend restarts automatically when this file changes.
+
+site:
+  map_center: [35.02345408903063, 137.13061702903593]  # lat, lng of the plant
+  zoom: 15
+
+nodes:
+  infrastructure.lamp: [lamp_1, lamp_2, lamp_3]
+  infrastructure.shutter: [shutter_1]
+  infrastructure.gate: [gate_1]
+  infrastructure.intersection: [intersection_1]
+  equipment.database:
+  equipment.iotdatashare:
+  equipment.plc:
+  robot.dummy: [robot_dummy_1, robot_dummy_2, robot_dummy_3]
+  job.active:
+  job.create:

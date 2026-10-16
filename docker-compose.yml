@@ -1,0 +1,78 @@
+# FREEDOM full stack: PostgreSQL 16 + backend (Python 3.13 venv) + frontend (Next.js).
+# Start everything with:   docker compose up
+# Pre-built images are pulled from GHCR; if they are unavailable Compose builds them locally.
+name: freedom
+
+x-db-env: &db-env
+  POSTGRES_USER: freedom
+  POSTGRES_PASSWORD: freedom
+  POSTGRES_DB: freedom
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment: *db-env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U freedom -d freedom"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/akahn23/freedom-backend:${FREEDOM_TAG:-latest}
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FREEDOM_DSN: postgresql://freedom:freedom@db:5432/freedom
+      FREEDOM_UI_ORIGIN: ${FREEDOM_PUBLIC_URL:-http://localhost:3000}
+      WATCHFILES_FORCE_POLLING: "true"
+    volumes:
+      # live-mounted so create-node / create-task-block / nodes.yaml edits reload the backend
+      - ./backend/src:/app/backend/src
+      - ./backend/config:/app/backend/config
+      - ./nodes.yaml:/app/nodes.yaml
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8080), 2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/akahn23/freedom-frontend:${FREEDOM_TAG:-latest}
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://freedom:freedom@db:5432/freedom?options=-c%20search_path%3Dauth
+      # demo-only default; override with BETTER_AUTH_SECRET=... for anything non-local
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-freedom-demo-only-secret-0123456789abcdef0123456789abcdef}
+      BETTER_AUTH_URL: ${FREEDOM_PUBLIC_URL:-http://localhost:3000}
+      BACKEND_BASE_URL: http://backend:8080
+      NEXT_PUBLIC_API_URL: /api/bff
+    volumes:
+      # read at request time so node labels written by create-node appear without a rebuild
+      - ./frontend/messages:/app/frontend/messages:ro
+      - uploads:/app/frontend/uploads
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:

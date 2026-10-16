@@ -1,0 +1,92 @@
+$header
+import asyncio
+import math
+import sys
+import zlib
+
+from src import freedom, robot, util
+from src.repository import repository
+from src.robot.$name import NodeDomain
+
+
+METER_PER_DEG_LAT = 111_320.0
+
+
+class Node(robot.Node[NodeDomain]):
+    def __init__(self, domain:NodeDomain):
+        """$label ロボットノード
+        TODO: 実機接続時は _poll() で実機の位置・状態を取得する
+        """
+        super().__init__(domain)
+        self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__, f"[{self.domain.name}]")
+        self._phase = (zlib.crc32(self.domain.name.encode()) % 360) / 180 * math.pi
+        self._home = self._make_home()
+        self.domain.location = self._home
+        self._task = asyncio.create_task(self._loop())
+        self._logger.info(f"launch: {self.domain=}")
+
+    def _make_home(self) -> list[float]:
+        """初期位置: 地図初期表示の中心付近に名前ごとにずらして配置"""
+        center = [0.0, 0.0]
+        if map_node := repository.retrieve(freedom.map.Node):
+            center = list(map_node[0].domain.default_view.center)
+        offset = 60.0 * math.cos(self._phase), 60.0 * math.sin(self._phase)
+        return [
+            center[0] + offset[0] / METER_PER_DEG_LAT,
+            center[1] + offset[1] / (METER_PER_DEG_LAT * math.cos(math.radians(center[0]))),
+        ]
+
+    async def _loop(self):
+        while sys.getrefcount(self) > 2:
+            try:
+                await asyncio.gather(
+                    asyncio.sleep(self.domain.update_cycle),
+                    self._update(),
+                )
+                await self._poll()
+            except asyncio.CancelledError:
+                break
+        self._logger.info("close")
+
+    async def _poll(self):
+        """位置更新
+        ジョブ実行中はジョブ(移動タスク等)が位置を更新するため、待機中のみ巡回をシミュレートする
+        """
+        if self.job or not self.domain.patrol_radius:
+            return
+        self._phase += self.domain.update_cycle * 0.2
+        r = self.domain.patrol_radius
+        self.domain.location = [
+            self._home[0] + r * math.cos(self._phase) / METER_PER_DEG_LAT,
+            self._home[1] + r * math.sin(self._phase) / (METER_PER_DEG_LAT * math.cos(math.radians(self._home[0]))),
+        ]
+
+    def close(self):
+        """停止"""
+        self._task.cancel()
+
+    def fetch_status(self) -> util.status.Status:
+        """状態取得
+        Returns:
+            util.status.Status: 状態
+        """
+        info = list()
+        if self.job:
+            if self.job.domain.error_msg:
+                state = util.status.State.ERROR
+                info.extend(list(self.job.domain.error_msg))
+            elif self.job.domain.warning_msg:
+                state = util.status.State.WARNING
+                info.extend(list(self.job.domain.warning_msg))
+            else:
+                state = util.status.State.ACTIVE
+                info.append(f"{self.job.domain.name} 実行中")
+        else:
+            state = util.status.State.WAITING
+        return util.status.Status(
+            name=self.domain.name,
+            state=state,
+            location=self.domain.location,
+            info=info,
+            detail=[f"位置: {self.domain.location[0]:.6f}, {self.domain.location[1]:.6f}"],
+        )

@@ -1,0 +1,15 @@
+# Devcontainer-only service: the backend image (Python 3.13 + venv deps) with the whole repo mounted,
+# so the generators edit the same files the backend/frontend containers live-reload from.
+services:
+  workspace:
+    image: ghcr.io/akahn23/freedom-backend:${FREEDOM_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    volumes:
+      - ..:/workspaces/FREEDOM:cached
+    working_dir: /workspaces/FREEDOM
+    command: ["sleep", "infinity"]
+    depends_on:
+      - backend
+      - frontend

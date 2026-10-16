@@ -1,0 +1,78 @@
+$header
+import dataclasses
+
+from src.job.task import abstract
+
+
+@dataclasses.dataclass
+class Domain(abstract.statement.Domain):
+    """$label タスク
+    Args:
+        type (str): タスク種類
+        id (str): タスクID
+        name (str): タスク名
+            UIにタスク名として表示される内容
+        next (Domain): 次タスク
+        can_recover (bool): 復帰可能判定
+            ジョブ停止時に復帰できる判定
+        finished (bool): 終了フラグ
+        command (list): コマンド内容
+${robot_doc}        seconds (abstract.value.Domain): 所要時間(秒)
+    """
+    name: str = "$label"
+${robot_field}    seconds: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
+
+    @classmethod
+    def define_block(cls) -> list[dict]:
+        """ブロック定義
+        カスタムブロックの形状を定義する
+        https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
+        Returns:
+            list[dict]: ブロック定義
+        """
+        return [{
+            "type": "$block_type",
+            "tooltip": "$tooltip",
+            "helpUrl": "",
+            "message0": "$message",
+            "args0": [
+                {
+                    "type": "field_input",
+                    "name": "name",
+                    "text": cls.name
+                },
+                {"type": "input_dummy"},
+${robot_arg}                {
+                    "type": "input_value",
+                    "name": "seconds",
+                    "align": "RIGHT",
+                    "check": "Number"
+                },
+            ],
+            "previousStatement": None,
+            "nextStatement": None,
+            "colour": $colour
+        }]
+
+    @classmethod
+    def define_toolbox(cls) -> list[dict]:
+        """ツールボックス定義
+        フィールド値や出力ブロックの初期値を定義する
+        https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
+        Returns:
+            list[dict]: ツールボックス定義
+        """
+        return [{
+            "kind": "block",
+            "type": "$block_type",
+            "inputs": {
+${robot_shadow}                "seconds": {
+                    "shadow": {
+                        "type": "math_number",
+                        "fields": {
+                            "NUM": 5
+                        }
+                    }
+                }
+            }
+        }]

@@ -1,0 +1,23 @@
+{
+  // Opens the repo in a workspace container next to the full stack from ../docker-compose.yml
+  // (db + backend + frontend). Run the generators from the integrated terminal:
+  //   python scripts/create_node.py robot agv --label AGV
+  //   python scripts/create_task_block.py robot.agv inspect --label 点検
+  "name": "FREEDOM demo",
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.devcontainer.yml"],
+  "service": "workspace",
+  "runServices": ["db", "backend", "frontend", "workspace"],
+  "workspaceFolder": "/workspaces/FREEDOM",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [3000, 8080],
+  "portsAttributes": {
+    "3000": { "label": "FREEDOM UI (admin / admin123)", "onAutoForward": "openBrowser" },
+    "8080": { "label": "FREEDOM backend API", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "redhat.vscode-yaml", "dbaeumer.vscode-eslint"],
+      "settings": { "python.defaultInterpreterPath": "/opt/venv/bin/python" }
+    }
+  }
+}

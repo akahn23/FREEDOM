@@ -1,0 +1,27 @@
+$header
+import asyncio
+
+from src.job import command
+from src.job.task import abstract
+from $module import Domain
+
+
+class Logic(abstract.statement.Logic[Domain]):
+    """$label タスク処理"""
+    async def init(self):
+        """ジョブ開始・復帰時処理"""
+        await super().init()
+${robot_init}        self._seconds = await self.domain.seconds.make_logic(self._job_id, self._logger)
+
+    async def exec(self):
+        """タスク実行
+        TODO: 設備・ロボットへの指令をここに実装する
+        """
+${robot_exec}        seconds = float(await self._seconds.exec())
+        self._logger.info(f"start: {self.domain.name}$target_log {seconds=}")
+        self.domain.command = [command.Text(f"{self.domain.name} 実行中")]
+        try:
+            await asyncio.sleep(seconds)
+        finally:
+            self.domain.command.clear()
+        self._logger.info(f"finish: {self.domain.name}$target_log")
