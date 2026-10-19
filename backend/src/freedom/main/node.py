@@ -6,9 +6,10 @@ import dataclasses
 import importlib
 import typing
 
-from src.repository import repository
 from src import abstract, freedom
 from src.freedom.main import Interface, access
+from src.repository import repository
+
 if typing.TYPE_CHECKING:
     import config.dummy
 

@@ -1,0 +1,30 @@
+[tool.ruff]
+target-version = "py313"
+src = ["."]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+# Line length is not enforced yet: existing code has long Blockly block
+# definitions and Japanese docstrings; revisit if a formatter is adopted.
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Package __init__ modules import submodules to register nodes/task blocks
+# and re-export names. Their import order is load-bearing (circular-import
+# chain, registration order), so don't flag unused imports or reorder them.
+"__init__.py" = ["F401", "I001"]
+# Docstring-like string sits after `from __future__`; hoisting it would change
+# the module docstring, so keep the imports where they are.
+"src/freedom/authz/access/postgresql.py" = ["E402"]
+# Imports kept for their side effects on the circular-import load order.
+"src/job/task/common/control/controls_warning/logic.py" = ["F401"]
+"src/job/task/robot/dummy/move/domain.py" = ["F401"]
+"src/job/task/robot/dummy/place/domain.py" = ["F401"]
+# Pre-existing issues whose fix would be a behavior change; left for review:
+# bare `except:` also catches asyncio.CancelledError (BaseException).
+"src/job/task/common/control/controls_select/logic.py" = ["E722"]
+# Earlier init/exec definitions are shadowed by later ones.
+"src/job/task/common/list/lists_create_with/logic.py" = ["F811"]
+# Duplicate "tooltip" key in Blockly block definition (last value wins).
+"src/job/task/common/time/time_delta_arithmetic/domain.py" = ["F601"]
+"src/job/task/common/time/time_delta_duration/domain.py" = ["F601"]

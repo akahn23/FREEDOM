@@ -31,4 +31,4 @@ class Logic(abstract.value.Logic[Domain]):
                 return LEFT / RIGHT
         except Exception as e:
             self._logger.error(f"Failed to time_delta_arithmetic: {type(e)} - {e} {LEFT} {operator} {RIGHT}")
-            raise Exception(f"時間計算の演算に失敗")
+            raise Exception("時間計算の演算に失敗")

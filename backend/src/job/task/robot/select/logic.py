@@ -3,11 +3,11 @@
 
 import asyncio
 
-from src.repository import repository
-from src import robot, job
+from src import job, robot
 from src.job import command
 from src.job.task import abstract
 from src.job.task.robot.select import Domain
+from src.repository import repository
 
 
 class Logic(abstract.statement.Logic[Domain]):

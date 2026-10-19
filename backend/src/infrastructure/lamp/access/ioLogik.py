@@ -1,10 +1,11 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-import aiohttp
 import json
 
-from src.infrastructure.lamp import NodeDomain, Interface
+import aiohttp
+
+from src.infrastructure.lamp import Interface, NodeDomain
 
 
 class IoLogic(Interface):

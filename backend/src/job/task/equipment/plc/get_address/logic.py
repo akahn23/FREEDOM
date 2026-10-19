@@ -4,9 +4,9 @@
 import json
 
 from src import equipment
-from src.repository import repository
 from src.job.task import abstract
 from src.job.task.equipment.plc.get_address import Domain
+from src.repository import repository
 
 
 class Logic(abstract.value.Logic[Domain]):

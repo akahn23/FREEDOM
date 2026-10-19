@@ -1,30 +1,29 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from aiohttp import web
-from aiohttp_middlewares import cors_middleware
 import asyncio
 import sys
+
 import asyncpg
+from aiohttp import web
+from aiohttp_middlewares import cors_middleware
 
-from src.repository import repository
 from src import freedom
-from src.freedom.user_interface import Domain, logic
-
-from src.freedom.middlewares.authz import authz_middleware
-from src.freedom.authz.enforcer import CasbinAuthz
-from src.freedom.authz.casbin.seed import seed_policy_if_empty
-
 from src.freedom.authz.access.postgresql import (
     SQL_CREATE_AUTH_SCHEMA,
     SQL_CREATE_AUTHZ_SCHEMA,
-    SQL_CREATE_USER_NODE_ALLOW,
-    SQL_CREATE_USER_NODE_DENY,
-    SQL_CREATE_USER_JOB_ALLOW,
     SQL_CREATE_CASBIN_RULE,
     SQL_CREATE_INDEXES,
+    SQL_CREATE_USER_JOB_ALLOW,
+    SQL_CREATE_USER_NODE_ALLOW,
+    SQL_CREATE_USER_NODE_DENY,
     SQL_ENSURE_CONSTRAINTS,
 )
+from src.freedom.authz.casbin.seed import seed_policy_if_empty
+from src.freedom.authz.enforcer import CasbinAuthz
+from src.freedom.middlewares.authz import authz_middleware
+from src.freedom.user_interface import Domain, logic
+from src.repository import repository
 
 
 class Node:

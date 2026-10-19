@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-import asyncpg
 
+import asyncpg
 
 """ユーザごとの閲覧可能なノードを取得"""
 SQL_ALLOW = """

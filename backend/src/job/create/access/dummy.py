@@ -4,8 +4,8 @@
 import copy
 
 from src import freedom
+from src.job.create import Column, Domain, Interface
 from src.repository import repository
-from src.job.create import Interface, Domain, Column
 
 
 class Dummy(Interface):

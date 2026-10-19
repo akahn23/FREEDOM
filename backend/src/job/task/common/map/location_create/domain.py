@@ -4,8 +4,8 @@
 import dataclasses
 
 from src import freedom
-from src.repository import repository
 from src.job.task import abstract
+from src.repository import repository
 
 
 @dataclasses.dataclass

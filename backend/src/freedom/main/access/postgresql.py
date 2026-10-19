@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from src import abstract, freedom
-from src.repository import repository
 from src.freedom.main import Domain, Interface
+from src.repository import repository
 
 
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):

@@ -9,8 +9,8 @@ from typing import Any, Awaitable, Callable, Dict, Tuple
 from aiohttp import web
 
 from src.freedom.authz.classify import classify_action, make_object
-from src.freedom.authz.repository import get_role_by_user_id
 from src.freedom.authz.enforcer import CasbinAuthz
+from src.freedom.authz.repository import get_role_by_user_id
 
 
 def _parse_target(path: str) -> Tuple[str, str]:

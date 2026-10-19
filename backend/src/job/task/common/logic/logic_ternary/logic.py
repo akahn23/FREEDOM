@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Any
+
 from src.job.task import abstract
 from src.job.task.common.logic.logic_ternary import Domain
 

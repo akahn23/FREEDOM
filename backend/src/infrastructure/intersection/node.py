@@ -5,9 +5,9 @@ import asyncio
 import sys
 
 from src import freedom, infrastructure, robot, util
-from src.repository import repository
-from src.infrastructure.intersection import NodeDomain
 from src.infrastructure.command import Button
+from src.infrastructure.intersection import NodeDomain
+from src.repository import repository
 
 
 class Node(infrastructure.Node):
@@ -148,4 +148,4 @@ class Node(infrastructure.Node):
         """退出"""
         self._exit_robot.update(self._entry_robot)
         self._entry_robot.clear()
-        self._logger.info(f"exit")
+        self._logger.info("exit")

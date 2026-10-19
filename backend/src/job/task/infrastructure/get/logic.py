@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from src import infrastructure
-from src.repository import repository
 from src.job.task import abstract
 from src.job.task.infrastructure.get import Domain
+from src.repository import repository
 
 
 class Logic(abstract.value.Logic[Domain]):

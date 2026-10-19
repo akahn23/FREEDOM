@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from sqlalchemy.orm import declarative_base
 from casbin_async_sqlalchemy_adapter import create_casbin_rule_model
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 

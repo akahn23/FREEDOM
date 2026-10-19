@@ -12,11 +12,10 @@ from __future__ import annotations
 """
 
 from src import abstract, freedom
-from src.repository import repository
+from src.freedom.authz.casbin.seed import seed_policy_if_empty
 from src.freedom.authz.domain import Domain
 from src.freedom.authz.interface import Interface
-from src.freedom.authz.casbin.seed import seed_policy_if_empty
-
+from src.repository import repository
 
 # Better Auth 用（schemaのみ作成。テーブル群はBetter Auth migrateで作成）
 SQL_CREATE_AUTH_SCHEMA = "CREATE SCHEMA IF NOT EXISTS auth;"

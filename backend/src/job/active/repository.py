@@ -5,8 +5,8 @@ import asyncio
 import copy
 import sys
 
-from src import repository, freedom, job
-from src.job.active import Node, Domain, Interface
+from src import freedom, job, repository
+from src.job.active import Domain, Interface, Node
 
 
 class Repository(repository.Repository[Node]):

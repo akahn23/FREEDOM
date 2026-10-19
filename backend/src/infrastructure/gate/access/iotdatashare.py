@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from src import equipment
+from src.infrastructure.gate import Interface, NodeDomain
 from src.repository import repository
-from src.infrastructure.gate import NodeDomain, Interface
 
 
 class IoTDataShare(Interface):

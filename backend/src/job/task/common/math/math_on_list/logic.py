@@ -1,8 +1,8 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-import statistics
 import random
+import statistics
 
 from src.job.task import abstract
 from src.job.task.common.math.math_on_list import Domain

@@ -3,7 +3,7 @@
 
 import asyncio
 
-from src.infrastructure.shutter import NodeDomain, Interface
+from src.infrastructure.shutter import Interface, NodeDomain
 
 
 class Dummy(Interface):

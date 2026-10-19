@@ -5,9 +5,9 @@ import asyncio
 import sys
 
 from src import freedom, infrastructure, robot, util
-from src.repository import repository
-from src.infrastructure.gate import NodeDomain, Interface, access
 from src.infrastructure.command import Button
+from src.infrastructure.gate import Interface, NodeDomain, access
+from src.repository import repository
 
 
 class Node(infrastructure.Node):

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import random
+
 from src.job.task import abstract
 from src.job.task.common.text.text_charAt import Domain
 

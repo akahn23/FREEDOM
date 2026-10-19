@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import inspect
-from typing import Optional
 from importlib import resources
+from typing import Optional
 
 import casbin
 import casbin_async_sqlalchemy_adapter

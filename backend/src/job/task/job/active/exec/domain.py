@@ -4,9 +4,9 @@
 import dataclasses
 import typing
 
-from src.repository import repository
-from src.job.task import abstract
 from src import job
+from src.job.task import abstract
+from src.repository import repository
 
 
 @dataclasses.dataclass

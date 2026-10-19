@@ -4,7 +4,7 @@
 import abc
 from datetime import datetime
 
-from src.freedom.log import Domain, Column
+from src.freedom.log import Column, Domain
 
 
 class Interface(abc.ABC):

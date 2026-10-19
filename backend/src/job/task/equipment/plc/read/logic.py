@@ -1,10 +1,10 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from src.repository import repository
 from src import equipment
 from src.job.task import abstract
 from src.job.task.equipment.plc.read import Domain
+from src.repository import repository
 
 
 class Logic(abstract.value.Logic[Domain]):
@@ -22,4 +22,4 @@ class Logic(abstract.value.Logic[Domain]):
             return await plc.read(address)
         except Exception as e:
             self._logger.error(f"Error reading from PLC: {type(e)} - {e} plc={plc.domain.name} {address=}")
-            raise ValueError(f"PLC読込み失敗")
+            raise ValueError("PLC読込み失敗")

@@ -3,10 +3,10 @@
 
 from datetime import timedelta
 
-from src.repository import repository
 from src import job
 from src.job.task import abstract
 from src.job.task.common.time.time_delta__get import Domain
+from src.repository import repository
 
 
 class Logic(abstract.value.Logic[Domain]):

@@ -9,7 +9,6 @@ from src.job import command
 from src.job.task import abstract
 from src.job.task.robot.dummy.move import Domain
 
-
 # 地球半径（WGS84の平均値、メートル）
 EARTH_RADIUS_M = 6_371_008.8
 

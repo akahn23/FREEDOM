@@ -4,8 +4,8 @@
 import importlib
 
 from src import freedom, util
-from src.repository import repository
 from src.freedom.map import Domain
+from src.repository import repository
 
 
 class Node:

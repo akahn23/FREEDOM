@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import dataclasses
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 from src import freedom
+from src.job.active import Domain, Interface, NodeDomain
 from src.repository import repository
-from src.job.active import Interface, Domain, NodeDomain
 
 
 class Dummy(Interface):

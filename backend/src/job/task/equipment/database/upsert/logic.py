@@ -1,10 +1,10 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from src.repository import repository
 from src import equipment
 from src.job.task import abstract
 from src.job.task.equipment.database.upsert import Domain
+from src.repository import repository
 
 
 class Logic(abstract.statement.Logic[Domain]):
@@ -27,6 +27,6 @@ class Logic(abstract.statement.Logic[Domain]):
                 await node[0].upsert(keys, await self._data_logic.exec())
             except Exception as e:
                 self._logger.error(f"DB書込み失敗: {type(e)} - {e}")
-                raise RuntimeError(f"DB書込み失敗")
+                raise RuntimeError("DB書込み失敗")
         else:
             raise RuntimeError(f"DBノードが見つかりません: {self.domain.node}")
