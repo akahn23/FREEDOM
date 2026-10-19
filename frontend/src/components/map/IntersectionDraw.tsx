@@ -15,8 +15,27 @@ import type {
   MultiPolygon,
   Polygon,
 } from "geojson";
-import type { Map as MaplibreMap, LayerSpecification } from "maplibre-gl";
-import { Geoman, type GmOptionsPartial } from "@geoman-io/maplibre-geoman-free";
+import type {
+  Map as MaplibreMap,
+  GeoJSONSource,
+  LayerSpecification,
+  MapLayerMouseEvent,
+  MapMouseEvent,
+} from "maplibre-gl";
+import { Geoman, SOURCES, type GmOptionsPartial } from "@geoman-io/maplibre-geoman-free";
+import type {
+  FeatureData,
+  FeatureSourceName,
+  GeoJsonImportFeature,
+  GeoJsonImportFeatureCollection,
+  GeoJsonShapeFeature,
+  GeoJsonShapeFeatureCollection,
+  GeomanFeaturePatch,
+  GmEventBinding,
+  GmFeatureIdSource,
+  ImportGeoJsonProperties,
+  MaplibreMapWithGeoman,
+} from "@/types/geoman";
 
 import { Box } from "@mui/material";
 import { useTranslations } from "next-intl";
@@ -94,19 +113,32 @@ function extractOuterRing(
   }
   return [];
 }
-function getGmFeatureId(f: any): string | null {
+const FEATURE_SOURCE_NAMES: readonly string[] = Object.values(SOURCES);
+function isFeatureSourceName(id: string): id is FeatureSourceName {
+  return FEATURE_SOURCE_NAMES.includes(id);
+}
+function getGmFeatureData(gm: Geoman, sourceId: string, gmId: string): FeatureData | null {
+  return isFeatureSourceName(sourceId) ? gm.features.get(sourceId, gmId) : null;
+}
+function getLayerSource(layer: LayerSpecification): string | undefined {
+  return "source" in layer && typeof layer.source === "string" ? layer.source : undefined;
+}
+function getGmFeatureId(f: GmFeatureIdSource | null | undefined): string | null {
   const candidates = [f?.properties?.__gm_id, f?.id, f?.properties?.client_id]
     .map((v) => (v == null ? null : String(v)))
     .filter((s) => !!s && s !== "undefined" && s !== "null");
   return candidates[0] ?? null;
 }
-function normalizeToUIPolygon(f: any): IntersectionAreaGeoJSON | null {
+function normalizeToUIPolygon(f: GeoJsonShapeFeature): IntersectionAreaGeoJSON | null {
   const id = getGmFeatureId(f);
   if (!id) return null;
-  const name = (f?.properties?.name ?? "").toString();
+  const name = String(f?.properties?.name ?? "");
   const mode = f?.properties?.mode as "entry" | "reserve" | undefined;
   const priority = f?.properties?.priority as number | undefined;
-  const ring = sanitizeRing(extractOuterRing(f?.geometry));
+  const geom = f?.geometry;
+  const ring = sanitizeRing(
+    extractOuterRing(geom?.type === "Polygon" || geom?.type === "MultiPolygon" ? geom : null)
+  );
   if (ring.length < 3) return null;
   return {
     type: "Feature",
@@ -127,10 +159,10 @@ const safeUUID = () => {
 function areasToFeatureCollection(
   areas: Area[],
   mode: "entry" | "reserve"
-): FeatureCollection {
+): GeoJsonImportFeatureCollection {
   return {
     type: "FeatureCollection",
-    features: (areas ?? []).map((a) => {
+    features: (areas ?? []).map((a): GeoJsonImportFeature => {
       const ringLngLat = (a.vertex_list ?? []).map(
         ([lat, lng]) => [lng, lat] as [number, number]
       );
@@ -146,9 +178,9 @@ function areasToFeatureCollection(
         id: clientId,
         properties: { ...props, client_id: clientId },
         geometry: { type: "Polygon", coordinates: [closed] },
-      } as Feature;
+      };
     }),
-  } as FeatureCollection;
+  };
 }
 const isNonEmptyString = (v: unknown): v is string =>
   typeof v === "string" && v.length > 0;
@@ -199,7 +231,7 @@ export default function IntersectionDraw({
   const currentModesRef = useRef<Map<string, "entry" | "reserve">>(new Map());
 
   // backup
-  const lastGoodFcRef = useRef<FeatureCollection | null>(null);
+  const lastGoodFcRef = useRef<GeoJsonShapeFeatureCollection | null>(null);
   const suppressRehydrateOnceRef = useRef<boolean>(false);
 
   // 最新 shapes を常に参照
@@ -277,16 +309,16 @@ export default function IntersectionDraw({
 
   // ---- Geoman Export -> UI 読み取り ----
   const readFromGeoman = useCallback((): IntersectionAreaGeoJSON[] => {
-    const gm = gmRef.current as any;
+    const gm = gmRef.current;
     if (!gm) return [];
     const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
 
-    if ((exported?.features?.length ?? 0) > 0) {
-      lastGoodFcRef.current = exported as unknown as FeatureCollection;
+    if (exported && (exported.features?.length ?? 0) > 0) {
+      lastGoodFcRef.current = exported;
     }
 
     const acc: IntersectionAreaGeoJSON[] = [];
-    for (const f of (exported?.features ?? []) as any[]) {
+    for (const f of exported?.features ?? []) {
       const ui = normalizeToUIPolygon(f);
       if (ui) acc.push(ui);
     }
@@ -295,17 +327,17 @@ export default function IntersectionDraw({
 
   // ---- Geoman import（id 指定で差分上書き）----
   const importUpdateByGmId = useCallback(
-    (gmId: string, patch: { geometry?: any; properties?: any } = {}) => {
-      const gm = gmRef.current as any;
+    (gmId: string, patch: GeomanFeaturePatch = {}) => {
+      const gm = gmRef.current;
       if (!gm || !gmId) return;
 
       let geometry = patch.geometry ?? null;
-      let baseProps: Record<string, any> | null = null;
+      let baseProps: Record<string, unknown> | null = null;
 
       try {
         const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
         const found = (exported?.features ?? []).find(
-          (f: any) => getGmFeatureId(f) === gmId
+          (f) => getGmFeatureId(f) === gmId
         );
         if (found) {
           if (!geometry) geometry = found?.geometry ?? null;
@@ -328,7 +360,7 @@ export default function IntersectionDraw({
 
       if (!geometry || !geometry.type) return;
 
-      const finalProps = {
+      const finalProps: ImportGeoJsonProperties = {
         ...(baseProps ?? {}),
         ...(patch.properties ?? {}),
         __gm_id: gmId,
@@ -349,7 +381,7 @@ export default function IntersectionDraw({
         if ("priority" in finalProps) delete finalProps.priority;
       }
 
-      const fc = {
+      const fc: GeoJsonImportFeatureCollection = {
         type: "FeatureCollection",
         features: [
           {
@@ -373,12 +405,12 @@ export default function IntersectionDraw({
   // ---- GM に差分 persist（name/mode/priority のみ）----
   const persistMissingProps = useCallback(
     (arr: IntersectionAreaGeoJSON[]) => {
-      const gm = gmRef.current as any;
+      const gm = gmRef.current;
       if (!gm) return;
 
       const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
-      const byId = new Map<string, any>();
-      for (const f of (exported?.features ?? []) as any[]) {
+      const byId = new Map<string, GeoJsonShapeFeature>();
+      for (const f of exported?.features ?? []) {
         const id = getGmFeatureId(f);
         if (id) byId.set(id, f);
       }
@@ -388,7 +420,7 @@ export default function IntersectionDraw({
         if (!id) continue;
 
         const src = byId.get(id);
-        const curName = (src?.properties?.name ?? "").toString().trim();
+        const curName = String(src?.properties?.name ?? "").trim();
         const curMode = src?.properties?.mode as
           | "entry"
           | "reserve"
@@ -512,12 +544,12 @@ export default function IntersectionDraw({
       const all = readFromGeoman();
       if (all.length > 0) {
         try {
-          const gm = gmRef.current as any;
+          const gm = gmRef.current;
           const exported = gm?.features?.exportGeoJson?.({
             idPropertyName: "__gm_id",
           });
-          if ((exported?.features?.length ?? 0) > 0) {
-            lastGoodFcRef.current = exported as unknown as FeatureCollection;
+          if (exported && (exported.features?.length ?? 0) > 0) {
+            lastGoodFcRef.current = exported;
           }
         } catch {}
         const entries = all.filter((f) => f.properties?.mode === "entry");
@@ -545,12 +577,12 @@ export default function IntersectionDraw({
     persistMissingProps([...filledEntry, ...filledReserve]);
 
     try {
-      const gm = gmRef.current as any;
+      const gm = gmRef.current;
       const exported = gm?.features?.exportGeoJson?.({
         idPropertyName: "__gm_id",
       });
-      if ((exported?.features?.length ?? 0) > 0) {
-        lastGoodFcRef.current = exported as unknown as FeatureCollection;
+      if (exported && (exported.features?.length ?? 0) > 0) {
+        lastGoodFcRef.current = exported;
       }
     } catch {}
   }, [readFromGeoman, fillMissingNamesPerMode, persistMissingProps]);
@@ -575,21 +607,21 @@ export default function IntersectionDraw({
   const removeFeatureById = useCallback(
     (gmId: string) => {
       suppressRehydrateOnceRef.current = true;
-      const gm = gmRef.current as any;
+      const gm = gmRef.current;
       if (gm) {
         try {
-          const srcId = (gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK) as any;
-          const fd = gm.features.get?.(srcId, gmId as any);
+          const srcId = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
+          const fd = getGmFeatureData(gm, srcId, gmId);
           if (fd?.delete) {
             fd.delete();
           } else {
             const exported = gm.features.exportGeoJson({
               idPropertyName: "__gm_id",
             });
-            const filtered = {
+            const filtered: GeoJsonImportFeatureCollection = {
               type: "FeatureCollection",
               features: (exported?.features ?? []).filter(
-                (f: any) => getGmFeatureId(f) !== gmId
+                (f) => getGmFeatureId(f) !== gmId
               ),
             };
             gm.features.importGeoJson(filtered, {
@@ -601,9 +633,9 @@ export default function IntersectionDraw({
       }
 
       try {
-        const gm = gmRef.current as any;
+        const gm = gmRef.current;
         const exp = gm?.features?.exportGeoJson?.({ idPropertyName: "__gm_id" });
-        if (exp) lastGoodFcRef.current = exp as unknown as FeatureCollection;
+        if (exp) lastGoodFcRef.current = exp;
       } catch {}
 
       setEntryShapes((prev) => prev.filter((s) => s.properties.gm_id !== gmId));
@@ -764,22 +796,18 @@ export default function IntersectionDraw({
       },
     };
 
-    let gm: Geoman | null = (raw as any).gm ?? null;
-    if (!gm) {
-      gm = new Geoman(raw, gmOptions);
-      (raw as any).gm = gm;
-    }
+    const rawWithGm = raw as MaplibreMapWithGeoman;
+    const gm: Geoman = rawWithGm.gm ?? new Geoman(raw, gmOptions);
+    rawWithGm.gm = gm;
     gmRef.current = gm;
 
     const resolveGmSourceId = () => {
       const style = raw.getStyle();
       if (!style) return null;
-      const layer = (style.layers ?? []).find(
-        (l: any) =>
-          typeof l?.source === "string" && (l.source as string).startsWith("gm_")
-      ) as any;
-      if (layer && typeof layer.source === "string")
-        return layer.source as string;
+      const gmSource = (style.layers ?? [])
+        .map(getLayerSource)
+        .find((src) => src?.startsWith("gm_"));
+      if (gmSource) return gmSource;
       if (raw.getSource(GM_SOURCE_ID_FALLBACK)) return GM_SOURCE_ID_FALLBACK;
       return null;
     };
@@ -805,7 +833,7 @@ export default function IntersectionDraw({
       const layers = (raw.getStyle()?.layers ?? []) as LayerSpecification[];
       const gmSrc = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
       gmLayerIdsRef.current = layers
-        .filter((layer) => (layer as any).source === gmSrc)
+        .filter((layer) => getLayerSource(layer) === gmSrc)
         .map((l) => l.id);
     };
 
@@ -815,7 +843,7 @@ export default function IntersectionDraw({
       const dynamicColor = (selectedModeRef.current === "reserve") ? RESERVE_COLOR : ENTRY_COLOR;
 
       for (const layer of layers) {
-        const src = (layer as any).source as string | undefined;
+        const src = getLayerSource(layer);
         if (!src || !src.startsWith("gm_")) continue;
 
         if (layer.type === "fill") {
@@ -873,7 +901,7 @@ export default function IntersectionDraw({
           // 既存が無ければ initial を import
           let have = 0;
           try {
-            const exp0 = (gm as any).features.exportGeoJson({
+            const exp0 = gm.features.exportGeoJson({
               idPropertyName: "__gm_id",
             });
             have = exp0?.features?.length ?? 0;
@@ -888,7 +916,7 @@ export default function IntersectionDraw({
               initialShapes.reserve_area ?? [],
               "reserve"
             );
-            const fc: FeatureCollection = {
+            const fc: GeoJsonImportFeatureCollection = {
               type: "FeatureCollection",
               features: [
                 ...(fcEntry.features ?? []),
@@ -896,7 +924,7 @@ export default function IntersectionDraw({
               ],
             };
             try {
-              (gm as any).features.importGeoJson(fc as any, {
+              gm.features.importGeoJson(fc, {
                 idPropertyName: "client_id",
                 overwrite: true,
               });
@@ -904,11 +932,11 @@ export default function IntersectionDraw({
           }
 
           try {
-            const exp = (gm as any).features.exportGeoJson({
+            const exp = gm.features.exportGeoJson({
               idPropertyName: "__gm_id",
             });
             if ((exp?.features?.length ?? 0) > 0) {
-              lastGoodFcRef.current = exp as unknown as FeatureCollection;
+              lastGoodFcRef.current = exp;
             }
           } catch {}
 
@@ -930,15 +958,15 @@ export default function IntersectionDraw({
     // ---- Events ----
     const onCreate = () => {
       try {
-        const gm = gmRef.current as any;
-        const exported = gm.features.exportGeoJson({
+        const gm = gmRef.current;
+        const exported = gm?.features.exportGeoJson({
           idPropertyName: "__gm_id",
         });
 
         // いま地図に存在している ID
         const nowIds = new Set<string>(
           (exported?.features ?? [])
-            .map((f: any) => getGmFeatureId(f))
+            .map((f) => getGmFeatureId(f))
             .filter(isNonEmptyString)
         );
         // UI に既知の ID
@@ -968,7 +996,7 @@ export default function IntersectionDraw({
         };
 
         for (const id of newIds) {
-          const props: any = {
+          const props: IntersectionAreaProps = {
             name: `${prefix} ${nextAvailable()}`,
             mode: selectedModeRef.current,
           };
@@ -987,20 +1015,23 @@ export default function IntersectionDraw({
     const onRemove = () => {
       suppressRehydrateOnceRef.current = true;
       try {
-        const gm = gmRef.current as any;
+        const gm = gmRef.current;
         const exp = gm?.features?.exportGeoJson?.({ idPropertyName: "__gm_id" });
-        if (exp) lastGoodFcRef.current = exp as unknown as FeatureCollection;
+        if (exp) lastGoodFcRef.current = exp;
       } catch {}
       setTimeout(() => refreshWithRetry(), 30);
     };
     const onDragEnd = () => setTimeout(() => refreshWithRetry(), 30);
     const onRotateEnd = () => setTimeout(() => refreshWithRetry(), 30);
 
-    (raw as any).on("gm:create", onCreate);
-    (raw as any).on("gm:editend", onEditEnd);
-    (raw as any).on("gm:remove", onRemove);
-    (raw as any).on("gm:dragend", onDragEnd);
-    (raw as any).on("gm:rotateend", onRotateEnd);
+    const gmEventBindings: GmEventBinding[] = [
+      ["gm:create", onCreate],
+      ["gm:editend", onEditEnd],
+      ["gm:remove", onRemove],
+      ["gm:dragend", onDragEnd],
+      ["gm:rotateend", onRotateEnd],
+    ];
+    for (const [name, handler] of gmEventBindings) raw.on(name, handler);
 
     const styleHandler = () => {
       if (!raw.isStyleLoaded()) return;
@@ -1008,17 +1039,18 @@ export default function IntersectionDraw({
       applyGmVisualStyle();
 
       try {
-        const gm = gmRef.current as any;
+        const gm = gmRef.current;
         const exported = gm?.features?.exportGeoJson?.({
           idPropertyName: "__gm_id",
         });
         const count = exported?.features?.length ?? 0;
+        const lastGood = lastGoodFcRef.current;
 
-        if (count === 0 && (lastGoodFcRef.current?.features?.length ?? 0) > 0) {
+        if (count === 0 && lastGood && (lastGood.features?.length ?? 0) > 0) {
           if (suppressRehydrateOnceRef.current) {
             suppressRehydrateOnceRef.current = false;
-          } else {
-            gm.features.importGeoJson(lastGoodFcRef.current, {
+          } else if (gm) {
+            gm.features.importGeoJson(lastGood, {
               idPropertyName: "__gm_id",
               overwrite: true,
             });
@@ -1034,11 +1066,7 @@ export default function IntersectionDraw({
 
     // cleanup
     return () => {
-      (raw as any).off("gm:create", onCreate);
-      (raw as any).off("gm:editend", onEditEnd);
-      (raw as any).off("gm:remove", onRemove);
-      (raw as any).off("gm:dragend", onDragEnd);
-      (raw as any).off("gm:rotateend", onRotateEnd);
+      for (const [name, handler] of gmEventBindings) raw.off(name, handler);
       raw.off("styledata", styleHandler);
       gmRef.current = null;
       initOnceRef.current = false;
@@ -1064,7 +1092,7 @@ export default function IntersectionDraw({
     const color = selectedMode === "reserve" ? RESERVE_COLOR : ENTRY_COLOR;
 
     for (const layer of layers) {
-      const src = (layer as any).source as string | undefined;
+      const src = getLayerSource(layer);
       if (!src || !src.startsWith("gm_")) continue;
       if (src === gmMain) continue; // メインは mode プロパティで色が決まるので触らない
 
@@ -1092,7 +1120,7 @@ export default function IntersectionDraw({
     // Geoman のメイン fill layer を想定
     const polyLayerId = layers[0];
 
-    const onPolyClick = (e: any) => {
+    const onPolyClick = (e: MapLayerMouseEvent) => {
       const f = e?.features?.[0];
       if (!f) return;
       const gmId =
@@ -1104,9 +1132,9 @@ export default function IntersectionDraw({
     map.on("click", polyLayerId, onPolyClick);
 
     // 地図の空白クリックで選択解除（gm_レイヤに当たっていれば解除しない）
-    const handleMapClick = (e: any) => {
+    const handleMapClick = (e: MapMouseEvent) => {
       const features = map.queryRenderedFeatures(e.point);
-      const hit = features.some((f: any) => {
+      const hit = features.some((f) => {
         const lid = f?.layer?.id;
         return lid && lid.startsWith("gm_");
       });
@@ -1167,7 +1195,7 @@ export default function IntersectionDraw({
 
   useEffect(() => {
     const raw = mapRef?.getMap() as MaplibreMap | undefined;
-    const src = raw?.getSource(LABEL_SRC_ID) as any;
+    const src = raw?.getSource<GeoJSONSource>(LABEL_SRC_ID);
     if (src) {
       src.setData(labelsGeoJson);
     }

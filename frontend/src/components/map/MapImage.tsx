@@ -7,6 +7,18 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Source, Layer, useMap } from "react-map-gl/maplibre";
 import type maplibregl from "maplibre-gl";
+import type {
+  Coordinates,
+  MapLayerMouseEvent,
+  MapMouseEvent,
+  MapSourceDataEvent,
+} from "maplibre-gl";
+import type {
+  ImageCornerId,
+  ImageFrameFeature,
+  ImageHandleFeatureCollection,
+  LatLngTuple,
+} from "@/types/geojson";
 
 /** === 型定義 === */
 export interface ImageResponse {
@@ -21,7 +33,7 @@ export interface ImageResponse {
     | undefined;
   visible?: boolean;
 }
-type LatLng = [number, number];
+type LatLng = LatLngTuple;
 
 type Props = {
   id: string;
@@ -31,7 +43,7 @@ type Props = {
   editable?: boolean;
   beforeId?: string;
   zIndex?: number;
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
   onCornersChange?: (coners: number[][]) => void;
   onDelete?: () => void;
 
@@ -43,11 +55,11 @@ type Props = {
 
 /** === ユーティリティ === */
 const toLngLat = ([lat, lng]: LatLng) => [lng, lat] as [number, number];
-function toImageSourceCoordinates(corners?: Props["corners"]) {
+function toImageSourceCoordinates(corners?: LatLng[]): Coordinates | undefined {
   if (!corners || corners.length !== 4) return undefined;
   const [tl, tr, bl, br] = corners;
   // MapLibre image source: [top-left, top-right, bottom-right, bottom-left] (lng,lat)
-  return [toLngLat(tl), toLngLat(tr), toLngLat(br), toLngLat(bl)] as any;
+  return [toLngLat(tl), toLngLat(tr), toLngLat(br), toLngLat(bl)];
 }
 const sameCorners = (a?: LatLng[], b?: LatLng[]) =>
   !!a && !!b && a.length === 4 && b.length === 4 && a.every((p, i) => p[0] === b[i][0] && p[1] === b[i][1]);
@@ -89,8 +101,8 @@ export default function MapLibreImage({
     // 変形中は props で上書きしない
     if (transformingRef.current) return;
     // 直前送信と同じは無視
-    if (lastSentRef.current && sameCorners(lastSentRef.current, corners as any)) return;
-    setLocalCorners(prev => (sameCorners(prev as any, corners as any) ? prev : (corners as any)));
+    if (lastSentRef.current && sameCorners(lastSentRef.current, corners)) return;
+    setLocalCorners(prev => (sameCorners(prev, corners) ? prev : corners));
     suppressSendRef.current = true;
   }, [corners]);
 
@@ -193,7 +205,7 @@ export default function MapLibreImage({
         : Array.isArray(corners) && corners.length === 4
         ? corners
         : undefined;
-    return toImageSourceCoordinates(srcCorners as any);
+    return toImageSourceCoordinates(srcCorners);
   }, [isTransforming, localCorners, corners]);
 
   // 親への corners 反映（rAF で間引き・変形中は送らない）
@@ -205,7 +217,7 @@ export default function MapLibreImage({
       suppressSendRef.current = false;
       return;
     }
-    if (sameCorners(localCorners, corners as any)) return;
+    if (sameCorners(localCorners, corners)) return;
     if (!onCornersChange) return;
     if (transformingRef.current) return;
 
@@ -280,7 +292,7 @@ export default function MapLibreImage({
   const ensureImageSourceRef = useCallback(() => {
     if (!map) return;
     const s = map.getSource(srcId) as maplibregl.ImageSource | undefined;
-    if (s && typeof (s as any).setCoordinates === "function") {
+    if (s && typeof s.setCoordinates === "function") {
       imgSourceRef.current = s;
     }
   }, [map, srcId]);
@@ -293,7 +305,7 @@ export default function MapLibreImage({
     const onStyle = () => ensureImageSourceRef();
     map.on("styledata", onStyle);
 
-    const onSource = (e: any) => {
+    const onSource = (e: MapSourceDataEvent) => {
       // 目的の Source がロードされたら再取得
       if (e?.sourceId === srcId && e?.isSourceLoaded) ensureImageSourceRef();
     };
@@ -338,9 +350,9 @@ export default function MapLibreImage({
   const setImageSourceCoords = useCallback((ll: LatLng[]) => {
     const s = imgSourceRef.current;
     if (!s || !ll || ll.length !== 4) return;
-    const coords = toImageSourceCoordinates(ll as any)!; // [tl,tr,br,bl] (lng,lat)
+    const coords = toImageSourceCoordinates(ll)!; // [tl,tr,br,bl] (lng,lat)
     try {
-      (s as any).setCoordinates(coords);
+      s.setCoordinates(coords);
     } catch {
       // setCoordinates がまだ使えないタイミングなら無視（次フレームで回復）
     }
@@ -357,12 +369,12 @@ export default function MapLibreImage({
 
     const onClick = () => onSelect?.(id);
 
-    const onMouseDown = (e: any) => {
+    const onMouseDown = (e: MapLayerMouseEvent) => {
       if (!selected || !editable) return;
       if (!localCorners) return;
 
       e.preventDefault?.();
-      try { (map as any).dragPan?.disable(); } catch {}
+      try { map.dragPan?.disable(); } catch {}
 
       pushHistory();
       frozenCornersRef.current = localCorners;
@@ -389,7 +401,7 @@ export default function MapLibreImage({
         setImageSourceCoords(movedLL);
       };
 
-      const onMove = (ev: any) => {
+      const onMove = (ev: MapMouseEvent) => {
         if (!dragCtxRef.current) return;
         const movePoint = ev.point || (ev.lngLat ? map.project(ev.lngLat) : { x: 0, y: 0 });
         lastMoveDeltaRef.current = {
@@ -407,7 +419,7 @@ export default function MapLibreImage({
         if (moveRafRef.current != null) cancelAnimationFrame(moveRafRef.current);
         moveRafRef.current = null;
 
-        try { (map as any).dragPan?.enable(); } catch {}
+        try { map.dragPan?.enable(); } catch {}
         map.off("mousemove", onMove);
         map.off("mouseup", onUp);
         map.off("mouseout", onUp);
@@ -531,7 +543,7 @@ export default function MapLibreImage({
         x: (ps[0].x + ps[1].x + ps[2].x + ps[3].x) / 4,
         y: (ps[0].y + ps[1].y + ps[2].y + ps[3].y) / 4,
       };
-      try { (map as any).dragPan?.disable(); } catch {}
+      try { map.dragPan?.disable(); } catch {}
       rotateDragCtx.current = {
         center,
         startMouse: map.project({ lat: startLat, lng: startLng }),
@@ -638,7 +650,7 @@ export default function MapLibreImage({
     }
 
     // 地図パンを再有効化
-    try { (map as any).dragPan?.enable(); } catch {}
+    try { map?.dragPan?.enable(); } catch {}
     transformingRef.current = null;
     frozenCornersRef.current = undefined;
     setIsTransforming(false);
@@ -670,10 +682,10 @@ export default function MapLibreImage({
   }, [map, localCorners]);
 
   /** ====== 四隅＋回転ハンドルの GeoJSON = 同一WebGLで描画 ====== */
-  const handleGeoJSON = useMemo(() => {
+  const handleGeoJSON = useMemo((): ImageHandleFeatureCollection | null => {
     if (!localCorners || !rotateHandleLngLat) return null;
     const [TL, TR, BL, BR] = localCorners;
-    const features: any[] = [
+    const features: ImageHandleFeatureCollection["features"] = [
       { type: "Feature", geometry: { type: "Point", coordinates: [TL[1], TL[0]] }, properties: { id: "TL", kind: "corner" } },
       { type: "Feature", geometry: { type: "Point", coordinates: [TR[1], TR[0]] }, properties: { id: "TR", kind: "corner" } },
       { type: "Feature", geometry: { type: "Point", coordinates: [BL[1], BL[0]] }, properties: { id: "BL", kind: "corner" } },
@@ -684,7 +696,7 @@ export default function MapLibreImage({
   }, [localCorners, rotateHandleLngLat]);
 
   /** ====== 枠線 LineString（四隅を結ぶ） ====== */
-  const frameLineGeoJSON = useMemo(() => {
+  const frameLineGeoJSON = useMemo((): ImageFrameFeature | null => {
     if (!localCorners) return null;
     const coords = [
       [localCorners[0][1], localCorners[0][0]], // TL
@@ -697,7 +709,7 @@ export default function MapLibreImage({
       type: "Feature",
       geometry: { type: "LineString", coordinates: coords },
       properties: { id },
-    } as const;
+    };
   }, [localCorners, id]);
 
   const [showEditingUI, setShowEditingUI] = useState(true);
@@ -706,10 +718,10 @@ export default function MapLibreImage({
   useEffect(() => {
     if (!map) return;
 
-    const onBackgroundClick = (e: any) => {
+    const onBackgroundClick = (e: MapMouseEvent) => {
       if (transformingRef.current) return;
       const features = map.queryRenderedFeatures(e.point);
-      const clickedOnAny = Array.isArray(features) && features.some((f: any) => {
+      const clickedOnAny = Array.isArray(features) && features.some((f) => {
         const lid = f?.layer?.id;
         return typeof lid === "string" && (lid.startsWith("img-hit-layer-") || lid.startsWith("img-corner-handles-layer-") || lid.startsWith("img-rot-handle-layer-") || lid.startsWith("img-frame-layer-"));
       });
@@ -741,29 +753,29 @@ export default function MapLibreImage({
     if (!map || !editable || !selected) return;
 
     // ==== 四隅スケール ====
-    const onCornerDown = (e: any) => {
+    const onCornerDown = (e: MapLayerMouseEvent) => {
       const feat = e.features?.[0];
       if (!feat) return;
       if (feat.properties?.kind !== "corner") return;
-      const cid = feat.properties?.id as "TL" | "TR" | "BL" | "BR";
+      const cid = feat.properties?.id as ImageCornerId;
       if (!cid) return;
 
       e.preventDefault?.();
-      try { (map as any).dragPan?.disable(); } catch {}
+      try { map.dragPan?.disable(); } catch {}
 
       frozenCornersRef.current = localCorners ?? undefined;
       transformingRef.current = "scale";
       setIsTransforming(true);
       pushHistory();
       setShowEditingUI(false);
-      const onMove = (ev: any) => {
+      const onMove = (ev: MapMouseEvent) => {
         const { lng, lat } = ev.lngLat;
         latestScaleRef.current = { cid, lng, lat };
         if (scaleRafRef.current == null) {
           scaleRafRef.current = requestAnimationFrame(flushScale);
         }
       };
-      const onUp = (ev: any) => {
+      const onUp = (ev: MapMouseEvent) => {
         const { lng, lat } = ev.lngLat;
         // 最終反映を一回だけ保証
         latestScaleRef.current = { cid, lng, lat };
@@ -773,7 +785,7 @@ export default function MapLibreImage({
         transformingRef.current = null;
   frozenCornersRef.current = undefined;
         setIsTransforming(false);
-        try { (map as any).dragPan?.enable(); } catch {}
+        try { map.dragPan?.enable(); } catch {}
         map.off("mousemove", onMove);
         map.off("mouseup", onUp);
         map.off("mouseout", onUp);
@@ -787,18 +799,18 @@ export default function MapLibreImage({
     };
 
     // ==== 回転 ====
-    const onRotateDown = (e: any) => {
+    const onRotateDown = (e: MapLayerMouseEvent) => {
       const feat = e.features?.[0];
       if (!feat || feat.properties?.kind !== "rotate") return;
       const { lng, lat } = e.lngLat;
       beginRotate(lng, lat);
     };
-    const onRotateMove = (e: any) => {
+    const onRotateMove = (e: MapMouseEvent) => {
       if (transformingRef.current !== "rotate") return;
       const { lng, lat } = e.lngLat;
       onRotateDrag(lng, lat);
     };
-    const onRotateUp = (e: any) => {
+    const onRotateUp = (e: MapMouseEvent) => {
       if (transformingRef.current !== "rotate") return;
       const { lng, lat } = e.lngLat;
       onRotateDrag(lng, lat);
@@ -878,7 +890,7 @@ export default function MapLibreImage({
       {/* 枠線（PowerPoint 風の外枠） */}
       {editable && selected && showEditingUI && frameLineGeoJSON && (
         <>
-          <Source id={frameSrcId} type="geojson" data={frameLineGeoJSON as any} />
+          <Source id={frameSrcId} type="geojson" data={frameLineGeoJSON} />
           <Layer
             id={frameLayerId}
             type="line"
@@ -901,7 +913,7 @@ export default function MapLibreImage({
       {/* === ハンドル群（WebGLレイヤ / 選択時のみ表示）=== */}
       {editable && selected && showEditingUI && handleGeoJSON && (
         <>
-          <Source id={handlesSrcId} type="geojson" data={handleGeoJSON as any} />
+          <Source id={handlesSrcId} type="geojson" data={handleGeoJSON} />
           {/* 四隅ハンドル（白縁・青） */}
           <Layer
             id={cornersLayerId}
