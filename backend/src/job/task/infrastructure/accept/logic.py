@@ -4,11 +4,11 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from src import infrastructure, robot, job, util
-from src.repository import repository
+from src import infrastructure, job, robot, util
 from src.job import command
 from src.job.task import abstract
 from src.job.task.infrastructure.accept import Domain
+from src.repository import repository
 
 
 class Logic(abstract.statement.Logic[Domain]):

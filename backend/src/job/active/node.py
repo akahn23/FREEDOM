@@ -5,8 +5,8 @@ import asyncio
 import sys
 
 from src import abstract, freedom, job
-from src.repository import repository
 from src.job.active import NodeDomain
+from src.repository import repository
 
 
 class Node(abstract.Node):

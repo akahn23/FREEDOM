@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import dataclasses
-from datetime import datetime
 import zoneinfo
+from datetime import datetime
 
-from src.freedom.log import Interface, Domain, Column
+from src.freedom.log import Column, Domain, Interface
 
 UTC = zoneinfo.ZoneInfo("UTC")
 

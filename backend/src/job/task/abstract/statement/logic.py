@@ -6,6 +6,7 @@ import typing
 
 from src.job import command
 from src.job.task import abstract
+
 if typing.TYPE_CHECKING:
     from src.job.task.abstract.statement import Domain
 
@@ -33,7 +34,7 @@ class Logic[D:Domain](abstract.value.Logic[D], abc.ABC):
             typing.Any: 実行結果
         """
         self._logger.error(f"Failed to exec_command: name={self.domain.name=} {command=}")
-        raise Exception(f"Failed to command")
+        raise Exception("Failed to command")
 
     def retrieve_task(self, id:str|None=None) -> typing.Optional["Logic[Domain]"]:
         """タスク探索

@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-import asyncpg
+
 import csv
 import io
 from importlib import resources
+
+import asyncpg
 
 
 def _read_policy_seed_csv() -> str:

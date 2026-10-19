@@ -5,9 +5,9 @@ import asyncio
 import sys
 
 from src import freedom, infrastructure, robot, util
-from src.repository import repository
-from src.infrastructure.lamp import NodeDomain, Interface, access
 from src.infrastructure.command import Button
+from src.infrastructure.lamp import Interface, NodeDomain, access
+from src.repository import repository
 
 
 class Node(infrastructure.Node):
@@ -77,7 +77,7 @@ class Node(infrastructure.Node):
             return
         await self._access.write(self.domain.write_address, True)
         self._state = util.status.State.ACTIVE
-        self._logger.info(f"turn on")
+        self._logger.info("turn on")
 
     async def _turn_off(self):
         """消灯"""
@@ -85,7 +85,7 @@ class Node(infrastructure.Node):
             return
         await self._access.write(self.domain.write_address, False)
         self._state = util.status.State.WAITING
-        self._logger.info(f"turn off")
+        self._logger.info("turn off")
 
     def fetch_status(self) -> util.status.Status:
         """状態取得
@@ -148,10 +148,10 @@ class Node(infrastructure.Node):
         """UI点灯"""
         await self._access.write(self.domain.write_address, True)
         self._state = util.status.State.ACTIVE
-        self._logger.info(f"user turn on")
+        self._logger.info("user turn on")
 
     async def turn_off(self):
         """UI消灯"""
         await self._access.write(self.domain.write_address, False)
         self._state = util.status.State.WAITING
-        self._logger.info(f"user turn off")
+        self._logger.info("user turn off")

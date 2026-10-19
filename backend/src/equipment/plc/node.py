@@ -4,8 +4,8 @@
 import asyncio
 
 from src import abstract, freedom, job, util
+from src.equipment.plc import BitAddress, CycleBitAddress, Interface, NodeDomain, access
 from src.repository import repository
-from src.equipment.plc import NodeDomain, BitAddress, CycleBitAddress, Interface, access
 
 
 class Node(abstract.Node):

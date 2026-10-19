@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from src import repository
-from src.equipment.database import Node, Domain
+from src.equipment.database import Domain, Node
 
 
 class Repository(repository.Repository[Node]):

@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import dataclasses
-from datetime import datetime, date
 import json
+from datetime import date, datetime
 
 
 class CustomJSONEncoder(json.JSONEncoder):

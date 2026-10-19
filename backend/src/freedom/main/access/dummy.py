@@ -3,7 +3,7 @@
 
 import importlib
 
-from src.freedom.main import Interface, Domain
+from src.freedom.main import Domain, Interface
 
 
 class Dummy(Interface):

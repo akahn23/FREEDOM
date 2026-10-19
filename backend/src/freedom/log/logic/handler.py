@@ -1,8 +1,8 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from src.freedom.log import Column
 

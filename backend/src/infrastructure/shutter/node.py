@@ -5,9 +5,9 @@ import asyncio
 import sys
 
 from src import freedom, infrastructure, robot, util
-from src.repository import repository
-from src.infrastructure.shutter import NodeDomain, Interface, access
 from src.infrastructure.command import Button
+from src.infrastructure.shutter import Interface, NodeDomain, access
+from src.repository import repository
 
 
 class Node(infrastructure.Node):
@@ -134,11 +134,11 @@ class Node(infrastructure.Node):
     async def open(self):
         """ユーザ開き指示"""
         await self._access.write(True)
-        self._logger.info(f"user open")
+        self._logger.info("user open")
 
     async def close(self):
         """ユーザ閉じ指示"""
         self._related_robot.clear()
         await self._access.write(False)
         self._state = util.status.State.WAITING
-        self._logger.info(f"user close")
+        self._logger.info("user close")

@@ -4,8 +4,8 @@
 import asyncio
 
 from src import abstract, freedom, util
+from src.equipment.database import Interface, NodeDomain, access
 from src.repository import repository
-from src.equipment.database import NodeDomain, Interface, access
 
 
 class Node(abstract.Node):
@@ -79,8 +79,8 @@ class Node(abstract.Node):
         """状態更新"""
         if await self._access.is_connected():
             if self._state != util.status.State.WAITING:
-                self._logger.info(f"connect")
+                self._logger.info("connect")
                 self._state = util.status.State.WAITING
         elif self._state != util.status.State.DISCONNECT:
-            self._logger.error(f"disconnect")
+            self._logger.error("disconnect")
             self._state = util.status.State.DISCONNECT

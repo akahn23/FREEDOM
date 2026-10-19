@@ -1,10 +1,10 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from src.repository import repository
 from src import equipment
 from src.job.task import abstract
 from src.job.task.equipment.plc.write import Domain
+from src.repository import repository
 
 
 class Logic(abstract.statement.Logic[Domain]):
@@ -24,4 +24,4 @@ class Logic(abstract.statement.Logic[Domain]):
             await plc.write(address, data, self._job_id)
         except Exception as e:
             self._logger.error(f"Error writing to PLC: {type(e)} - {e} plc={plc.domain.name} {address=} {data=}")
-            raise ValueError(f"PLC書込み失敗")
+            raise ValueError("PLC書込み失敗")

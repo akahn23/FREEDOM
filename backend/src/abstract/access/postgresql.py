@@ -3,12 +3,13 @@
 
 import abc
 import asyncio
-import asyncpg
 import dataclasses
-from datetime import datetime, timedelta
 import json
 import logging
 import sys
+from datetime import datetime, timedelta
+
+import asyncpg
 
 from src import abstract, util
 

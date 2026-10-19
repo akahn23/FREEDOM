@@ -5,8 +5,8 @@ import dataclasses
 import json
 
 from src import equipment
-from src.repository import repository
 from src.job.task import abstract
+from src.repository import repository
 
 
 @dataclasses.dataclass

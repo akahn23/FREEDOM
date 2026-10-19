@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+
 from src.freedom.authz.domain import Domain
 
 

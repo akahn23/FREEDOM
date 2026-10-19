@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import dataclasses
-import zoneinfo
 import datetime
+import zoneinfo
 
 from src import abstract, freedom
+from src.job.active import Domain, Interface, NodeDomain
 from src.repository import repository
-from src.job.active import Domain, NodeDomain, Interface
 
 
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):

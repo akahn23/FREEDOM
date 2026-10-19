@@ -1,8 +1,9 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from aiohttp import web
 import importlib
+
+from aiohttp import web
 
 from src import freedom, util
 from src.repository import repository

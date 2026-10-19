@@ -4,12 +4,12 @@
 import asyncio
 import logging
 
-from src.repository import repository
 from src import job
 from src.job import command
 from src.job.task import abstract
-from src.job.task.common.loop.exception import LoopBreak, LoopContinue
 from src.job.task.common.loop.controls_forEach_dict import Domain
+from src.job.task.common.loop.exception import LoopBreak, LoopContinue
+from src.repository import repository
 
 
 class Logic(abstract.statement.Logic[Domain]):

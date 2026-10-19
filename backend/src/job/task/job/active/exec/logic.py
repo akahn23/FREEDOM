@@ -3,12 +3,12 @@
 
 import asyncio
 
-from src.repository import repository
 from src import job
 from src.abstract import Node
 from src.job import command
 from src.job.task import abstract
 from src.job.task.job.active.exec import Domain
+from src.repository import repository
 
 
 class Logic(abstract.statement.Logic[Domain]):

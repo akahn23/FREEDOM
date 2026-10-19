@@ -6,8 +6,8 @@ import logging
 
 from src.job import command
 from src.job.task import abstract
-from src.job.task.common.loop.exception import LoopBreak, LoopContinue
 from src.job.task.common.loop.controls_repeat_ext_custom import Domain
+from src.job.task.common.loop.exception import LoopBreak, LoopContinue
 
 
 class Logic(abstract.statement.Logic[Domain]):

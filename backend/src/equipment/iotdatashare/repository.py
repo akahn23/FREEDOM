@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from src import repository
-from src.equipment.iotdatashare import Node, Domain
+from src.equipment.iotdatashare import Domain, Node
 
 
 class Repository(repository.Repository[Node]):
