@@ -9,8 +9,26 @@ import { useMap } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@geoman-io/maplibre-geoman-free/dist/maplibre-geoman.css";
 import type { Feature, Polygon, MultiPolygon, FeatureCollection } from "geojson";
-import type { Map as MaplibreMap, LayerSpecification } from "maplibre-gl";
-import { Geoman, type GmOptionsPartial,} from "@geoman-io/maplibre-geoman-free";
+import type {
+  Map as MaplibreMap,
+  GeoJSONSource,
+  LayerSpecification,
+  MapLayerMouseEvent,
+  MapMouseEvent,
+} from "maplibre-gl";
+import { Geoman, SOURCES, type GmOptionsPartial } from "@geoman-io/maplibre-geoman-free";
+import type {
+  FeatureData,
+  FeatureSourceName,
+  GeoJsonImportFeature,
+  GeoJsonImportFeatureCollection,
+  GeoJsonShapeFeature,
+  GeoJsonShapeFeatureCollection,
+  GeomanFeaturePatch,
+  GmEventBinding,
+  GmFeatureIdSource,
+  MaplibreMapWithGeoman,
+} from "@/types/geoman";
 import AreaListPanel from "./AreaListPanel";
 import { useTranslations } from "next-intl";
 
@@ -56,17 +74,30 @@ function extractOuterRing(geom: Polygon | MultiPolygon | null | undefined): [num
   }
   return [];
 }
-function getGmFeatureId(f: any): string | null {
+const FEATURE_SOURCE_NAMES: readonly string[] = Object.values(SOURCES);
+function isFeatureSourceName(id: string): id is FeatureSourceName {
+  return FEATURE_SOURCE_NAMES.includes(id);
+}
+function getGmFeatureData(gm: Geoman, sourceId: string, gmId: string): FeatureData | null {
+  return isFeatureSourceName(sourceId) ? gm.features.get(sourceId, gmId) : null;
+}
+function getLayerSource(layer: LayerSpecification): string | undefined {
+  return "source" in layer && typeof layer.source === "string" ? layer.source : undefined;
+}
+function getGmFeatureId(f: GmFeatureIdSource | null | undefined): string | null {
   const candidates = [f?.properties?.__gm_id, f?.id, f?.properties?.client_id]
     .map((v) => (v == null ? null : String(v)))
     .filter((s) => !!s && s !== "undefined" && s !== "null");
   return candidates[0] ?? null;
 }
-function normalizeToUIPolygon(f: any): AreaGeoJSON | null {
+function normalizeToUIPolygon(f: GeoJsonShapeFeature): AreaGeoJSON | null {
   const id = getGmFeatureId(f);
   if (!id) return null;
-  const name = (f?.properties?.name ?? "").toString();
-  const ring = sanitizeRing(extractOuterRing(f?.geometry));
+  const name = String(f?.properties?.name ?? "");
+  const geom = f?.geometry;
+  const ring = sanitizeRing(
+    extractOuterRing(geom?.type === "Polygon" || geom?.type === "MultiPolygon" ? geom : null)
+  );
   if (ring.length < 3) return null;
   return {
     type: "Feature",
@@ -84,10 +115,10 @@ const safeUUID = () => {
     return `cid_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   }
 };
-function areasToFeatureCollection(areas: Area[]): FeatureCollection {
+function areasToFeatureCollection(areas: Area[]): GeoJsonImportFeatureCollection {
   return {
     type: "FeatureCollection",
-    features: (areas ?? []).map((a) => {
+    features: (areas ?? []).map((a): GeoJsonImportFeature => {
       const ringLngLat = (a.vertex_list ?? []).map(([lat, lng]) => [lng, lat] as [number, number]);
       const closed = ensureClosedRing(ringLngLat);
       const clientId = safeUUID();
@@ -96,9 +127,9 @@ function areasToFeatureCollection(areas: Area[]): FeatureCollection {
         id: clientId, // Top-level id（保険）
         properties: { name: a.name, client_id: clientId },
         geometry: { type: "Polygon", coordinates: [closed] },
-      } as Feature;
+      };
     }),
-  } as FeatureCollection;
+  };
 }
 
 function roundRing(ring: [number, number][]): [number, number][] {
@@ -133,7 +164,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
   const initOnceRef = useRef<boolean>(false); // StrictMode対策：初期化は1回
 
   // “良い状態”のバックアップ（空読み時の自己復元に使用）
-  const lastGoodFcRef = useRef<FeatureCollection | null>(null);
+  const lastGoodFcRef = useRef<GeoJsonShapeFeatureCollection | null>(null);
   const rehydrateCooldownRef = useRef<number>(0);
   const suppressRehydrateOnceRef = useRef<boolean>(false);
 
@@ -194,11 +225,11 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
     const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
 
     if ((exported?.features?.length ?? 0) > 0) {
-      lastGoodFcRef.current = exported as unknown as FeatureCollection;
+      lastGoodFcRef.current = exported;
     }
 
     const acc: AreaGeoJSON[] = [];
-    for (const f of (exported?.features ?? []) as any[]) {
+    for (const f of exported?.features ?? []) {
       const ui = normalizeToUIPolygon(f);
       if (ui) acc.push(ui);
     }
@@ -207,8 +238,8 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
   /** -------- Geoman 更新のための共通関数（import 上書き） -------- */
   const importUpdateByGmId = useCallback(
-    (gmId: string, patch: { geometry?: any; properties?: any } = {}) => {
-      const gm = gmRef.current as any;
+    (gmId: string, patch: GeomanFeaturePatch = {}) => {
+      const gm = gmRef.current;
       if (!gm || !gmId) return;
 
       let geometry = patch.geometry ?? null;
@@ -217,7 +248,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
       if (!geometry) {
         try {
           const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
-          const found = (exported?.features ?? []).find((f: any) => getGmFeatureId(f) === gmId);
+          const found = (exported?.features ?? []).find((f) => getGmFeatureId(f) === gmId);
           geometry = found?.geometry ?? null;
         } catch {}
       }
@@ -233,12 +264,12 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
       // 3) それでも無いなら安全にスキップ（少なくとも名前キャッシュは保持）
       if (!geometry || !geometry.type) {
-        const nm = (patch.properties?.name ?? "").toString().trim();
+        const nm = String(patch.properties?.name ?? "").trim();
         if (nm) currentNamesRef.current.set(gmId, nm);
         return;
       }
 
-      const fc = {
+      const fc: GeoJsonImportFeatureCollection = {
         type: "FeatureCollection",
         features: [
           {
@@ -258,12 +289,12 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
   /** -------- 命名の確定保存（UI -> Geoman へ同期） -------- */
   const persistMissingNames = useCallback((arr: AreaGeoJSON[]) => {
-    const gm = gmRef.current as any;
+    const gm = gmRef.current;
     if (!gm) return;
     try {
       const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
-      const byId = new Map<string, any>();
-      for (const f of (exported?.features ?? []) as any[]) {
+      const byId = new Map<string, GeoJsonShapeFeature>();
+      for (const f of exported?.features ?? []) {
         const id = getGmFeatureId(f);
         if (id) byId.set(id, f);
       }
@@ -272,7 +303,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
         const nm = (s.properties.name ?? "").trim();
         if (!id || !nm) continue;
         const raw = byId.get(id);
-        const rawName = (raw?.properties?.name ?? "").toString().trim();
+        const rawName = String(raw?.properties?.name ?? "").trim();
         if (rawName !== nm) {
           importUpdateByGmId(id, { properties: { name: nm } });
         }
@@ -316,10 +347,10 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
         setShapes(arr);
         persistMissingNames(arr);
         try {
-          const gm = gmRef.current as any;
+          const gm = gmRef.current;
           const exported = gm?.features?.exportGeoJson?.({ idPropertyName: "__gm_id" });
-          if ((exported?.features?.length ?? 0) > 0) {
-            lastGoodFcRef.current = exported as unknown as FeatureCollection;
+          if (exported && (exported.features?.length ?? 0) > 0) {
+            lastGoodFcRef.current = exported;
           }
         } catch {}
         return;
@@ -330,10 +361,10 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
     setShapes(last);
     persistMissingNames(last);
     try {
-      const gm = gmRef.current as any;
+      const gm = gmRef.current;
       const exported = gm?.features?.exportGeoJson?.({ idPropertyName: "__gm_id" });
-      if ((exported?.features?.length ?? 0) > 0) {
-        lastGoodFcRef.current = exported as unknown as FeatureCollection;
+      if (exported && (exported.features?.length ?? 0) > 0) {
+        lastGoodFcRef.current = exported;
       }
     } catch {}
   }, [readFromGeoman, ensureNames, persistMissingNames]);
@@ -366,19 +397,19 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
   const removeFeatureById = useCallback(
     (gmId: string) => {
       suppressRehydrateOnceRef.current = true;
-      const gm = gmRef.current as any;
+      const gm = gmRef.current;
       if (gm) {
         try {
-          const srcId = (gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK) as any;
-          const fd = gm.features.get?.(srcId, gmId as any);
+          const srcId = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
+          const fd = getGmFeatureData(gm, srcId, gmId);
           if (fd?.delete) {
             fd.delete();
           } else {
             // フォールバック：全体を出して当該IDを除外して再import
             const exported = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
-            const filtered = {
+            const filtered: GeoJsonImportFeatureCollection = {
               type: "FeatureCollection",
-              features: (exported?.features ?? []).filter((f: any) => getGmFeatureId(f) !== gmId),
+              features: (exported?.features ?? []).filter((f) => getGmFeatureId(f) !== gmId),
             };
             gm.features.importGeoJson(filtered, { idPropertyName: "__gm_id", overwrite: true });
           }
@@ -419,11 +450,11 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
           )
         );
         try {
-          const gm = gmRef.current as any;
+          const gm = gmRef.current;
           const srcId = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
-          const fd = gm?.features?.get?.(srcId as any, gmId as any);
+          const fd = gm ? getGmFeatureData(gm, srcId, gmId) : null;
           if (fd && typeof fd.setProperties === "function") {
-            fd.setProperties({ ...(fd.getProperties?.() ?? {}), name: fallback });
+            fd.setProperties({ name: fallback });
           } else {
             const me = shapesRef.current.find(s => s.properties.gm_id === gmId);
             const ring = ensureClosedRing(
@@ -450,11 +481,11 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
       // Geoman側も更新（インプレース優先 → だめなら import フォールバック）
       try {
-        const gm = gmRef.current as any;
+        const gm = gmRef.current;
         const srcId = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
-        const fd = gm?.features?.get?.(srcId as any, gmId as any);
+        const fd = gm ? getGmFeatureData(gm, srcId, gmId) : null;
         if (fd && typeof fd.setProperties === "function") {
-          fd.setProperties({ ...(fd.getProperties?.() ?? {}), name: finalName });
+          fd.setProperties({ name: finalName });
         } else {
           const me = shapesRef.current.find(s => s.properties.gm_id === gmId);
           const ring = ensureClosedRing(
@@ -538,20 +569,16 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
       },
     };
 
-    let gm: Geoman | null = (raw as any).gm ?? null;
-    if (!gm) {
-      gm = new Geoman(raw, gmOptions);
-      (raw as any).gm = gm;
-    }
+    const rawWithGm = raw as MaplibreMapWithGeoman;
+    const gm: Geoman = rawWithGm.gm ?? new Geoman(raw, gmOptions);
+    rawWithGm.gm = gm;
     gmRef.current = gm;
 
     const resolveGmSourceId = () => {
       const style = raw.getStyle();
       if (!style) return null;
-      const layer = (style.layers ?? []).find(
-        (l: any) => typeof l?.source === "string" && (l.source as string).startsWith("gm_")
-      ) as any;
-      if (layer && typeof layer.source === "string") return layer.source as string;
+      const gmSource = (style.layers ?? []).map(getLayerSource).find((src) => src?.startsWith("gm_"));
+      if (gmSource) return gmSource;
       if (raw.getSource(GM_SOURCE_ID_FALLBACK)) return GM_SOURCE_ID_FALLBACK;
       return null;
     };
@@ -574,13 +601,13 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
     const collectGmLayers = () => {
       const layers = (raw.getStyle()?.layers ?? []) as LayerSpecification[];
       const gmSrc = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
-      gmLayerIdsRef.current = layers.filter((layer) => (layer as any).source === gmSrc).map((l) => l.id);
+      gmLayerIdsRef.current = layers.filter((layer) => getLayerSource(layer) === gmSrc).map((l) => l.id);
     };
     const applyGmVisualStyle = () => {
       const layers = (raw.getStyle()?.layers ?? []) as LayerSpecification[];
       const gmMain = gmSourceIdRef.current ?? GM_SOURCE_ID_FALLBACK;
       for (const layer of layers) {
-        const src = (layer as any).source as string | undefined;
+        const src = getLayerSource(layer);
         if (!src || !src.startsWith("gm_")) continue;
 
         if (layer.type === "fill") {
@@ -628,14 +655,14 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
           // 既に図形がある場合は import しない（重複回避）
           let have = 0;
           try {
-            const exp0 = (gm as any).features.exportGeoJson({ idPropertyName: "__gm_id" });
+            const exp0 = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
             have = exp0?.features?.length ?? 0;
           } catch {}
 
           if (have === 0 && (initialShapes?.length ?? 0) > 0) {
             const fc = areasToFeatureCollection(initialShapes ?? []);
             try {
-              (gm as any).features.importGeoJson(fc as any, {
+              gm.features.importGeoJson(fc, {
                 idPropertyName: "client_id",
                 overwrite: true,
               });
@@ -643,9 +670,9 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
           }
 
           try {
-            const exp = (gm as any).features.exportGeoJson({ idPropertyName: "__gm_id" });
+            const exp = gm.features.exportGeoJson({ idPropertyName: "__gm_id" });
             if ((exp?.features?.length ?? 0) > 0) {
-              lastGoodFcRef.current = exp as unknown as FeatureCollection;
+              lastGoodFcRef.current = exp;
             }
           } catch {}
 
@@ -672,11 +699,14 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
     const onDragEnd  = () => setTimeout(() => refreshWithRetry(), 30);
     const onRotateEnd= () => setTimeout(() => refreshWithRetry(), 30);
 
-    (raw as any).on("gm:create",   onCreate);
-    (raw as any).on("gm:editend",  onEditEnd);
-    (raw as any).on("gm:remove",   onRemove);
-    (raw as any).on("gm:dragend",  onDragEnd);
-    (raw as any).on("gm:rotateend",onRotateEnd);
+    const gmEventBindings: GmEventBinding[] = [
+      ["gm:create",    onCreate],
+      ["gm:editend",   onEditEnd],
+      ["gm:remove",    onRemove],
+      ["gm:dragend",   onDragEnd],
+      ["gm:rotateend", onRotateEnd],
+    ];
+    for (const [name, handler] of gmEventBindings) raw.on(name, handler);
 
     // スタイル再読み込み：ゼロ検知→即リカバリ＋遅延リフレッシュ
     const styleHandler = () => {
@@ -685,12 +715,13 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
       applyGmVisualStyle();
 
       try {
-        const gm = gmRef.current as any;
+        const gm = gmRef.current;
         const exported = gm?.features?.exportGeoJson?.({ idPropertyName: "__gm_id" });
         const count = exported?.features?.length ?? 0;
+        const lastGood = lastGoodFcRef.current;
 
-        if (count === 0 && (lastGoodFcRef.current?.features?.length ?? 0) > 0) {
-          gm.features.importGeoJson(lastGoodFcRef.current, {
+        if (gm && count === 0 && lastGood && lastGood.features.length > 0) {
+          gm.features.importGeoJson(lastGood, {
             idPropertyName: "__gm_id",
             overwrite: true,
           });
@@ -705,11 +736,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
     // クリーンアップ（削除しない／自然なアンマウント任せ）
     return () => {
-      (raw as any).off("gm:create",   onCreate);
-      (raw as any).off("gm:editend",  onEditEnd);
-      (raw as any).off("gm:remove",   onRemove);
-      (raw as any).off("gm:dragend",  onDragEnd);
-      (raw as any).off("gm:rotateend",onRotateEnd);
+      for (const [name, handler] of gmEventBindings) raw.off(name, handler);
       raw.off("styledata", styleHandler);
       gmRef.current = null;
       initOnceRef.current = false;
@@ -727,7 +754,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
     // 通常は最上位 fill layer が図形クリック検知に使える
     const polyLayerId = layers[0];
 
-    const onPolyClick = (e: any) => {
+    const onPolyClick = (e: MapLayerMouseEvent) => {
       const f = e?.features?.[0];
       if (!f) return;
 
@@ -754,11 +781,11 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
     const map = mapRef?.getMap();
     if (!map) return;
 
-    const handleMapClick = (e: any) => {
+    const handleMapClick = (e: MapMouseEvent) => {
       const features = map.queryRenderedFeatures(e.point);
 
       // Geoman の layer に当たっているなら解除しない
-      const hit = features.some((f: any) => {
+      const hit = features.some((f) => {
         const lid = f?.layer?.id;
         return lid && lid.startsWith("gm_");
       });
@@ -807,7 +834,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
           paint: { "text-color": "#111", "text-halo-width": 1, "text-halo-color": "#fff" },
         });
       } else {
-        (raw.getSource(srcId) as any)?.setData(labelsGeoJson);
+        raw.getSource<GeoJSONSource>(srcId)?.setData(labelsGeoJson);
       }
     };
 
