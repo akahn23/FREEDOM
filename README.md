@@ -119,6 +119,27 @@ In the meantime:
 - Create a sample job and run a demonstration where a dummy robot passes through an infrastructure-linked zone using the Web UI
 - Explore each repository for example implementations
 
+## CI / lint
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on every push and pull request. Run the same checks locally:
+
+**Backend** (Python 3.13, from `backend/`; config in `backend/pyproject.toml`)
+```bash
+pip install -r requirements.txt
+pip install --group dev   # pinned ruff + mypy (pip >= 25.1)
+ruff check src
+mypy src
+```
+
+**Frontend** (Node.js 24, from `frontend/`)
+```bash
+npm install
+npm run lint        # eslint .
+npm run typecheck   # tsc --noEmit (tsconfig.json)
+npm run build       # next build (production)
+```
+
+The mypy config starts lenient (`ignore_missing_imports`, a list of disabled error codes); tighten it by removing codes from `disable_error_code` and fixing what mypy reports.
+
 ## License
 This project is licensed under the [Apache License, Version 2.0](LICENSE).
 This License applies solely to FREEDOM released under this project.

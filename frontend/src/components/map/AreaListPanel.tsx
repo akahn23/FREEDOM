@@ -55,7 +55,7 @@ interface AreaListPanelProps {
   onSelectArea?: (id: string | null) => void;
 }
 
-export default function AreaListPanel({ shapes, setShapes, applyCoordsToFeature, removeFeatureById, commitNameToFeature, selectedId, onSelectArea }: AreaListPanelProps) {
+export default function AreaListPanel({ shapes, setShapes, applyCoordsToFeature, commitNameToFeature, selectedId, onSelectArea }: AreaListPanelProps) {
   const sensors = useSensors(useSensor(PointerSensor));
   const [open, setOpen] = useState(true);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -78,16 +78,6 @@ export default function AreaListPanel({ shapes, setShapes, applyCoordsToFeature,
   // gm_id がない場合でも DnD を成立させるための行ID（フォールバック）
   const getRowId = (shape: any, index: number) =>
     String(shape?.properties?.gm_id ?? `__idx_${index}`);
-
-  const handleReorderAreas = (oldIndex: number, newIndex: number) => {
-    setShapes(prev => arrayMove(prev, oldIndex, newIndex));
-  };
-
-  // 入力の NaN ガード（未入力や無効値の間は前値を維持）
-  const toNumWithFallback = (prev: number, v: string) => {
-    const n = parseFloat(v);
-    return Number.isFinite(n) ? n : prev;
-  };
 
   const handleUpdateVertex = (areaIndex: number, vertexIndex: number, field: "lat" | "lng", value: number) => {
     const shape = shapes[areaIndex];
@@ -284,7 +274,6 @@ const SortableAreaRow = ({
   onStartEdit,
   onEditName,
   onKeyDownEdit,
-  onCancelEdit,
   onUpdateVertex,
   onDeleteVertex,
   isDragging,

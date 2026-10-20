@@ -300,7 +300,6 @@ interface SortableAreaRowProps {
 
 const SortableAreaRow = ({
   id,
-  index,
   shape,
   selected,
   onSelectRow,
@@ -311,13 +310,11 @@ const SortableAreaRow = ({
   onStartEdit,
   onEditName,
   onKeyDownEdit,
-  onCancelEdit,
   onUpdateVertex,
   onDeleteVertex,
   isDragging,
   onCommitEdit,
   showPriority,
-  onDeleteArea,
   commitPriorityToFeature,
 }: SortableAreaRowProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });

@@ -24,4 +24,4 @@ class Logic(abstract.statement.Logic[Domain]):
             await plc.write(address, data, self._job_id)
         except Exception as e:
             self._logger.error(f"Error writing to PLC: {type(e)} - {e} plc={plc.domain.name} {address=} {data=}")
-            raise ValueError(f"PLC書込み失敗")
+            raise ValueError("PLC書込み失敗")

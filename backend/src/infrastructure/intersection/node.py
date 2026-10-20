@@ -148,4 +148,4 @@ class Node(infrastructure.Node):
         """退出"""
         self._exit_robot.update(self._entry_robot)
         self._entry_robot.clear()
-        self._logger.info(f"exit")
+        self._logger.info("exit")

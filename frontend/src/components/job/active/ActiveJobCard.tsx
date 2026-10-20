@@ -35,15 +35,6 @@ export function makeBGColor(job: JobActiveResponse) {
   return lightGreen[100]
 }
 
-function isTaskLike(value: any): value is StatementTaskResponse {
-  return (
-    value &&
-    typeof value === 'object' &&
-    'id' in value &&
-    'finished' in value
-  )
-}
-
 /** 現在未完了の最深タスクを探索 */
 function findDeepestCurrentTask(
   task: StatementTaskResponse | null

@@ -36,9 +36,11 @@ function normalizeText(s: string) {
 }
 
 const VirtuosoTableComponents = {
-  Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
-    <TableContainer component={Paper} variant="outlined" {...props} ref={ref} />
-  )),
+  Scroller: React.forwardRef<HTMLDivElement>(function VirtuosoScroller(props, ref) {
+    return (
+      <TableContainer component={Paper} variant="outlined" {...props} ref={ref} />
+    );
+  }),
   Table: (props: any) => (
     <Table
       {...props}
@@ -77,9 +79,11 @@ const VirtuosoTableComponents = {
       />
     );
   },
-  TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-    <TableBody {...props} ref={ref} />
-  )),
+  TableBody: React.forwardRef<HTMLTableSectionElement>(function VirtuosoTableBody(props, ref) {
+    return (
+      <TableBody {...props} ref={ref} />
+    );
+  }),
 };
 
 export default function JobTab(props: {

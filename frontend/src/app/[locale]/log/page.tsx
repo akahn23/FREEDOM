@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-﻿'use client';
+'use client';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageContainer } from '@toolpad/core/PageContainer';
 import {
@@ -875,7 +875,7 @@ export default function FreedomLogPage() {
 
   const tableComponents = useMemo<TableComponents<LogEntry>>(
     () => ({
-      Scroller: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((scrollerProps, ref) => {
+      Scroller: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(function VirtuosoScroller(scrollerProps, ref) {
         const props = scrollerProps as React.HTMLAttributes<HTMLDivElement>;
         return (
           <div
@@ -908,7 +908,9 @@ export default function FreedomLogPage() {
       ),
       TableHead: (headProps) => <thead {...headProps} style={{ position: 'sticky', top: 0, zIndex: 3, background: '#f7f7f7' }} />,
       TableRow: (rowProps) => <tr {...rowProps} />,
-      TableBody: React.forwardRef<HTMLTableSectionElement>((bodyProps, ref) => <tbody {...bodyProps} ref={ref} />),
+      TableBody: React.forwardRef<HTMLTableSectionElement>(function VirtuosoTableBody(bodyProps, ref) {
+        return <tbody {...bodyProps} ref={ref} />;
+      }),
     }),
     [totalMinWidth]
   );

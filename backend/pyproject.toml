@@ -1,0 +1,53 @@
+# Lint / type-check configuration for the FREEDOM backend.
+# Run from backend/: `ruff check src` and `mypy src`.
+
+[dependency-groups]
+dev = [
+    "ruff==0.16.10",
+    "mypy==2.3.1",
+]
+
+[tool.ruff]
+target-version = "py313"
+src = ["."]
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+# Ruff's classic default rule set (pyflakes + pycodestyle errors), pinned explicitly
+# so upgrades to Ruff's defaults don't change what CI enforces.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Package __init__ modules import their submodules on purpose (public re-exports and
+# import order that avoids circular imports), so unused-import does not apply.
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+python_version = "3.13"
+explicit_package_bases = true
+ignore_missing_imports = true
+implicit_optional = true
+# Lenient baseline: these codes have pre-existing violations in backend/src.
+# Ratchet by removing a code, fixing what mypy reports, and committing.
+disable_error_code = [
+    "annotation-unchecked",
+    "arg-type",
+    "assignment",
+    "attr-defined",
+    "call-arg",
+    "call-overload",
+    "empty-body",
+    "has-type",
+    "list-item",
+    "no-redef",
+    "operator",
+    "override",
+    "return",
+    "return-value",
+    "type-abstract",
+    "type-arg",
+    "type-var",
+    "union-attr",
+    "valid-type",
+    "var-annotated",
+]

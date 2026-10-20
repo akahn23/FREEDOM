@@ -124,7 +124,7 @@ const DICT_CREATE_WITH_MUTATOR_EXTENSION = function (this: DictCreateWith) {
   this.updateShape_();
 };
 
-export function registerDictCreateWithBlock() {
+export function RegisterDictCreateWithBlock() {
   useEffect(() => {
     Blockly.defineBlocksWithJsonArray([
       {

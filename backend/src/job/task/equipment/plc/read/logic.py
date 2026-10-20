@@ -22,4 +22,4 @@ class Logic(abstract.value.Logic[Domain]):
             return await plc.read(address)
         except Exception as e:
             self._logger.error(f"Error reading from PLC: {type(e)} - {e} plc={plc.domain.name} {address=}")
-            raise ValueError(f"PLC読込み失敗")
+            raise ValueError("PLC読込み失敗")

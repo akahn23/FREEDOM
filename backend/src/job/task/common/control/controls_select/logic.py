@@ -33,7 +33,7 @@ class Logic(abstract.statement.Logic[Domain]):
                 self.domain.command.append(command.Button(label, label))
             while self._var.value is None:
                 await asyncio.sleep(0)
-        except:
+        except BaseException:
             self.domain.command.clear()
         finally:
             self._map.clear()

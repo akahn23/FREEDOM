@@ -44,7 +44,6 @@ class Domain(abstract.value.Domain):
             ],
             "output": "TimeDelta",
             "colour": 310,
-            "tooltip": "",
         }]
 
     @classmethod

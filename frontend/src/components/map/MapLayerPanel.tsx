@@ -21,7 +21,7 @@ import {
   DndContext, DragEndEvent, PointerSensor, useSensor, useSensors
 } from "@dnd-kit/core";
 import {
-  SortableContext, verticalListSortingStrategy, useSortable, arrayMove
+  SortableContext, verticalListSortingStrategy, useSortable
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";

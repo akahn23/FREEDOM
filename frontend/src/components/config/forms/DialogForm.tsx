@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useMemo, useRef, useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Typography, Box } from "@mui/material";
 import { EditOutlined } from "@mui/icons-material";

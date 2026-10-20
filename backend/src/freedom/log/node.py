@@ -50,7 +50,7 @@ class Node(abstract.Node):
         self._output_handler.setFormatter(self._formatter)
         self._task = asyncio.create_task(self._loop())
         self._logger = self.make_logger(__package__)
-        self._logger.info(f"launch")
+        self._logger.info("launch")
         repository.append(self)
 
     async def _loop(self):

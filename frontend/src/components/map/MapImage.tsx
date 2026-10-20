@@ -270,10 +270,6 @@ export default function MapLibreImage({
     historyRef.current.push(JSON.parse(JSON.stringify(localCorners)));
     if (historyRef.current.length > 50) historyRef.current.shift();
   }, [localCorners]);
-  const undoOnce = useCallback(() => {
-    const prev = historyRef.current.pop();
-    if (prev && prev.length === 4) setLocalCorners(prev);
-  }, []);
 
   const imgSourceRef = useRef<maplibregl.ImageSource | null>(null);
 

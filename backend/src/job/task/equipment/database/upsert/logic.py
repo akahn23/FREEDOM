@@ -27,6 +27,6 @@ class Logic(abstract.statement.Logic[Domain]):
                 await node[0].upsert(keys, await self._data_logic.exec())
             except Exception as e:
                 self._logger.error(f"DB書込み失敗: {type(e)} - {e}")
-                raise RuntimeError(f"DB書込み失敗")
+                raise RuntimeError("DB書込み失敗")
         else:
             raise RuntimeError(f"DBノードが見つかりません: {self.domain.node}")

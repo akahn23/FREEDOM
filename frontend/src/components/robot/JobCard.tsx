@@ -338,7 +338,6 @@ export default function JobCard({
   }, [enableIssueFromRobot, jobName, robotName, dialogs, notifications, onRefresh, tJobActive])
 
   const hasActiveJob = jobsForThisRobot.length > 0
-  const canIssueJob = enableIssueFromRobot
 
   return (
     <Paper sx={{ p: { xs: 1.5, md: 2 } }}>
