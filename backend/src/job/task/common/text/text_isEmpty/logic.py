@@ -6,12 +6,12 @@ from src.job.task.common.text.text_isEmpty import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """text_isEmptyタスク処理"""
+    """text_isEmpty task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._VALUE = await self.domain.VALUE.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> bool:
-        """タスク実行"""
+        """Execute the task"""
         return not len(await self._VALUE.exec())

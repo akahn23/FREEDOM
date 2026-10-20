@@ -8,9 +8,9 @@ from src.freedom.main import Domain, Interface
 
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
     def __init__(self, domain:Domain):
-        """PostgreSQLログDB接続
+        """PostgreSQL log database connection
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         super().__init__(
             domain,
@@ -18,7 +18,7 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         )
 
     async def _on_connect(self):
-        """接続後イベント"""
+        """Post-connection event"""
         # テーブル作成
         await self._pool.execute(f"""
             CREATE TABLE IF NOT EXISTS {self._domain.schema}.{self._domain.table} (
@@ -28,12 +28,12 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         """)
 
     async def fetch(self, node:str) -> dict:
-        """設定取得
-        無ければNoneを返す
+        """Get the settings
+        Return None if not found
         Args:
-            node (str): ノード名
+            node (str): Node name
         Returns:
-            dict: 設定
+            dict: Settings
         """
         row = await self._pool.fetchrow(
             f"SELECT config FROM {self._domain.schema}.{self._domain.table} WHERE node = $1;",
@@ -42,10 +42,10 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         return row['config'] if row else None
 
     async def update(self, node:str, config:dict):
-        """設定更新
+        """Update the settings
         Args:
-            node (str): ノード名
-            config (dict): 設定
+            node (str): Node name
+            config (dict): Settings
         """
         await self._pool.execute(f"""
             INSERT INTO {self._domain.schema}.{self._domain.table}

@@ -6,22 +6,22 @@ from src.infrastructure.gate import NodeDomain, Interface
 
 class Dummy(Interface):
     def __init__(self, domain:NodeDomain):
-        """遮断機ダミー接続
+        """Gate dummy connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._domain = domain
         self.state = self._domain.open_state
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         return self.state

@@ -9,14 +9,14 @@ from src.repository import repository
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """ユーザーインターフェース設定
+    """User interface settings
     Args:
-        ip (str): 接続先IPアドレス
-        port (int): 接続先ポート番号
-        origin (list[str]): CORS設定用オリジンリスト
-            起動configには加えたいが設定DBには保存しないため、InitVarで定義
-        sub_title (str): サブタイトル
-        update_cycle (float): 更新周期
+        ip (str): Target IP address
+        port (int): Target port number
+        origin (list[str]): List of allowed origins for CORS
+            Defined as InitVar because it should be part of the startup config but not saved to the settings database
+        sub_title (str): Subtitle
+        update_cycle (float): Update cycle
     """
     ip:dataclasses.InitVar[str] = None
     port:dataclasses.InitVar[int] = None
@@ -26,9 +26,9 @@ class Domain(abstract.Domain):
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "sub_title": {
@@ -44,11 +44,11 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self, ip:str=None, port:int=None, origin:list[str]=None):
-        """初期化後処理
+        """Post-initialization processing
         Args:
-            ip (str): 接続先IPアドレス
-            port (int): 接続先ポート番号
-            origin (list[str]): CORS設定用オリジンリスト
+            ip (str): Target IP address
+            port (int): Target port number
+            origin (list[str]): List of allowed origins for CORS
         """
         if conf := repository.retrieve(freedom.main.Node):
             conf = conf[0].domain.conf.user_interface

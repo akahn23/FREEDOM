@@ -8,9 +8,9 @@ from src.job.task.equipment.database.upsert import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """書込みタスク処理"""
+    """Write task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._keys_logic = None
         if self.domain.keys is not None:
@@ -18,7 +18,7 @@ class Logic(abstract.statement.Logic[Domain]):
         self._data_logic = await self.domain.data.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         keys = await self._keys_logic.exec() if self._keys_logic else list()
         if isinstance(keys, str):
             keys = [keys]

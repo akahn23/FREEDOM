@@ -11,9 +11,9 @@ from src.job.active import NodeDomain
 
 class Node(abstract.Node):
     def __init__(self, config:dict):
-        """ジョブ実行ノード
+        """Active job node
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         self.domain = NodeDomain(**config)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(
@@ -25,9 +25,9 @@ class Node(abstract.Node):
         self._logger.info(f"launch: {self.domain}")
 
     async def _loop(self):
-        """処理ループ
+        """Processing loop
         Returns:
-            typing.Any: タスク実行結果
+            typing.Any: Task execution result
         """
         task:asyncio.Task = None
         prev_warning_msg = set(self.domain.warning_msg)
@@ -71,13 +71,13 @@ class Node(abstract.Node):
             self._logger.info("finish")
 
     def stop(self):
-        """ジョブ停止"""
+        """Stop the job"""
         self.domain.error_msg.add("ジョブ停止操作")
 
     async def recover(self, id:str):
-        """ジョブ復帰
+        """Resume the job
         Args:
-            id (str): タスクID
+            id (str): Task ID
         """
         if not self.domain.error_msg:
             raise Exception(f"{self.domain.id}-{self.domain.name} has already recover")
@@ -93,18 +93,18 @@ class Node(abstract.Node):
         self.domain.error_msg = error_msg
 
     def cancel(self):
-        """ジョブキャンセル"""
+        """Cancel the job"""
         self._task.cancel()
         self._logger.info("cancel")
 
     async def exec_command(self, command, id:str|None=None):
-        """コマンド実行
+        """Execute a command
         Args:
-            command (Any): コマンド内容
-            id (str): タスクID
-                Noneで実行中タスクに実行
+            command (Any): Command contents
+            id (str): Task ID
+                None executes against the running task
         Returns:
-            Any: 実行結果
+            Any: Execution result
         """
         task = self._task_logic.retrieve_task(id)
         if task is None:
@@ -118,25 +118,25 @@ class Node(abstract.Node):
         return ret
 
     def retrieve_variables(self, **kwargs):
-        """変数ブロック探索
+        """Search variable blocks
         Args:
-            id (str): ブロックID
-            name (str): 名前
-            type (str): 型
-            value (typing.Any): 内容
+            id (str): Block ID
+            name (str): Name
+            type (str): Type
+            value (typing.Any): Value
         Returns:
-            Generator[Variable, Any, None]: 一致する変数ブロック
+            Generator[Variable, Any, None]: Matching variable blocks
         """
         for var in self.domain.variables:
             if all(v==getattr(var,k,None) for k,v in kwargs.items()):
                 yield var
 
     async def accept_infrastructure(self, task:job.task.abstract.statement.Logic|None=None) -> bool|None:
-        """インフラ連携結果取得
+        """Get the infrastructure handshake result
         Args:
-            task (job.task.abstract.statement.Logic|None): タスク 再帰呼び出し用
+            task (job.task.abstract.statement.Logic|None): Task, used for recursive calls
         Returns:
-            bool|None: インフラ連携結果
+            bool|None: Infrastructure handshake result
         """
         if self._task_logic is None or self.domain.error_msg:
             return False

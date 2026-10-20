@@ -10,9 +10,9 @@ from src.job.create import Interface, Domain, Column
 
 class Dummy(Interface):
     def __init__(self, domain:Domain):
-        """ジョブ作成ダミーDB接続
+        """Job creation dummy database connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._database:list[Column] = getattr(
             repository.retrieve(freedom.main.Node)[0].domain.conf,
@@ -21,29 +21,29 @@ class Dummy(Interface):
         )
 
     async def fetch_name_list(self, user_id:str|None=None, is_admin:bool=False) -> list[str]:
-        """ジョブ名リスト取得
+        """Get the list of job names
         Args:
-            user_id (str|None): ユーザID
-            is_admin (bool): 管理者フラグ(Trueで全件取得)
+            user_id (str|None): User ID
+            is_admin (bool): Admin flag (True fetches all)
         Returns:
-            list[str]: ジョブ名リスト
+            list[str]: List of job names
         """
         return [row.name for row in self._database]
 
     async def fetch_workspace(self, name:str) -> dict:
-        """Blockly環境取得
+        """Get the Blockly workspace
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         Returns:
-            dict: Blockly環境
+            dict: Blockly workspace
         """
         return copy.deepcopy(next(row.workspace for row in self._database if row.name == name))
 
     async def update(self, name:str, workspace:dict):
-        """ジョブ更新
+        """Update a job
         Args:
-            name (str): ジョブ名
-            workspace (dict): Blockly環境
+            name (str): Job name
+            workspace (dict): Blockly workspace
         """
         for row in self._database:
             if row.name == name:
@@ -52,8 +52,8 @@ class Dummy(Interface):
         self._database.append(Column(name, workspace))
 
     async def delete(self, name:str):
-        """ジョブ削除
+        """Delete a job
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         """
         self._database = [row for row in self._database if row.name != name]

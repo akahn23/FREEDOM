@@ -7,15 +7,15 @@ from src.job.task.robot.dummy.place import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """ダミー配置タスク処理"""
+    """Dummy placement task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._robot = await self.domain.robot.make_logic(self._job_id, self._logger)
         self._location = await self.domain.location.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         dummy:robot.dummy.Node = await self._robot.exec()
         location:list[float] = await self._location.exec()
         lat, lon = location

@@ -9,19 +9,19 @@ T = typing.TypeVar('T')
 
 
 class Repository(collections.UserList[T]):
-    """ノード格納クラス
-    list型継承クラス self.dataに格納したノードが入る
+    """Node container class
+    Subclass of list; nodes stored in self.data are contained
     """
     N = typing.TypeVar('N')
 
     def retrieve(self, cls:type[N], **kwargs) -> list[N]:
-        """ノード探索
-        指定した型と同じ、または型を継承したサブクラスを取得する
-        Repositoryを格納している場合、その配下も探索する
+        """Search nodes
+        Gets nodes of the given type or of subclasses inheriting from it
+        If a Repository is stored, also searches the nodes under it
         Args:
-            cls (type[N]): ノード型
+            cls (type[N]): Node type
         Returns:
-            list[N]: 探索結果
+            list[N]: Search results
         """
         ret = list()
         for item in self.data:

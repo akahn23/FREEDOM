@@ -12,21 +12,21 @@ from src.freedom.authz.scope import fetch_allow_set
 
 class Node(web.View):
     def __init__(self, request:web.Request):
-        """ノードリクエスト
+        """Node request
         Args:
-            request (web.Request): リクエスト
+            request (web.Request): Request
         """
         super().__init__(request)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__name__)
 
     async def post(self) -> web.Response:
-        """ノードメソッド実行リクエスト
+        """Node method execution request
         Bodies:
-            domain (json_str): ドメイン検索
-            func (str): メソッド名
-            kwargs (json_str): 引数
+            domain (json_str): Domain search
+            func (str): Method name
+            kwargs (json_str): Arguments
         Returns:
-            web.Response: 実行結果
+            web.Response: Execution result
         """
         try:
             node = importlib.import_module(f"src.{self.request.match_info["node"]}").Node

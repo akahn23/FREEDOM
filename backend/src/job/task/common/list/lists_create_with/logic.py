@@ -6,16 +6,16 @@ from src.job.task.common.list.lists_create_with import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """lists_create_withタスク処理"""
+    """lists_create_with task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         for k,v in vars(self.domain).items():
             if isinstance(v, abstract.value.Domain):
                 setattr(self, k, await v.make_logic(self._job_id, self._logger))
 
     async def exec(self) -> list:
-        """タスク実行"""
+        """Execute the task"""
         add: list = list()
         for name, logic in vars(self).items():
             if name.startswith("ADD") and isinstance(logic, abstract.value.Logic):
@@ -24,7 +24,7 @@ class Logic(abstract.value.Logic[Domain]):
         return [await getattr(self, name).exec() for name in add]
 
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._add:dict[str, abstract.value.Logic] = dict()
         for k,v in vars(self.domain).items():
@@ -32,7 +32,7 @@ class Logic(abstract.value.Logic[Domain]):
                 self._add[k] = await v.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> list:
-        """タスク実行"""
+        """Execute the task"""
         add = sorted(self._add.items(), key=lambda x: int(x[0][3:]))
         ret = list()
         for key, logic in add:

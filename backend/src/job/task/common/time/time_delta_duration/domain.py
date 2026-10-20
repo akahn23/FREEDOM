@@ -8,23 +8,23 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """時間差分取得タスク
+    """Time-delta get task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        time (abstract.value.Domain): 入力された数値
-        unit (str): 時間の単位
+        type (str): Block type
+        id (str): Block ID
+        time (abstract.value.Domain): Input number
+        unit (str): Time unit
     """
     time: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
     unit:str = "seconds"
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "time_delta_duration",
@@ -49,11 +49,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

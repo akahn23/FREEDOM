@@ -11,18 +11,18 @@ from src.infrastructure.command import Button
 
 
 class Node(infrastructure.Node):
-    """ランプ ノード
+    """Lamp node
     Attributes:
-        domain (NodeDomain): ドメイン
-        _state (util.status.State): 状態
-        _access (Interface): インターフェース
-        _logger (freedom.log.Logger): ロガー
-        _task (asyncio.Task): 定期処理タスク
+        domain (NodeDomain): Domain
+        _state (util.status.State): State
+        _access (Interface): Interface
+        _logger (freedom.log.Logger): Logger
+        _task (asyncio.Task): Periodic processing task
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self.domain = domain
         self._related_robot:set[robot.Node[robot.Domain]] = set()
@@ -33,7 +33,7 @@ class Node(infrastructure.Node):
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
-        """定期ループ処理"""
+        """Periodic loop"""
         try:
             while sys.getrefcount(self) > 2:
                 await asyncio.gather(
@@ -45,7 +45,7 @@ class Node(infrastructure.Node):
             self._logger.info("end")
 
     async def _update(self):
-        """状態更新"""
+        """Update the status"""
         try:
             # 連携確認
             if self._related_robot:
@@ -72,7 +72,7 @@ class Node(infrastructure.Node):
             self._state = util.status.State.DISCONNECT
 
     async def _turn_on(self):
-        """点灯"""
+        """Turn on"""
         if self._state == util.status.State.ACTIVE:
             return
         await self._access.write(self.domain.write_address, True)
@@ -80,7 +80,7 @@ class Node(infrastructure.Node):
         self._logger.info(f"turn on")
 
     async def _turn_off(self):
-        """消灯"""
+        """Turn off"""
         if self._state == util.status.State.WAITING:
             return
         await self._access.write(self.domain.write_address, False)
@@ -88,9 +88,9 @@ class Node(infrastructure.Node):
         self._logger.info(f"turn off")
 
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         info = list()
         if self._state == util.status.State.DISCONNECT:
@@ -107,9 +107,9 @@ class Node(infrastructure.Node):
         )
 
     def fetch_command(self) -> list:
-        """手動操作取得
+        """Get manual operations
         Returns:
-            list: 操作内容
+            list: Operation contents
         """
         return [
             Button(label="点灯", func="turn_on"),
@@ -117,9 +117,9 @@ class Node(infrastructure.Node):
         ]
 
     async def accept(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携許可
+        """Grant infrastructure handshake permission to a robot
         Args:
-            robot (robot.Node): ロボット
+            robot (robot.Node): Robot
         """
         if not robot.domain.location:
             return True
@@ -133,9 +133,9 @@ class Node(infrastructure.Node):
         return True
 
     async def cancel(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携終了
+        """End the infrastructure handshake for a robot
         Args:
-            robot (robot.Node): ロボットノード
+            robot (robot.Node): Robot node
         """
         if robot in self._related_robot:
             self._related_robot.remove(robot)
@@ -145,13 +145,13 @@ class Node(infrastructure.Node):
         return True
 
     async def turn_on(self):
-        """UI点灯"""
+        """Turn on from the UI"""
         await self._access.write(self.domain.write_address, True)
         self._state = util.status.State.ACTIVE
         self._logger.info(f"user turn on")
 
     async def turn_off(self):
-        """UI消灯"""
+        """Turn off from the UI"""
         await self._access.write(self.domain.write_address, False)
         self._state = util.status.State.WAITING
         self._logger.info(f"user turn off")

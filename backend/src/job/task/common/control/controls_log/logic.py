@@ -7,14 +7,14 @@ from src.job.task.common.control.controls_log import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """ログ表示タスク処理"""
+    """Log output task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._message = await self.domain.message.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         message = str(await self._message.exec())
         self.domain.command.append(command.Text(message))
         if self.domain.level == "DEBUG":

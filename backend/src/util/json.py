@@ -8,7 +8,7 @@ import json
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, o):
-        """サポート外の型が指定されたときの挙動を定義する"""
+        """Defines the behavior when an unsupported type is given"""
         if dataclasses.is_dataclass(o):
             return o.__dict__
         elif hasattr(o, '__iter__'):
@@ -19,5 +19,5 @@ class CustomJSONEncoder(json.JSONEncoder):
 
 
 def dumps(obj, **kwargs):
-    """自作JSONエンコーダ"""
+    """Custom JSON encoder"""
     return json.dumps(obj, cls=CustomJSONEncoder, **kwargs)

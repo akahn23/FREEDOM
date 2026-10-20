@@ -7,25 +7,25 @@ import dataclasses
 
 @dataclasses.dataclass
 class Domain(abc.ABC):
-    """抽象ドメイン
-    設定DBへの保存や、UIからのdomainリクエストで返す変数を管理するクラス
-    設定DBにはクラス変数のみ保存される
-    domainリクエストにはクラス変数とインスタンス変数が返却される
-    util.json.dumpsでJSON形式に変換できない型は宣言しないこと
+    """Abstract domain
+    Class that manages the variables saved to the settings database and returned for domain requests from the UI
+    Only class variables are saved to the settings database
+    Domain requests return both class variables and instance variables
+    Do not declare types that util.json.dumps cannot convert to JSON
     """
     @classmethod
     @abc.abstractmethod
     def make_form(cls) -> dict:
-        """設定画面用フォーム生成
-        UIの/config/[...node]ページに表示される設定フォームの形式を返す
-        フォームの形式はfrontend/components/config/form.tsxを参照
+        """Generate the form for the settings screen
+        Returns the format of the settings form displayed on the UI's /config/[...node] page
+        See frontend/components/config/form.tsx for the form format
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         raise NotImplementedError("Subclasses must implement make_form method")
 
     def __post_init__(self):
-        """初期化後処理
-        ここで宣言したインスタンス変数は設定DBへ保存しない
+        """Post-initialization processing
+        Instance variables declared here are not saved to the settings database
         """
         pass

@@ -8,22 +8,22 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.statement.Domain):
-    """controls_whileUntil_manualタスク ドメイン
+    """controls_whileUntil_manual task domain
     Attributes:
-        type (str): タスク種類
-        id (str): タスクID
-        name (str): タスク名
-            UIにタスク名として表示される内容
-        next (Domain): 次タスク
-        can_recover (bool): 復帰可能判定
-            ジョブ停止時に復帰できる判定
-        finished (bool): 終了フラグ
-        command (list): コマンド内容
-        should_log (bool): ログ出力判定
-        label_on (str): ONでの表示内容
-        label_off (str): OFFでの表示内容
-        DO (abstract.statement.Domain): タスク内容
-        DO_copy (dict): タスク内容のコピー
+        type (str): Task type
+        id (str): Task ID
+        name (str): Task name
+            Text displayed as the task name in the UI
+        next (Domain): Next task
+        can_recover (bool): Whether the task can be resumed
+            Whether the job can be resumed after it is stopped
+        finished (bool): Finished flag
+        command (list): Command contents
+        should_log (bool): Whether to output logs
+        label_on (str): Text shown when ON
+        label_off (str): Text shown when OFF
+        DO (abstract.statement.Domain): Task contents
+        DO_copy (dict): Copy of the task contents
     """
     name: str = "手動繰り返し"
     should_log: bool = True
@@ -33,18 +33,18 @@ class Domain(abstract.statement.Domain):
     DO_copy: dict = None
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__()
         if self.DO and self.DO_copy is None:
             self.DO_copy = dataclasses.asdict(self.DO)
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        カスタムブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             'type': 'controls_whileUntil_manual',
@@ -91,11 +91,11 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

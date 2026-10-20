@@ -9,13 +9,13 @@ from src.job.task.common.control.controls_wait_time import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """時間待機タスク処理"""
+    """Timed wait task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._interval = await self.domain.interval.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         interval:timedelta = await self._interval.exec()
         await asyncio.sleep(interval.total_seconds())

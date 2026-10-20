@@ -7,16 +7,16 @@ from src.job.task.job.active.result import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """戻り値タスク処理"""
+    """Return value task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._result = None
         if self.domain.result:
             self._result = await self.domain.result.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         if self._result:
             ret = await self._result.exec()
             self._logger.info(f"result={ret}")

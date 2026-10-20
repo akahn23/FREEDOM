@@ -12,9 +12,9 @@ from src.job.active import Domain, NodeDomain, Interface
 
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
     def __init__(self, domain:Domain):
-        """ジョブ実行PostgreSQL接続
+        """Active job PostgreSQL connection
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         super().__init__(
             domain,
@@ -22,7 +22,7 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         )
 
     async def _on_connect(self):
-        """接続後イベント"""
+        """Post-connection event"""
         # テーブル作成
         columns = [f"{field.name} {self._convert_type(field.type)}" for field in dataclasses.fields(NodeDomain)]
         await self._pool.execute(f"""
@@ -34,13 +34,13 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         """)
 
     async def insert(self, name:str, task:dict, variables:list[dict]) -> dict:
-        """実行ジョブ保存
+        """Save an active job
         Args:
-            name (str): ジョブ名
-            task (dict): タスク内容
-            variables (list[dict]): タスク変数
+            name (str): Job name
+            task (dict): Task contents
+            variables (list[dict]): Task variables
         Returns:
-            dict: 実行ジョブ設定
+            dict: Active job settings
         """
         time_zone = await self._pool.fetchval("show timezone")
         name_list = [field.name for field in dataclasses.fields(NodeDomain)]
@@ -54,9 +54,9 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         return row
 
     async def fetch(self) -> list[dict]:
-        """実行ジョブ取得
+        """Get active jobs
         Returns:
-            list[dict]: 実行ジョブ設定
+            list[dict]: Active job settings
         """
         time_zone = await self._pool.fetchval("show timezone")
         tz = zoneinfo.ZoneInfo(time_zone)
@@ -74,9 +74,9 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         return result
 
     async def update(self, node_list:list[NodeDomain]):
-        """実行ジョブ更新
+        """Update an active job
         Args:
-            node_list (list[NodeDomain]): 実行ジョブリスト
+            node_list (list[NodeDomain]): List of active jobs
         """
         async with self._pool.acquire() as conn:
             async with conn.transaction():

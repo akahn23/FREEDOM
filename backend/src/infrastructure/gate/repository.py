@@ -6,15 +6,15 @@ from src.infrastructure.gate import Node, Domain
 
 
 class Repository(repository.Repository[Node]):
-    """遮断機 リポジトリ
+    """Gate repository
     Attributes:
-        data (list[Node]): ノードリスト
-        domain (Domain): ドメイン
+        data (list[Node]): List of nodes
+        domain (Domain): Domain
     """
     def __init__(self, config:dict):
-        """インスタンス化
+        """Instantiate
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         if old := repository.repository.retrieve(self.__class__):
             self = old[0]

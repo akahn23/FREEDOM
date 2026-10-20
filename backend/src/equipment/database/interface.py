@@ -7,33 +7,33 @@ from src.equipment.database import NodeDomain
 
 
 class Interface(abc.ABC):
-    """データベース インターフェース"""
+    """Database interface"""
     @abc.abstractmethod
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def close(self):
-        """切断"""
+        """Disconnect"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def is_connected(self) -> bool:
-        """接続確認
+        """Check the connection
         Returns:
-            bool: 接続状態
+            bool: Connection state
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def upsert(self, keys:list[str], data:dict):
-        """追加・更新
+        """Insert or update
         Args:
-            keys (list[str]): 一致キー
-            data (dict): 書込み値
+            keys (list[str]): Match keys
+            data (dict): Values to write
         """
         raise NotImplementedError()

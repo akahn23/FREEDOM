@@ -13,16 +13,16 @@ from src.freedom.log import Interface, Domain, Column
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
     @staticmethod
     def _build_keyword_conditions(keywords:list[str], start_index:int) -> tuple[list[str], list[str], int]:
-        """キーワード検索条件のWHERE断片生成
+        """Build WHERE fragments for keyword search conditions
         Args:
-            keywords (list[str]): キーワード検索条件のリスト
-            start_index (int): 使用開始するプレースホルダ番号
+            keywords (list[str]): List of keyword search conditions
+            start_index (int): First placeholder number to use
         Returns:
             tuple[list[str], list[str], int]:
                 (conditions, params, next_param_index)
-                conditions: OR結合するキーワード条件の断片リスト
-                params: プレースホルダに対応するパラメータ
-                next_param_index: 次に使う$Nの番号
+                conditions: List of keyword condition fragments joined with OR
+                params: Parameters corresponding to the placeholders
+                next_param_index: Next $N placeholder number to use
         """
         conditions: list[str] = []
         params: list[str] = []
@@ -45,9 +45,9 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         return conditions, params, i
 
     def __init__(self, domain:Domain):
-        """PostgreSQLログDB接続
+        """PostgreSQL log database connection
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         super().__init__(
             domain,
@@ -56,7 +56,7 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         self._last_time:datetime = None
 
     async def _on_connect(self):
-        """接続後イベント"""
+        """Post-connection event"""
         # テーブル作成
         columns = ', '.join(f"{field.name} {self._convert_type(field.type)}" for field in dataclasses.fields(Column))
         await self._pool.execute(f"""
@@ -79,9 +79,9 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
             self._last_time = last_time.astimezone(zoneinfo.ZoneInfo(time_zone))
 
     async def _create_partition(self, time:datetime):
-        """パーティション作成
+        """Create a partition
         Args:
-            time (datetime): 作成日時
+            time (datetime): Creation date/time
         """
         time_zone = await self._pool.fetchval("show timezone")
         time = time.replace(tzinfo=zoneinfo.ZoneInfo(time_zone))
@@ -93,7 +93,7 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         self._logger.info(f"create partition: {partition_name}")
 
     async def _delete_partition(self):
-        """パーティション削除"""
+        """Drop partitions"""
         partitions = await self._pool.fetch(f"""
             SELECT tablename
             FROM pg_tables
@@ -105,10 +105,10 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
             self._logger.info(f"delete partition: {partition['tablename']}")
 
     async def insert(self, log_list:list[Column]):
-        """ログ挿入
-        パーティション整理も行う
+        """Insert logs
+        Also cleans up old partitions
         Args:
-            log_list (list[Column]): ログリスト
+            log_list (list[Column]): List of logs
         """
         for log in log_list:
             if log.time.date() > self._last_time.date():
@@ -123,20 +123,20 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
 
     @staticmethod
     def _build_fetch_conditions(begin_time:datetime, end_time:datetime, cursor_time:datetime|None, sort_direction_safe:str, levelnames:list[str]|None, keywords:list[str]|None) -> tuple[list[str], list, int]:
-        """パラメータ化クエリ
+        """Parameterized query
         Args:
-            begin_time (datetime): 開始日時
-            end_time (datetime): 終了日時
-            cursor_time (datetime|None): カーソル時刻
-            sort_direction_safe (str): "ASC" または "DESC"
-            levelnames (list[str]|None): ログレベル
-            keywords (list[str]|None): キーワード検索条件のリスト
+            begin_time (datetime): Start date/time
+            end_time (datetime): End date/time
+            cursor_time (datetime|None): Cursor time
+            sort_direction_safe (str): "ASC" or "DESC"
+            levelnames (list[str]|None): Log levels
+            keywords (list[str]|None): List of keyword search conditions
         Returns:
             tuple[list[str], list, int]:
                 (conditions, params, next_param_index)
-                conditions: WHERE句にANDで結合する断片のリスト
-                params: パラメータのリスト
-                next_param_index: 次に使う$Nの番号
+                conditions: List of fragments joined with AND in the WHERE clause
+                params: List of parameters
+                next_param_index: Next $N placeholder number to use
         """
         conditions: list[str] = ["time BETWEEN $1 AND $2"]
         params: list = [begin_time, end_time]
@@ -158,18 +158,18 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         return conditions, params, i
 
     async def fetch(self, begin_time:datetime, end_time:datetime, row_count:int|None=None, cursor_time:datetime|None=None, keywords:list[str]|None=None, levelnames:list[str]|None=None, sort_field:str="time", sort_direction:str="desc") -> list[Column]:
-        """ログ取得
+        """Get logs
         Args:
-            begin_time (datetime): 開始日時
-            end_time (datetime): 終了日時
-            row_count (int|None): 取得件数 Noneで全取得
-            cursor_time (datetime|None): 追加取得時に基準にする時刻
-            keywords (list[str]|None): キーワード検索条件のリスト
-            levelnames (list[str]|None): ログレベル
-            sort_field (str): ソート対象カラム
-            sort_direction (str): ソート順 (asc/desc)
+            begin_time (datetime): Start date/time
+            end_time (datetime): End date/time
+            row_count (int|None): Number of rows to fetch; None fetches all
+            cursor_time (datetime|None): Reference time used when fetching additional rows
+            keywords (list[str]|None): List of keyword search conditions
+            levelnames (list[str]|None): Log levels
+            sort_field (str): Column to sort by
+            sort_direction (str): Sort order (asc/desc)
         Returns:
-            list[Column]: ログ
+            list[Column]: Logs
         """
         if row_count == "null":
             row_count = None

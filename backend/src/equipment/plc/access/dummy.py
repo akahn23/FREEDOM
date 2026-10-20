@@ -5,37 +5,37 @@ from src.equipment.plc import NodeDomain, Interface
 
 
 class Dummy(Interface):
-    """PLC ダミー接続
+    """PLC dummy connection
     Attributes:
-        _state (dict[str,int]): アドレスと値の辞書
+        _state (dict[str,int]): Dictionary of addresses and values
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self._state:dict[str,int] = dict()
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read_bit(self, address:str, bit:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (str): アドレス
-            bit (int): ビット
+            address (str): Address
+            bit (int): Bit
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         return bool((self._state.get(address, 0) >> bit) & 1)
 
     async def write_bit(self, address:str, bit:int, data:bool):
-        """書込み
+        """Write
         Args:
-            address (str): アドレス
-            bit (int): ビット
-            data (bool): 書込み内容
+            address (str): Address
+            bit (int): Bit
+            data (bool): Data to write
         """
         if address not in self._state.keys():
             self._state[address] = 0
@@ -45,19 +45,19 @@ class Dummy(Interface):
             self._state[address] = self._state[address] & ~(1 << bit)
 
     async def read_word(self, address:str) -> int:
-        """読込み
+        """Read
         Args:
-            address (str): アドレス
+            address (str): Address
         Returns:
-            int: 読込み結果
+            int: Read result
         """
         return self._state.get(address, 0)
 
     async def write_word(self, address:str, data:int):
-        """書込み
+        """Write
         Args:
-            address (str): アドレス
-            data (int): 書込み内容
+            address (str): Address
+            data (int): Data to write
         """
         if address not in self._state.keys():
             self._state[address] = 0

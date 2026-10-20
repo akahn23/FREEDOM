@@ -9,14 +9,14 @@ from src.job.task.common.control.controls_wait_manual import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """手動待機タスク処理"""
+    """Manual wait task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._label = await self.domain.label.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         self.domain.command.clear()
         try:
             label = await self._label.exec()
@@ -27,9 +27,9 @@ class Logic(abstract.statement.Logic[Domain]):
             self.domain.command.clear()
 
     async def exec_command(self, command:str):
-        """コマンド実行
+        """Execute a command
         Args:
-            command (str): コマンド内容
+            command (str): Command contents
         """
         if command == await self._label.exec():
             self.domain.command.clear()

@@ -7,14 +7,14 @@ from src.job.task.common.control.controls_error import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """異常タスク処理"""
+    """Error task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._error = await self.domain.error.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         error = await self._error.exec()
         self.domain.command.append(command.Text(error))
         raise RuntimeError(error)

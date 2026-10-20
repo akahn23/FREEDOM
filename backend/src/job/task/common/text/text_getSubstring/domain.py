@@ -8,15 +8,15 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """text_getSubstringタスク
+    """text_getSubstring task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        STRING (abstract.value.Domain): 処理対象
-        WHERE1 (str): 処理方法1
-        WHERE2 (str): 処理方法2
-        AT1 (abstract.value.Domain): 始点
-        AT2 (abstract.value.Domain): 終点
+        type (str): Block type
+        id (str): Block ID
+        STRING (abstract.value.Domain): Target string
+        WHERE1 (str): Operation mode 1
+        WHERE2 (str): Operation mode 2
+        AT1 (abstract.value.Domain): Start position
+        AT2 (abstract.value.Domain): End position
     """
     STRING: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
     WHERE1: str = ""
@@ -26,23 +26,23 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         Note:
-            デフォルトで定義済み
+            Defined by default
         """
         return []
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

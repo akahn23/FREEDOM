@@ -8,8 +8,8 @@ from src.freedom.authz.domain import Domain
 class Interface(abc.ABC):
     @abc.abstractmethod
     def __init__(self, domain: Domain):
-        """AuthZ DB接続インターフェース
+        """AuthZ database connection interface
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         raise NotImplementedError()

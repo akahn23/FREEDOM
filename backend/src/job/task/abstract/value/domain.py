@@ -14,18 +14,18 @@ from src.job.task.abstract.value import Logic
 
 @dataclasses.dataclass
 class Domain(abc.ABC):
-    """抽象値タスクドメイン
-    出力接続があるブロックはこれを継承する
+    """Abstract value task domain
+    Blocks with an output connection inherit from this
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
+        type (str): Block type
+        id (str): Block ID
     """
     type:str
     id:str
 
     def __post_init__(self):
-        """初期化後処理
-        Domain型のクラス変数があれば変換する
+        """Post-initialization processing
+        Converts any class variables of type Domain
         """
         for field in dataclasses.fields(self):
             if not getattr(self, field.name):
@@ -35,12 +35,12 @@ class Domain(abc.ABC):
 
     @classmethod
     def to_domain(cls, content:dict) -> typing.Optional['Domain']:
-        """タスクドメイン変換
-        DB保存内容をドメインに変換する
+        """Convert a task domain
+        Converts database-stored contents into a domain
         Args:
-            contents (dict): DB保存内容
+            contents (dict): Database-stored contents
         Returns:
-            Domain: タスクドメイン
+            Domain: Task domain
         """
         for _, common in inspect.getmembers(task.common, inspect.ismodule):
             for name, module in inspect.getmembers(common, inspect.ismodule):
@@ -50,12 +50,12 @@ class Domain(abc.ABC):
         return getattr(module, "Domain")(**content)
 
     async def make_logic(self, job_id:int, logger:logging.Logger) -> Logic:
-        """タスク処理クラス作成
+        """Create the task logic class
         Args:
-            job (active): ジョブID
-            logger (logging.Logger): ロガー
+            job (active): Job ID
+            logger (logging.Logger): Logger
         Returns:
-            Logic: タスク処理クラス
+            Logic: Task logic class
         """
         for _, common in inspect.getmembers(task.common, inspect.ismodule):
             for name, module in inspect.getmembers(common, inspect.ismodule):
@@ -71,21 +71,21 @@ class Domain(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        カスタムブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         raise NotImplementedError("Subclasses must implement define_block method")
 
     @classmethod
     @abc.abstractmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         raise NotImplementedError("Subclasses must implement define_block method")

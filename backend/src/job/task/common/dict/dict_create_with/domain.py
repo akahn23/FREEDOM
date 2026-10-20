@@ -8,30 +8,30 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """dict_create_withタスク ドメイン
+    """dict_create_with task domain
     Args:
-        type (str): タスク種類
-        id (str): タスクID
-        KEY0 (abstract.value.Domain): 索引0
-        VALUE0 (abstract.value.Domain): 値0
-        KEY1 (abstract.value.Domain): 索引1
-        VALUE1 (abstract.value.Domain): 値1
+        type (str): Task type
+        id (str): Task ID
+        KEY0 (abstract.value.Domain): Key 0
+        VALUE0 (abstract.value.Domain): Value 0
+        KEY1 (abstract.value.Domain): Key 1
+        VALUE1 (abstract.value.Domain): Value 1
         ...
     """
 
     def __new__(cls, type:str, id=str, **kwargs):
-        """インスタンス前処理
-        追加分の入力を含めたdataclassを作成して返却
+        """Pre-instantiation processing
+        Build and return a dataclass that includes the additional inputs
         Args:
-            type (str): タスク種類
-            id (str): タスクID
-            name (str): タスク名
-            next (Domain): 次タスク
-            can_recover (bool): 復帰可能判定
-            finished (bool): 終了フラグ
-            command (list): コマンド内容
+            type (str): Task type
+            id (str): Task ID
+            name (str): Task name
+            next (Domain): Next task
+            can_recover (bool): Whether the task can be resumed
+            finished (bool): Finished flag
+            command (list): Command contents
         Returns:
-            Domain: dict_create_withタスク ドメイン
+            Domain: dict_create_with task domain
         """
         fields = list()
         for k in kwargs.keys():
@@ -47,11 +47,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "dict_create_with",
@@ -65,11 +65,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 class LoopBreak(Exception):
-    """ループを抜けるための例外"""
+    """Exception used to break out of a loop"""
     pass
 
 class LoopContinue(Exception):
-    """ループの次の繰り返しに進むための例外"""
+    """Exception used to continue to the next loop iteration"""
     pass

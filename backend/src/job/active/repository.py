@@ -11,9 +11,9 @@ from src.job.active import Node, Domain, Interface
 
 class Repository(repository.Repository[Node]):
     def __init__(self, config:dict):
-        """ジョブ実行リポジトリ
+        """Active job repository
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         # 設定更新時は旧リポジトリを削除
         if old := repository.repository.retrieve(self.__class__):
@@ -29,7 +29,7 @@ class Repository(repository.Repository[Node]):
         repository.repository.append(self)
 
     async def _loop(self):
-        """更新ループ"""
+        """Update loop"""
         await self._init_node()
         try:
             while sys.getrefcount(self) > 2:
@@ -42,8 +42,8 @@ class Repository(repository.Repository[Node]):
                 node.cancel()
 
     async def _init_node(self):
-        """ジョブ実行ノード初期構築
-        DBに残っているノードを構築する
+        """Initial build of active job nodes
+        Builds the nodes remaining in the database
         """
         while True:
             try:
@@ -58,8 +58,8 @@ class Repository(repository.Repository[Node]):
                 self._logger.error(f"Failed to make job: {type(e)} - {e} {config=}")
 
     async def _update(self):
-        """更新
-        ノードに変更があればDBを更新する
+        """Update
+        Updates the database if a node has changed
         """
         try:
             current = [node.domain for node in self.data]
@@ -72,13 +72,13 @@ class Repository(repository.Repository[Node]):
             self._prev_data.clear()
 
     async def insert(self, name:str, task:dict, variables:list[dict]) -> str:
-        """実行ジョブ追加
+        """Add an active job
         Args:
-            name (str): ジョブ名
-            task (dict): タスク内容
-            variables (list[dict]): タスク変数
+            name (str): Job name
+            task (dict): Task contents
+            variables (list[dict]): Task variables
         Returns:
-            str: ジョブID
+            str: Job ID
         """
         config = await self._access.insert(name, task, variables)
         self.data.append(Node(config))

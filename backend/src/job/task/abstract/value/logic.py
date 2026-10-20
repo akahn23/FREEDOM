@@ -11,21 +11,21 @@ if typing.TYPE_CHECKING:
 
 class Logic[D:Domain](abc.ABC):
     def __init__(self, domain:D, job_id:int, logger:logging.Logger):
-        """抽象値タスク処理
+        """Abstract value task logic
         Args:
-            domain (D): 設定
-            job_id (int): ジョブID
-            logger (logging.Logger): ロガー
+            domain (D): Settings
+            job_id (int): Job ID
+            logger (logging.Logger): Logger
         """
         self.domain = domain
         self._job_id = job_id
         self._logger = logger
 
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         pass
 
     @abc.abstractmethod
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         raise NotImplementedError("Subclasses must implement exec method")

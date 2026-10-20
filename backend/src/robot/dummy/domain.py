@@ -8,36 +8,36 @@ from src import abstract, robot
 
 @dataclasses.dataclass
 class NodeDomain(robot.Domain):
-    """ダミーロボットノード設定
+    """Dummy robot node settings
     Args:
-        enable (bool): 有効
-        name (str): 名前
-        update_cycle (float): 更新周期
+        enable (bool): Enabled
+        name (str): Name
+        update_cycle (float): Update cycle
     Note:
-        location (list[float]): 位置
+        location (list[float]): Location
     """
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form()
 
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """ダミーロボット設定
+    """Dummy robot settings
     Args:
-        node_domain (list[NodeDomain]): ノード設定リスト
+        node_domain (list[NodeDomain]): List of node settings
     """
     node_domain:list[NodeDomain] = dataclasses.field(default_factory=lambda:list())
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "node_domain": {
@@ -50,5 +50,5 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.node_domain = [NodeDomain(**node_domain) for node_domain in self.node_domain if node_domain.get("enable", False)]

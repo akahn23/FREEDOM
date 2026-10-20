@@ -9,14 +9,14 @@ from src.job.task.common.math.math_on_list import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """math_on_listタスク処理"""
+    """math_on_list task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._LIST = await self.domain.LIST.make_logic(self._job_id, self._logger) if self.domain.LIST else None
 
     async def exec(self) -> float | int:
-        """タスク実行"""
+        """Execute the task"""
         LIST = await self._LIST.exec() if self._LIST else []
         if self.domain.OP == "SUM":
             return sum(LIST)

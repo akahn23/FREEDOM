@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
 class Result(Exception):
-    """ジョブ終了の値を返す例外"""
+    """Exception that returns the job's end value"""
     pass

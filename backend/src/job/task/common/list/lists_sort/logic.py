@@ -6,14 +6,14 @@ from src.job.task.common.list.lists_sort import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """lists_sortタスク処理"""
+    """lists_sort task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._LIST = await self.domain.LIST.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         LIST = list(await self._LIST.exec())
         DIRECTION = self.domain.DIRECTION == "-1"
         if self.domain.TYPE == "NUMERIC":

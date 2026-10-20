@@ -7,9 +7,9 @@ from src.job.task.common.logic.controls_if_custom import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """条件分岐タスク処理"""
+    """Conditional branch task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         for k,v in vars(self.domain).items():
             if k == "next" or not isinstance(v, abstract.value.Domain):
@@ -17,7 +17,7 @@ class Logic(abstract.statement.Logic[Domain]):
             setattr(self, k, await v.make_logic(self._job_id, self._logger))
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         if not self.domain.command:
             for name, logic in vars(self).items():
                 if "IF" not in name:

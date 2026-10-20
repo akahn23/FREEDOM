@@ -6,9 +6,9 @@ from src.job.task.common.text.text_join import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """text_joinタスク処理"""
+    """text_join task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._add:dict[str, abstract.value.Logic] = dict()
         for k,v in vars(self.domain).items():
@@ -16,6 +16,6 @@ class Logic(abstract.value.Logic[Domain]):
                 self._add[k] = await v.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> str:
-        """タスク実行"""
+        """Execute the task"""
         add = sorted(self._add.items(), key=lambda x: int(x[0][3:]))
         return "".join([str(await logic.exec()) for _, logic in add])

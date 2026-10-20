@@ -9,21 +9,21 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """Boolean変数取得タスク
+    """Boolean variable get task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        VAR (dict[typing.Literal["id"], str]): 取得先
+        type (str): Block type
+        id (str): Block ID
+        VAR (dict[typing.Literal["id"], str]): Source variable
     """
     VAR: dict[typing.Literal["id"], str] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "_logic_get",
@@ -45,11 +45,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "button",

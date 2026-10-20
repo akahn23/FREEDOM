@@ -6,14 +6,14 @@ from src.job.task.common.text.text_changeCase import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """text_changeCaseタスク処理"""
+    """text_changeCase task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._TEXT = await self.domain.TEXT.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> str:
-        """タスク実行"""
+        """Execute the task"""
         text = str(await self._TEXT.exec())
         if self.domain.CASE == "UPPERCASE":
             return text.upper()

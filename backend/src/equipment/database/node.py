@@ -9,18 +9,18 @@ from src.equipment.database import NodeDomain, Interface, access
 
 
 class Node(abstract.Node):
-    """データベース ノード
+    """Database node
     Attributes:
-        domain (NodeDomain): ドメイン
-        _state (util.status.State): 状態
-        _logger (freedom.log.Logger): ロガー
-        _access (Interface): インターフェース
-        _task (asyncio.Task): 定期処理タスク
+        domain (NodeDomain): Domain
+        _state (util.status.State): State
+        _logger (freedom.log.Logger): Logger
+        _access (Interface): Interface
+        _task (asyncio.Task): Periodic processing task
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self.domain = domain
         self._state = util.status.State.DISCONNECT
@@ -30,13 +30,13 @@ class Node(abstract.Node):
         self._logger.info(f"launch: {self.domain=}")
 
     def close(self):
-        """切断"""
+        """Disconnect"""
         self._task.cancel()
 
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         if self._state == util.status.State.DISCONNECT:
             state = util.status.State.ERROR
@@ -52,17 +52,17 @@ class Node(abstract.Node):
         )
 
     async def upsert(self, keys:list[str], data:dict):
-        """追加・更新
+        """Insert or update
         Args:
-            keys (list[str]): 一致キー
-            data (dict): 書込み値
+            keys (list[str]): Match keys
+            data (dict): Values to write
         """
         result = await self._access.upsert(keys=keys, data=data)
         self._logger.info(f"upsert: {keys=} {data=}")
         return result
 
     async def _loop(self):
-        """定期処理"""
+        """Periodic processing"""
         try:
             while not await self._access.is_connected():
                 await asyncio.sleep(self.domain.update_cycle)
@@ -76,7 +76,7 @@ class Node(abstract.Node):
             self._logger.info("end")
 
     async def _update(self):
-        """状態更新"""
+        """Update the status"""
         if await self._access.is_connected():
             if self._state != util.status.State.WAITING:
                 self._logger.info(f"connect")

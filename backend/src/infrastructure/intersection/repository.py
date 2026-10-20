@@ -6,15 +6,15 @@ from src.infrastructure.intersection import Node, Domain
 
 
 class Repository(repository.Repository[Node]):
-    """交差点 リポジトリ
+    """Intersection repository
     Attributes:
-        data (list[Node]): ノードリスト
-        domain (Domain): ドメイン
+        data (list[Node]): List of nodes
+        domain (Domain): Domain
     """
     def __init__(self, config:dict):
-        """インスタンス化
+        """Instantiate
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         if old := repository.repository.retrieve(self.__class__):
             self = old[0]

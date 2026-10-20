@@ -8,43 +8,43 @@ from src import abstract, infrastructure, util
 
 @dataclasses.dataclass
 class ReserveArea(util.map.Area):
-    """予約エリア設定
+    """Reservation area settings
     Args:
-        name (str): 名前
-        vertex_list (list[list[float]]): 頂点リスト
-            右または左回りにすること
-        priority (int): 優先度
+        name (str): Name
+        vertex_list (list[list[float]]): List of vertices
+            Vertices must be ordered clockwise or counterclockwise
+        priority (int): Priority
     """
     priority: int = 1
 
 
 @dataclasses.dataclass
 class IntersectionArea:
-    """交差点エリア
+    """Intersection area
     Args:
-        entry_area (list[util.map.Area]): 進入エリア
-        reserve_area (list[ReserveArea]): 予約エリア
+        entry_area (list[util.map.Area]): Entry areas
+        reserve_area (list[ReserveArea]): Reservation areas
     """
     entry_area: list[util.map.Area] = dataclasses.field(default_factory=list)
     reserve_area: list[ReserveArea] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.entry_area = [util.map.Area(**area) if isinstance(area, dict) else area for area in self.entry_area]
         self.reserve_area = [ReserveArea(**area) if isinstance(area, dict) else area for area in self.reserve_area]
 
 
 @dataclasses.dataclass
 class NodeDomain(infrastructure.Domain):
-    """交差点ノード設定
+    """Intersection node settings
     Args:
-        enable (bool): 有効
-        name (str): 名前
-        location (list[float]): 位置
-        priority (int): 優先度
-        entry_num (int): 進入可能なロボット数
-        area_list (IntersectionArea): 連携エリア
-        update_cycle (float): 更新周期
+        enable (bool): Enabled
+        name (str): Name
+        location (list[float]): Location
+        priority (int): Priority
+        entry_num (int): Number of robots allowed to enter
+        area_list (IntersectionArea): Linked areas
+        update_cycle (float): Update cycle
     """
     entry_num: int = 1
     area_list: IntersectionArea = dataclasses.field(default_factory=IntersectionArea)
@@ -52,9 +52,9 @@ class NodeDomain(infrastructure.Domain):
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form() | {
             "entry_num": {
@@ -75,7 +75,7 @@ class NodeDomain(infrastructure.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__()
         if type(self.area_list) is dict:
             self.area_list = IntersectionArea(**self.area_list)
@@ -83,15 +83,15 @@ class NodeDomain(infrastructure.Domain):
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """交差点設定
+    """Intersection settings
     Args:
-        node_domain (list[NodeDomain]): ノード設定リスト
+        node_domain (list[NodeDomain]): List of node settings
     """
     node_domain: list[NodeDomain] = dataclasses.field(default_factory=lambda: list())
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成"""
+        """Create the settings form"""
         return {
             "node_domain": {
                 "type": "node",
@@ -103,5 +103,5 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.node_domain = [NodeDomain(**node_domain) for node_domain in self.node_domain if node_domain.get("enable", False)]

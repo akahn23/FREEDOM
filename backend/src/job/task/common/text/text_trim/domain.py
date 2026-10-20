@@ -8,35 +8,35 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """text_trimタスク
+    """text_trim task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        MODE (str): 始点
-        TEXT (abstract.value.Domain): 処理対象
+        type (str): Block type
+        id (str): Block ID
+        MODE (str): Origin
+        TEXT (abstract.value.Domain): Target string
     """
     MODE: str = ""
     TEXT: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         Note:
-            デフォルトで定義済み
+            Defined by default
         """
         return []
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

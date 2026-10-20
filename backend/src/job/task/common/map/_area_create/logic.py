@@ -7,13 +7,13 @@ from src.job.task.common.map._area_create import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """エリア設定タスク処理"""
+    """Area set task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
 
     async def exec(self) -> list[util.map.Area]:
-        """タスク実行"""
+        """Execute the task"""
         if self.domain.area_list is None:
             return[]
         return [util.map.Area(name=area["name"], vertex_list=area["vertex_list"]) for area in self.domain.area_list]

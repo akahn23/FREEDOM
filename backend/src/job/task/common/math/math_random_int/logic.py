@@ -8,15 +8,15 @@ from src.job.task.common.math.math_random_int import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """math_random_intタスク処理"""
+    """math_random_int task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._FROM = await self.domain.FROM.make_logic(self._job_id, self._logger)
         self._TO = await self.domain.TO.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> int:
-        """タスク実行"""
+        """Execute the task"""
         FROM = int(await self._FROM.exec())
         TO = int(await self._TO.exec())
         return random.randint(FROM, TO)

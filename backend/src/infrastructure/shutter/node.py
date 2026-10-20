@@ -12,9 +12,9 @@ from src.infrastructure.command import Button
 
 class Node(infrastructure.Node):
     def __init__(self, domain:NodeDomain):
-        """シャッター連携ノード
+        """Shutter integration node
         Args:
-            domain (NodeDomain): 設定
+            domain (NodeDomain): Settings
         """
         self.domain = domain
         self._related_robot:set[robot.Node[robot.Domain]] = set()
@@ -25,7 +25,7 @@ class Node(infrastructure.Node):
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
-        """定期ループ処理"""
+        """Periodic loop"""
         try:
             while sys.getrefcount(self) > 2:
                 await asyncio.gather(
@@ -37,7 +37,7 @@ class Node(infrastructure.Node):
             self._logger.info("end")
 
     async def _update(self):
-        """状態更新"""
+        """Update the status"""
         try:
             # 連携確認
             if self._related_robot:
@@ -66,9 +66,9 @@ class Node(infrastructure.Node):
             self._state = util.status.State.DISCONNECT
 
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         info = list()
         if self._state == util.status.State.DISCONNECT:
@@ -85,9 +85,9 @@ class Node(infrastructure.Node):
         )
 
     def fetch_command(self) -> list:
-        """手動操作取得
+        """Get manual operations
         Returns:
-            list: 操作内容
+            list: Operation contents
         """
         return [
             Button(label="開ける", func="open"),
@@ -95,9 +95,9 @@ class Node(infrastructure.Node):
         ]
 
     async def accept(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携許可
+        """Grant infrastructure handshake permission to a robot
         Args:
-            robot (robot.Node): ロボット
+            robot (robot.Node): Robot
         """
         if not robot.domain.location:
             return True
@@ -119,9 +119,9 @@ class Node(infrastructure.Node):
         return True
 
     async def cancel(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携終了
+        """End the infrastructure handshake for a robot
         Args:
-            robot (robot.Node): ロボットノード
+            robot (robot.Node): Robot node
         """
         if robot in self._related_robot:
             self._logger.info(f"exit: robot={robot.domain.name}")
@@ -132,12 +132,12 @@ class Node(infrastructure.Node):
                 self._logger.info("close")
 
     async def open(self):
-        """ユーザ開き指示"""
+        """User open command"""
         await self._access.write(True)
         self._logger.info(f"user open")
 
     async def close(self):
-        """ユーザ閉じ指示"""
+        """User close command"""
         self._related_robot.clear()
         await self._access.write(False)
         self._state = util.status.State.WAITING

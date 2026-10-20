@@ -8,20 +8,20 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.statement.Domain):
-    """戻り値タスク
+    """Return value task
     Args:
-        type (str): タスク種類
-        id (str): タスクID
-        name (str): タスク名
-            UIにタスク名として表示される内容
-        next (Domain): 次タスク
-        should_show (bool): 表示判定
-            ジョブ実行時に表示する判定
-        can_recover (bool): 復帰可能判定
-            ジョブ停止時に復帰できる判定
-        finished (bool): 終了フラグ
-        command (list): コマンド内容
-        result (abstract.value.Domain): 戻り値
+        type (str): Task type
+        id (str): Task ID
+        name (str): Task name
+            Text displayed as the task name in the UI
+        next (Domain): Next task
+        should_show (bool): Whether to display
+            Whether to display while the job is running
+        can_recover (bool): Whether the task can be resumed
+            Whether the job can be resumed after it is stopped
+        finished (bool): Finished flag
+        command (list): Command contents
+        result (abstract.value.Domain): Return value
     """
     name:str = "ジョブ戻り値"
     should_show:bool = False
@@ -30,11 +30,11 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        カスタムブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "job.active.result",
@@ -52,11 +52,11 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

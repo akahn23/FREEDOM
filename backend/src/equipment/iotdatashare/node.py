@@ -13,9 +13,9 @@ from src.equipment.iotdatashare import NodeDomain
 
 class Node(abstract.Node):
     def __init__(self, domain:NodeDomain):
-        """IoT Data Shareノード
+        """IoT Data Share node
         Args:
-            domain (NodeDomain): 設定
+            domain (NodeDomain): Settings
         """
         self.domain = domain
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__, f"[{self.domain.name}]")
@@ -28,7 +28,7 @@ class Node(abstract.Node):
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
-        """更新ループ"""
+        """Update loop"""
         try:
             while sys.getrefcount(self) > 2:
                 await asyncio.gather(
@@ -40,8 +40,8 @@ class Node(abstract.Node):
             self._logger.info("close")
 
     async def _update(self):
-        """定期更新処理
-        接続対象リストを更新
+        """Periodic update processing
+        Update the list of connection targets
         """
         try:
             self.domain.connect_list = await self._fetch_controller_names()
@@ -59,24 +59,24 @@ class Node(abstract.Node):
             self.domain.status = util.status.State.DISCONNECT
 
     async def _fetch_controller_names(self):
-        """接続対象リスト取得"""
+        """Get the list of connection targets"""
         async with self._session.get("/api/v1/getcontrollernames", headers=self._headers) as resp:
             data = await resp.json()
             return data['names']
 
     async def _fetch_item_names(self, controller):
-        """アイテムリスト取得"""
+        """Get the list of items"""
         async with self._session.get(f"/api/v1/getitemnames?controller={controller}", headers=self._headers) as resp:
             data = await resp.json()
             return data['names']
 
     async def _read(self, controller:str, item:str) -> int:
-        """読込み
+        """Read
         Args:
-            controller (str): 読込み先コントローラ
-            item (str): 読込み先アイテム
+            controller (str): Controller to read from
+            item (str): Item to read
         Returns:
-            int: 読込み結果
+            int: Read result
         """
         item_list = await self._fetch_item_names(controller)
         if item in item_list:
@@ -93,11 +93,11 @@ class Node(abstract.Node):
             return int(resp_data['value'])
 
     async def _write(self, controller:str, item:str, data:int):
-        """書込み
+        """Write
         Args:
-            controller (str): 書込み先コントローラ
-            item (str): 書込み先アイテム
-            data (int): 書込み内容
+            controller (str): Controller to write to
+            item (str): Item to write
+            data (int): Data to write
         """
         item_list = await self._fetch_item_names(controller)
         if item in item_list:
@@ -118,49 +118,49 @@ class Node(abstract.Node):
                 raise Exception(f"Failed to write: {resp_data=} {controller=} {item=} {data=}")
 
     def close(self):
-        """切断"""
+        """Disconnect"""
         self._task.cancel()
 
     async def read_item(self, controller:str, item:str) -> int:
-        """アイテム読込み
+        """Read an item
         Args:
-            controller (str): 読込み先コントローラ
-            item (str): 読込み先アイテム
+            controller (str): Controller to read from
+            item (str): Item to read
         Returns:
-            int: 読込み結果
+            int: Read result
         """
         ret = await self._read(controller, item)
         return int(ret)
 
     async def write_item(self, controller:str, item:str, data:int):
-        """アイテム書込み
+        """Write an item
         Args:
-            controller (str): 書込み先コントローラ
-            item (str): 書込み先アイテム
-            data (int): 書込み内容
+            controller (str): Controller to write to
+            item (str): Item to write
+            data (int): Data to write
         """
         async with self._controller_lock[controller]:
             await self._write(controller, item, data)
 
     async def read_bit(self, controller:str, item:str, bit:int) -> bool:
-        """ビット読込み
+        """Read a bit
         Args:
-            controller (str): 読込み先コントローラ
-            item (str): 読込み先アイテム
-            bit (int): ビット位置
+            controller (str): Controller to read from
+            item (str): Item to read
+            bit (int): Bit position
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         ret = await self._read(controller, item)
         return bool((ret >> bit) & 1)
 
     async def write_bit(self, controller:str, item:str, bit:int, data:bool):
-        """ビット書込み
+        """Write a bit
         Args:
-            controller (str): 書込み先コントローラ
-            item (str): 書込み先アイテム
-            data (bool): 書込み内容
-            bit (int): ビット位置
+            controller (str): Controller to write to
+            item (str): Item to write
+            data (bool): Data to write
+            bit (int): Bit position
         """
         async with self._controller_lock[controller]:
             ret = await self._read(controller, item)

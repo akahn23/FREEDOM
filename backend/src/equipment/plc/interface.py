@@ -7,55 +7,55 @@ from src.equipment.plc import NodeDomain
 
 
 class Interface(abc.ABC):
-    """PLC インターフェース"""
+    """PLC interface"""
     @abc.abstractmethod
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         raise NotImplementedError()
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     @abc.abstractmethod
     async def read_bit(self, address: str, bit: int) -> bool:
-        """ビット読込み
+        """Read a bit
         Args:
-            address (str): アドレス
-            bit (int): ビット
+            address (str): Address
+            bit (int): Bit
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def write_bit(self, address: str, bit: int, data: bool):
-        """ビット書込み
+        """Write a bit
         Args:
-            address (str): アドレス
-            bit (int): ビット
-            data (bool): 書込み内容
+            address (str): Address
+            bit (int): Bit
+            data (bool): Data to write
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def read_word(self, address: str) -> int:
-        """ワード読込み
+        """Read a word
         Args:
-            address (str): アドレス
+            address (str): Address
         Returns:
-            int: 読込み結果
+            int: Read result
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def write_word(self, address: str, data: int):
-        """ワード書込み
+        """Write a word
         Args:
-            address (str): アドレス
-            data (int): 書込み内容
+            address (str): Address
+            data (int): Data to write
         """
         raise NotImplementedError()

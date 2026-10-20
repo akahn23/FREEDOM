@@ -9,37 +9,37 @@ from src.infrastructure import Domain
 
 class Node(abstract.Node, abc.ABC):
     def __init__(self):
-        """インフラ設備抽象ノード"""
+        """Abstract infrastructure equipment node"""
         self.domain = Domain()
 
     @abc.abstractmethod
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         raise NotImplementedError("Subclasses must implement fetch_status method")
 
     @abc.abstractmethod
     def fetch_command(self) -> list:
-        """手動操作取得
+        """Get manual operations
         Returns:
-            list: 操作内容
+            list: Operation contents
         """
         raise NotImplementedError("Subclasses must implement fetch_command method")
 
     @abc.abstractmethod
     async def accept(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携許可
+        """Grant infrastructure handshake permission to a robot
         Args:
-            robot (robot.Node): ロボットノード
+            robot (robot.Node): Robot node
         """
         raise NotImplementedError("Subclasses must implement accept method")
 
     @abc.abstractmethod
     async def cancel(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携終了
+        """End the infrastructure handshake for a robot
         Args:
-            robot (robot.Node): ロボットノード
+            robot (robot.Node): Robot node
         """
         raise NotImplementedError("Subclasses must implement cancel method")

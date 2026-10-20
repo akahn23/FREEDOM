@@ -9,19 +9,19 @@ from src import abstract, infrastructure, util
 
 @dataclasses.dataclass
 class NodeDomain(infrastructure.Domain):
-    """ランプ設備ノード設定
+    """Lamp equipment node settings
     Args:
-        enable (bool): 有効
-        name (str): 名前
-        location (list[float]): 位置
-        priority (int): 優先度
-        interface (str): インターフェース
-        ip (str): IPアドレス
-        port (int): ポート番号
-        write_address (int): 書込みアドレス
-        timeout (float): 通信タイムアウト
-        update_cycle (float): 更新周期
-        area_list (list[util.map.Area]): 連携エリア
+        enable (bool): Enabled
+        name (str): Name
+        location (list[float]): Location
+        priority (int): Priority
+        interface (str): Interface
+        ip (str): IP address
+        port (int): Port number
+        write_address (int): Address to write
+        timeout (float): Communication timeout
+        update_cycle (float): Update cycle
+        area_list (list[util.map.Area]): Linked areas
     """
     interface:str = "Dummy"
     ip:str = "0.0.0.0"
@@ -33,9 +33,9 @@ class NodeDomain(infrastructure.Domain):
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form() | {
             "interface": {
@@ -78,24 +78,24 @@ class NodeDomain(infrastructure.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__()
         self.area_list = [util.map.Area(**area) if isinstance(area, dict) else area for area in self.area_list]
 
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """ランプ設備設定
+    """Lamp equipment settings
     Args:
-        node_domain (list[NodeDomain]): ノード設定リスト
+        node_domain (list[NodeDomain]): List of node settings
     """
     node_domain:list[NodeDomain] = dataclasses.field(default_factory=lambda:list())
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "node_domain": {
@@ -108,5 +108,5 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.node_domain = [NodeDomain(**node_domain) for node_domain in self.node_domain if node_domain.get("enable", False)]

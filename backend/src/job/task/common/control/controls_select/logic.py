@@ -12,9 +12,9 @@ from src.job.task.common.control.controls_select import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """ボタン選択タスク処理"""
+    """Button selection task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         self._var = next(node.retrieve_variables(id=self.domain.var["id"]))
@@ -22,7 +22,7 @@ class Logic(abstract.statement.Logic[Domain]):
         self._map = dict()
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         self.domain.command.clear()
         try:
             self._map:dict = await self._map_logic.exec() if self._map_logic else dict()
@@ -39,9 +39,9 @@ class Logic(abstract.statement.Logic[Domain]):
             self._map.clear()
 
     async def exec_command(self, cmd:str):
-        """コマンド実行
+        """Execute a command
         Args:
-            cmd (str): コマンド内容
+            cmd (str): Command contents
         """
         if cmd in self._map:
             self._logger.info(f"controls_select: selected {cmd}")

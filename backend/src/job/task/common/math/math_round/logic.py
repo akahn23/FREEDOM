@@ -8,14 +8,14 @@ from src.job.task.common.math.math_round import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """math_roundタスク処理"""
+    """math_round task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._NUM = await self.domain.NUM.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> int:
-        """タスク実行"""
+        """Execute the task"""
         OP = self.domain.OP
         NUM = await self._NUM.exec()
         if OP == "ROUND":

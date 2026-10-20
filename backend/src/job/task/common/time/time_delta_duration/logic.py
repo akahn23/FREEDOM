@@ -8,12 +8,12 @@ from src.job.task.common.time.time_delta_duration import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """時間セットタスク処理"""
+    """Time set task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._time = await self.domain.time.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> timedelta:
-        """タスク実行"""
+        """Execute the task"""
         return timedelta(**{self.domain.unit: await self._time.exec()})

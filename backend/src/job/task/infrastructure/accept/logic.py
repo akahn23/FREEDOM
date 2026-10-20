@@ -12,9 +12,9 @@ from src.job.task.infrastructure.accept import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """インフラ設備連携タスク処理"""
+    """Infrastructure equipment handshake task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._robot = await self.domain.robot.make_logic(self._job_id, self._logger)
         self._exclude = await self.domain.exclude.make_logic(self._job_id, self._logger) if self.domain.exclude else None
@@ -31,7 +31,7 @@ class Logic(abstract.statement.Logic[Domain]):
         self._is_accepted = None
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         loop_task = asyncio.create_task(self._loop())
         try:
             sub_task:command.Task = self.domain.command[0]
@@ -43,11 +43,11 @@ class Logic(abstract.statement.Logic[Domain]):
             await node.cancel(await self._robot.exec())
 
     async def exec_command(self, command:str) -> bool|None:
-        """コマンド実行
+        """Execute a command
         Args:
-            command (str): コマンド内容
+            command (str): Command contents
         Returns:
-            bool|None: 実行結果
+            bool|None: Execution result
         """
         if command == "accept_infrastructure":
             is_accepted = getattr(self, "_is_accepted", None) and self._is_accepted
@@ -58,7 +58,7 @@ class Logic(abstract.statement.Logic[Domain]):
             await super().exec_command(command)
 
     async def _loop(self):
-        """インフラ連携ループ"""
+        """Infrastructure handshake loop"""
         update_cycle:timedelta = await self._update_cycle.exec()
         while True:
             warning_time:timedelta = await self._warning_time.exec()
@@ -75,18 +75,18 @@ class Logic(abstract.statement.Logic[Domain]):
             await asyncio.sleep(update_cycle.total_seconds())
 
     async def _accept_infrastructure(self) -> bool:
-        """インフラ連携
+        """Infrastructure handshake
         Returns:
-            bool: 連携結果
+            bool: Handshake result
         """
         async def _accept(i:infrastructure.Node, r:robot.Node) -> bool:
-            """連携タスク
-            同じ優先度のインフラを同時に連携するため、連携部分のメソッドを抜き出し
+            """Handshake task
+            Extracted the handshake into a method so infrastructure with the same priority is handled concurrently
             Args:
-                i (infrastructure.Node): インフラノード
-                r (robot.Node): ロボットノード
+                i (infrastructure.Node): Infrastructure node
+                r (robot.Node): Robot node
             Returns:
-                bool: 連携結果
+                bool: Handshake result
             """
             try:
                 return await i.accept(r)
@@ -107,9 +107,9 @@ class Logic(abstract.statement.Logic[Domain]):
         return True
 
     async def _fetch_infrastructure_node(self) -> set[infrastructure.Node]:
-        """連携インフラ取得
+        """Get the infrastructure to coordinate with
         Returns:
-            set[infrastructure.Node]: 連携インフラノード
+            set[infrastructure.Node]: Infrastructure nodes to coordinate with
         """
         exclude:list[infrastructure.Node] = await self._exclude.exec() if self._exclude else list()
         if type(exclude) is not list:

@@ -6,12 +6,12 @@ import dataclasses
 
 @dataclasses.dataclass
 class Button:
-    """ボタン表示
+    """Button display
     Args:
-        label (str): ボタン表示テキスト
-        func (str): 実行関数
-        kwargs (str): 引数
-        type (str): コマンド種類
+        label (str): Button text
+        func (str): Function to execute
+        kwargs (str): Arguments
+        type (str): Command type
     """
     label:str
     func:str

@@ -10,19 +10,19 @@ from src.repository import repository
 
 class Domain(web.View):
     def __init__(self, request:web.Request):
-        """ドメインリクエスト
+        """Domain request
         Args:
-            request (web.Request): リクエスト
+            request (web.Request): Request
         """
         super().__init__(request)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__name__)
 
     async def post(self) -> web.Response:
-        """ドメイン取得リクエスト
+        """Domain get request
         Bodies:
-            ドメイン検索
+            Domain search
         Returns:
-            web.Response: ドメインリスト
+            web.Response: List of domains
         """
         try:
             node = importlib.import_module(f"src.{self.request.match_info["node"]}").Node

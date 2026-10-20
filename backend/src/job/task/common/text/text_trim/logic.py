@@ -6,14 +6,14 @@ from src.job.task.common.text.text_trim import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """text_trimタスク処理"""
+    """text_trim task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._TEXT = await self.domain.TEXT.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> str:
-        """タスク実行"""
+        """Execute the task"""
         TEXT = str(await self._TEXT.exec())
         if self.domain.MODE == "BOTH":
             return TEXT.strip()

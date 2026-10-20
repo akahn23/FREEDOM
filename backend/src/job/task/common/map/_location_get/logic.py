@@ -8,13 +8,13 @@ from src.job.task.common.map._location_get import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """位置変数取得タスク処理"""
+    """Location variable get task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         self._var = next(node.retrieve_variables(id=self.domain.VAR["id"]))
 
     async def exec(self) -> list[float, float]:
-        """タスク実行"""
+        """Execute the task"""
         return self._var.value

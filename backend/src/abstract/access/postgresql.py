@@ -15,10 +15,10 @@ from src import abstract, util
 
 class PostgreSQL[D:abstract.database.Domain](abc.ABC):
     def __init__(self, domain:D, logger:logging.Logger):
-        """PostgreSQL接続抽象クラス
+        """Abstract PostgreSQL connection class
         Args:
-            domain (abstract.database.Domain): ドメイン
-            logger (logging.Logger): ロガー
+            domain (abstract.database.Domain): Domain
+            logger (logging.Logger): Logger
         """
         self._domain = domain
         self._logger = logger
@@ -26,7 +26,7 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
         self._task = asyncio.create_task(self._loop())
 
     async def _loop(self):
-        """接続確認ループ"""
+        """Connection check loop"""
         try:
             while sys.getrefcount(self) > 2:
                 if not await self._is_connect():
@@ -36,7 +36,7 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
             await self._close()
 
     async def _is_connect(self) -> bool:
-        """接続判定"""
+        """Whether connected"""
         if not self._pool:
             return False
         try:
@@ -48,7 +48,7 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
             return False
 
     async def _connect(self):
-        """接続"""
+        """Connect"""
         try:
             self._pool = await asyncpg.create_pool(dsn=self._domain.dsn, init=self._init_connection, min_size=1)
             self._logger.info(f"connect: {self._domain.dsn}")
@@ -62,15 +62,15 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
             await self._close()
 
     async def _init_connection(self, conn:asyncpg.Connection):
-        """接続時の初期化処理
+        """Initialization performed on connect
         Args:
-            conn (asyncpg.Connection): コネクタ
+            conn (asyncpg.Connection): Connection
         """
         await conn.set_type_codec("json", schema="pg_catalog", encoder=util.json.dumps, decoder=json.loads)
         await conn.set_type_codec("jsonb", schema="pg_catalog", encoder=util.json.dumps, decoder=json.loads)
 
     async def _close(self):
-        """切断"""
+        """Disconnect"""
         if self._pool is None:
             return
         try:
@@ -80,11 +80,11 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
         self._pool = None
 
     def _convert_type(self, python_type:type) -> str:
-        """PostgreSQL型変換
+        """PostgreSQL type conversion
         Args:
-            python_type (type): Python型
+            python_type (type): Python type
         Returns:
-            str: PostgreSQL型
+            str: PostgreSQL type
         """
         type_mapping = {
             int: 'integer',
@@ -108,5 +108,5 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
 
     @abc.abstractmethod
     async def _on_connect(self):
-        """接続後イベント"""
+        """Post-connection event"""
         raise NotImplementedError("This method should be implemented by subclasses.")

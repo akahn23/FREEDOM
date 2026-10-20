@@ -8,14 +8,14 @@ from src.job.task.common.map._area__set import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """_area_setタスク"""
+    """_area_set task"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         self._var = next(node.retrieve_variables(id=self.domain.VAR["id"]))
         self._VALUE = await self.domain.VALUE.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         self._var.value = await self._VALUE.exec()

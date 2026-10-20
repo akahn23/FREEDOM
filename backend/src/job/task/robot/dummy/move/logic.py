@@ -15,9 +15,9 @@ EARTH_RADIUS_M = 6_371_008.8
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """ダミー移動タスク処理"""
+    """Dummy move task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._robot = await self.domain.robot.make_logic(self._job_id, self._logger)
         self._location = await self.domain.location.make_logic(self._job_id, self._logger)
@@ -28,7 +28,7 @@ class Logic(abstract.statement.Logic[Domain]):
             self._stop = None
 
     def haversine_distance_m(self, lat1, lon1, lat2, lon2):
-        """ハバースインの公式で2点間距離（メートル）を計算"""
+        """Compute the distance between two points (meters) using the haversine formula"""
         φ1, λ1, φ2, λ2 = map(math.radians, [lat1, lon1, lat2, lon2])
         dφ = φ2 - φ1
         dλ = λ2 - λ1
@@ -37,7 +37,7 @@ class Logic(abstract.statement.Logic[Domain]):
         return 6_371_008.8 * c
 
     def initial_bearing_deg(self, lat1, lon1, lat2, lon2):
-        """始方位角（真方位、度）を計算。大円航法の初期方位角。"""
+        """Compute the initial bearing (true bearing, degrees), i.e. the initial course of great-circle navigation."""
         φ1, λ1, φ2, λ2 = map(math.radians, [lat1, lon1, lat2, lon2])
         dλ = λ2 - λ1
         y = math.sin(dλ) * math.cos(φ2)
@@ -48,8 +48,8 @@ class Logic(abstract.statement.Logic[Domain]):
 
     def destination_point(self, lat, lon, bearing_deg, distance_m):
         """
-        始点(lat, lon)から方位(bearing_deg)へdistance_mだけ移動した点を返す（度）。
-        球面三角法に基づく大円上の移動。
+        Return the point (degrees) reached by moving distance_m from start (lat, lon) along bearing_deg.
+        Movement along a great circle based on spherical trigonometry.
         """
         δ = distance_m / EARTH_RADIUS_M  # 角距離
         θ = math.radians(bearing_deg)
@@ -65,9 +65,9 @@ class Logic(abstract.statement.Logic[Domain]):
         return lat2, lon2
 
     async def exec(self):
-        """タスク実行
-        開始座標から目的地へ移動する
-        生成AI製
+        """Execute the task
+        Move from the start coordinates toward the destination
+        AI-generated
         """
         dummy:robot.dummy.Node = await self._robot.exec()
         location:list[float] = await self._location.exec()

@@ -12,9 +12,9 @@ from src.job.active import Interface, Domain, NodeDomain
 
 class Dummy(Interface):
     def __init__(self, domain:Domain):
-        """ジョブ実行ダミーDB接続
+        """Active job dummy database connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._database:list[NodeDomain] = getattr(
             repository.retrieve(freedom.main.Node)[0].domain.conf,
@@ -23,28 +23,28 @@ class Dummy(Interface):
         )
 
     async def insert(self, name:str, task:dict, variables:list[dict]) -> dict:
-        """実行ジョブ保存
+        """Save an active job
         Args:
-            name (str): ジョブ名
-            task (dict): タスク内容
-            variables (list[dict]): タスク変数
+            name (str): Job name
+            task (dict): Task contents
+            variables (list[dict]): Task variables
         Returns:
-            dict: 実行ジョブ設定
+            dict: Active job settings
         """
         domain = NodeDomain(uuid.uuid4(), datetime.now(), name, task, variables)
         self._database.append(domain)
         return dataclasses.asdict(domain)
 
     async def fetch(self) -> list[dict]:
-        """実行ジョブ取得
+        """Get active jobs
         Returns:
-            list[dict]: 実行ジョブ設定
+            list[dict]: Active job settings
         """
         return [dataclasses.asdict(domain) for domain in self._database]
 
     async def update(self, node_list:list[NodeDomain]):
-        """実行ジョブ更新
+        """Update an active job
         Args:
-            node_list (list[NodeDomain]): 実行ジョブリスト
+            node_list (list[NodeDomain]): List of active jobs
         """
         self._database = node_list
