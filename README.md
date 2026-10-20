@@ -13,7 +13,8 @@
 </p>
 <br>
 
-[日本語版READMEはこちら](README_ja.md)
+> **Translations:** This README is also available in Japanese: [日本語版READMEはこちら](README_ja.md).
+> When editing this file, update [README_ja.md](README_ja.md) in the same change so both stay equivalent (see [CONTRIBUTING.md](CONTRIBUTING.md#documentation-translations)).
 
 > A unified platform for orchestrating robots and factory infrastructure.
 
@@ -34,6 +35,7 @@ In addition to typical Warehouse Control System (WCS) capabilities, FREEDOM prov
 </p>
 
 ## Who is this for?
+FREEDOM is primarily intended for:
 - Factory automation engineers
 - Robotics system integrators
 - Developers building Warehouse Control Systems (WCS) and robotics platforms
@@ -79,10 +81,10 @@ For example, to integrate your new AMR into FREEDOM, you need to implement a cus
 | [job/active](backend/src/job/active) | Job execution |
 | [job/create](backend/src/job/create) | Job creation |
 | [job/task](backend/src/job/task) | Task block definitions |
-| [robot/dummy](backend/src/robot/dummy) | Dummy robot (for demos) |
+| [robot/dummy](backend/src/robot/dummy) | Dummy robot (for demos and testing) |
 | [infrastructure/lamp](backend/src/infrastructure/lamp) | Signal lamp on/off control |
 | [infrastructure/shutter](backend/src/infrastructure/shutter) | Shutter open/close control |
-| [infrastructure/gate](backend/src/infrastructure/gate) | Gate open/close status check |
+| [infrastructure/gate](backend/src/infrastructure/gate) | Gate passable/not-passable check |
 | [infrastructure/intersection](backend/src/infrastructure/intersection) | Virtual intersection control |
 | [equipment/iotdatashare](backend/src/equipment/iotdatashare) | Integration with FA communication software “IoT Data Share” (*1) |
 | [equipment/plc](backend/src/equipment/plc) | PLC integration |
@@ -112,12 +114,12 @@ http://localhost:3000
 | PostgreSQL | `16+` |
 
 ## Usage
-The setup guide and user manual are currently under preparation (planned for release in 2026).
+The production setup guide and user manual are currently under preparation (planned for release in 2026).
 
 In the meantime:
-- Refer to the Install Guide for environment configuration
+- Follow the Install Guide to set up a development environment
 - Create a sample job and run a demonstration where a dummy robot passes through an infrastructure-linked zone using the Web UI
-- Explore each repository for example implementations
+- Explore the code under each repository to extend functionality
 
 ## License
 This project is licensed under the [Apache License, Version 2.0](LICENSE).
@@ -129,6 +131,7 @@ For the avoidance of doubt, this License neither modifies nor affects any contra
 Thank you for your interest in this project.
 We are currently preparing the workflow and guidelines for accepting external pull requests (planned to start within 2026). Contributions are highly welcome once the guidelines are published.
 Until then, we would appreciate it if you could report bugs and feature requests via GitHub Issues.
+For documentation and code-comment conventions (including keeping the English and Japanese docs in sync), see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Maintainers
 FREEDOM is currently maintained by:
@@ -137,7 +140,7 @@ FREEDOM is currently maintained by:
 - Kotaro Nagahiro (TOYOTA MOTOR CORPORATION)
 - Koyo Katagiri (TOYOTA MOTOR CORPORATION)
 - Taiki Hisamitsu (TOYOTA MOTOR CORPORATION)
-- Shogo Noguchi (TOYOTA PRODUCTION ENGINEERING)
+- Shogo Noguchi (Contractor: TOYOTA PRODUCTION ENGINEERING)
 
 ## Contact
 For bug reports and feature requests, please open an Issue.
