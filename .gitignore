@@ -1,2 +1,7 @@
 # VisualStudioCode
 .vscode
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
