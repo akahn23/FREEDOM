@@ -13,6 +13,12 @@ from src.freedom.log import Domain, Column, Interface, access, logic
 
 
 class Node(abstract.Node):
+    RETRY_BASE_DELAY:float = 0.5
+    RETRY_MAX_DELAY:float = 30.0
+    MAX_CONSECUTIVE_FAILURES:int = 10
+    MAX_BUFFERED_LOGS:int = 100_000
+    SHUTDOWN_FLUSH_TIMEOUT:float = 5.0
+
     @staticmethod
     def _normalize_keywords(keywords:list[str]|None) -> list[str]|None:
         """キーワード正規化
@@ -48,28 +54,87 @@ class Node(abstract.Node):
         self._output_handler = logic.Handler(self._log_list)
         self._output_handler.setLevel(logging.DEBUG)
         self._output_handler.setFormatter(self._formatter)
+        # 書込みエラー通知用 (DB出力ハンドラを経由させずエラーの再帰を防ぐ)
+        self._writer_logger = logging.getLogger(f"{__package__}.writer")
+        self._writer_logger.setLevel(logging.DEBUG)
+        self._writer_logger.addHandler(self._stream_handler)
+        self._writer_logger.propagate = False
         self._task = asyncio.create_task(self._loop())
         self._logger = self.make_logger(__package__)
         self._logger.info(f"launch")
         repository.append(self)
 
     async def _loop(self):
-        """処理ループ"""
-        #TODO: システム終了時、最後までログを出力出来るようにする
-        #TODO: ループ内でのエラー表示方法を考える
-        temp_log_list:list[Column] = list()
-        while sys.getrefcount(self) > 2:
-            try:
+        """処理ループ
+        書込み失敗時は指数バックオフで再試行し、連続失敗が上限に達したバッチは
+        トレースバック付きでエラー出力して破棄する
+        ループ終了時(キャンセル含む)はバッファ済みのログを書き出す
+        """
+        batch:list[Column] = list()
+        failures = 0
+        try:
+            while sys.getrefcount(self) > 2:
                 await asyncio.sleep(0)
-                temp_log_list.extend(self._log_list)
-                self._log_list.clear()
-                if self._access and temp_log_list:
-                    await self._access.insert(temp_log_list)
-                    temp_log_list.clear()
-            except asyncio.CancelledError:
-                break
-            except Exception:
-                continue
+                self._trim_buffer()
+                if not batch:
+                    batch.extend(self._log_list)
+                    self._log_list.clear()
+                if not (self._access and batch):
+                    continue
+                try:
+                    await self._access.insert(batch)
+                except Exception:
+                    failures += 1
+                    if failures >= self.MAX_CONSECUTIVE_FAILURES:
+                        self._writer_logger.error(f"log write failed {failures} times in a row, dropping {len(batch)} logs", exc_info=True)
+                        batch.clear()
+                        failures = 0
+                        continue
+                    delay = self._backoff_delay(failures)
+                    self._writer_logger.warning(f"log write failed ({failures}/{self.MAX_CONSECUTIVE_FAILURES}), retry in {delay:.2f}s", exc_info=failures == 1)
+                    await asyncio.sleep(delay)
+                    continue
+                if failures:
+                    self._writer_logger.info(f"log write recovered after {failures} failures")
+                failures = 0
+                batch.clear()
+        finally:
+            await self._flush(batch)
+
+    def _backoff_delay(self, failures:int) -> float:
+        """再試行待機時間
+        Args:
+            failures (int): 連続失敗回数
+        Returns:
+            float: 待機時間[s]
+        """
+        return min(self.RETRY_BASE_DELAY * 2 ** (failures - 1), self.RETRY_MAX_DELAY)
+
+    def _trim_buffer(self):
+        """未書込みログの上限超過分を古い順に破棄"""
+        overflow = len(self._log_list) - self.MAX_BUFFERED_LOGS
+        if overflow > 0:
+            del self._log_list[:overflow]
+            self._writer_logger.error(f"log buffer full ({self.MAX_BUFFERED_LOGS}), dropped {overflow} oldest logs")
+
+    async def _flush(self, batch:list[Column]):
+        """終了時の書き出し
+        Args:
+            batch (list[Column]): 書込み中のバッチ
+        """
+        batch.extend(self._log_list)
+        self._log_list.clear()
+        if not batch:
+            return
+        if not self._access:
+            self._writer_logger.error(f"shutdown: no log storage configured, {len(batch)} logs not written")
+            return
+        try:
+            async with asyncio.timeout(self.SHUTDOWN_FLUSH_TIMEOUT):
+                await self._access.insert(batch)
+            batch.clear()
+        except Exception:
+            self._writer_logger.error(f"shutdown: failed to flush {len(batch)} logs", exc_info=True)
 
     def make_logger(self, name:str, prefix:str=None) -> logic.Adapter:
         """ロガー作成
