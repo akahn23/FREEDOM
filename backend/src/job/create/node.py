@@ -18,6 +18,7 @@ class Node(abstract.Node):
         """
         if old := repository.retrieve(self.__class__):
             repository.remove(old[0])
+            abstract.lifecycle.shutdown(old[0]._access)
         self.domain = Domain(**config)
         self._access:Interface = getattr(access, self.domain.interface)(self.domain)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__)

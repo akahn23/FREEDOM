@@ -8,7 +8,7 @@ from src.repository import repository
 from src.equipment.database import NodeDomain, Interface, access
 
 
-class Node(abstract.Node):
+class Node(abstract.Node, abstract.Lifecycle):
     """データベース ノード
     Attributes:
         domain (NodeDomain): ドメイン
@@ -26,12 +26,12 @@ class Node(abstract.Node):
         self._state = util.status.State.DISCONNECT
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__, f"[{self.domain.name}]")
         self._access:Interface = getattr(access, self.domain.interface)(self.domain)
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._logger.info(f"launch: {self.domain=}")
 
     def close(self):
         """切断"""
-        self._task.cancel()
+        self.shutdown()
 
     def fetch_status(self) -> util.status.Status:
         """状態取得
@@ -66,7 +66,7 @@ class Node(abstract.Node):
         try:
             while not await self._access.is_connected():
                 await asyncio.sleep(self.domain.update_cycle)
-            while True:
+            while self.running:
                 await asyncio.gather(
                     self._update(),
                     asyncio.sleep(self.domain.update_cycle)

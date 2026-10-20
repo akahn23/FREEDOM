@@ -6,7 +6,7 @@ import dataclasses
 import importlib
 import typing
 
-from src.repository import repository
+from src.repository import repository, Repository
 from src import abstract, freedom
 from src.freedom.main import Interface, access
 if typing.TYPE_CHECKING:
@@ -15,12 +15,14 @@ if typing.TYPE_CHECKING:
 
 class Node(abstract.Node):
     @classmethod
-    async def init(cls, config_name:str):
+    async def init(cls, config_name:str) -> "Node":
         """初回システム構築
         Args:
             config_name (str): 設定ファイル名
+        Returns:
+            Node: システムノード
         """
-        freedom.log.Node()
+        freedom.log.Node.configure()
         self = cls(config_name)
         await self._init_task
         await self.update_node("freedom.map")
@@ -32,6 +34,7 @@ class Node(abstract.Node):
                     await self.update_node(node_name)
                 except Exception as e:
                     self._logger.error(f"Failed to make node: {node_name=} {type(e)} - {e}")
+        return self
 
     def __init__(self, config_name:str):
         """Freedomシステムノード
@@ -44,6 +47,7 @@ class Node(abstract.Node):
         self.domain.conf = conf
         self._access:Interface = getattr(access, self.domain.interface)(self.domain)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__)
+        self._stop_requested = asyncio.Event()
         self._init_task = asyncio.create_task(self._init_loop())
         self._logger.info(f"launch: {self.domain}")
         repository.append(self)
@@ -93,9 +97,34 @@ class Node(abstract.Node):
         """
         # TODO: git checkout
         self._logger.info(f"restart: {version=}")
-        for task in asyncio.all_tasks():
-            if task is not asyncio.current_task():
-                task.cancel()
+        self._stop_requested.set()
+
+    async def wait_stop_requested(self):
+        """停止要求(restart)まで待つ"""
+        await self._stop_requested.wait()
+
+    async def aclose_nodes(self):
+        """全ノード停止
+        構築と逆順に停止完了まで待つ ログノードは最後に停止する
+        """
+        for item in reversed(list(repository)):
+            if item is self or isinstance(item, freedom.log.Node):
+                continue
+            await self._aclose_tree(item)
+        await abstract.lifecycle.aclose(self._access)
+        for node in repository.retrieve(freedom.log.Node):
+            await node.aclose()
+
+    @classmethod
+    async def _aclose_tree(cls, item):
+        """ノード停止 リポジトリは配下のノードも停止する
+        Args:
+            item (typing.Any): ノードまたはリポジトリ
+        """
+        await abstract.lifecycle.aclose(item)
+        if isinstance(item, Repository):
+            for child in reversed(list(item)):
+                await cls._aclose_tree(child)
 
     async def update_node(self, node:str, config:dict=None):
         """ノード更新
@@ -115,4 +144,7 @@ class Node(abstract.Node):
             node_cls:type[abstract.Node] = getattr(module, "Repository")
         else:
             node_cls:type[abstract.Node] = getattr(module, "Node")
-        node_cls(config)
+        if hasattr(node_cls, "configure"):
+            node_cls.configure(config)
+        else:
+            node_cls(config)

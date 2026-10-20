@@ -5,14 +5,13 @@ import asyncio
 import dataclasses
 from datetime import datetime
 import logging
-import sys
 
 from src import abstract
 from src.repository import repository
 from src.freedom.log import Domain, Column, Interface, access, logic
 
 
-class Node(abstract.Node):
+class Node(abstract.Node, abstract.Lifecycle):
     @staticmethod
     def _normalize_keywords(keywords:list[str]|None) -> list[str]|None:
         """キーワード正規化
@@ -24,20 +23,28 @@ class Node(abstract.Node):
         normalized = [item.strip() for item in (keywords or []) if isinstance(item, str) and item.strip()]
         return normalized or None
 
+    @classmethod
+    def configure(cls, config:dict=None) -> "Node":
+        """ログノード構築・設定変更
+        起動済みなら設定を反映し、未起動なら新規に起動する
+        Args:
+            config (dict): 設定 Noneで設定変更なし
+        Returns:
+            Node: ログノード
+        """
+        if old := repository.retrieve(cls):
+            if config is not None:
+                old[0].reconfigure(config)
+            return old[0]
+        return cls(config)
+
     def __init__(self, config:dict=None):
         """Freedomログノード
         システム内のログ情報を管理、保存する
+        起動済みノードの設定変更はconfigure()またはreconfigure()を使う
         Args:
             config (dict): 設定
         """
-        # 設定変更時
-        if old := repository.retrieve(self.__class__):
-            self = old[0]
-            self.domain = Domain(**config)
-            self._access = getattr(access, self.domain.interface)(self.domain)
-            self._logger.info(f"set domain: {self.domain}")
-            return
-        # 初回起動時
         self.domain = Domain()
         self._log_list:list[Column] = list()
         self._access:Interface = None
@@ -48,28 +55,56 @@ class Node(abstract.Node):
         self._output_handler = logic.Handler(self._log_list)
         self._output_handler.setLevel(logging.DEBUG)
         self._output_handler.setFormatter(self._formatter)
-        self._task = asyncio.create_task(self._loop())
         self._logger = self.make_logger(__package__)
+        self.start()
         self._logger.info(f"launch")
         repository.append(self)
+        if config is not None:
+            self.reconfigure(config)
+
+    def reconfigure(self, config:dict):
+        """設定変更
+        Args:
+            config (dict): 設定
+        """
+        domain = Domain(**config)
+        new_access:Interface = getattr(access, domain.interface)(domain)
+        old_access, self.domain, self._access = self._access, domain, new_access
+        abstract.lifecycle.shutdown(old_access)
+        self._logger.info(f"set domain: {self.domain}")
 
     async def _loop(self):
-        """処理ループ"""
-        #TODO: システム終了時、最後までログを出力出来るようにする
+        """処理ループ
+        停止時は残りのログを出力してから切断する
+        """
         #TODO: ループ内でのエラー表示方法を考える
         temp_log_list:list[Column] = list()
-        while sys.getrefcount(self) > 2:
+        try:
+            while self.running:
+                try:
+                    await asyncio.sleep(0)
+                    await self._flush(temp_log_list)
+                except asyncio.CancelledError:
+                    break
+                except Exception:
+                    continue
+        finally:
             try:
-                await asyncio.sleep(0)
-                temp_log_list.extend(self._log_list)
-                self._log_list.clear()
-                if self._access and temp_log_list:
-                    await self._access.insert(temp_log_list)
-                    temp_log_list.clear()
-            except asyncio.CancelledError:
-                break
+                await self._flush(temp_log_list)
             except Exception:
-                continue
+                pass
+            await abstract.lifecycle.aclose(self._access)
+
+    async def _flush(self, temp_log_list:list[Column]):
+        """ログ出力
+        Args:
+            temp_log_list (list[Column]): 未出力ログ
+        """
+        temp_log_list.extend(self._log_list)
+        self._log_list.clear()
+        if self._access and temp_log_list:
+            await self._access.insert(temp_log_list)
+            temp_log_list.clear()
 
     def make_logger(self, name:str, prefix:str=None) -> logic.Adapter:
         """ロガー作成

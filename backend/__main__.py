@@ -10,13 +10,14 @@ from src import freedom
 
 
 async def run():
-    await freedom.main.Node.init(sys.argv[1])
-    repository.retrieve(freedom.log.Node)[0].make_logger(__name__).info(f"launch: {sys.argv[1:]}")
+    main = await freedom.main.Node.init(sys.argv[1])
+    logger = repository.retrieve(freedom.log.Node)[0].make_logger(__name__)
+    logger.info(f"launch: {sys.argv[1:]}")
     try:
-        while True:
-            await asyncio.sleep(0)
-    except asyncio.CancelledError:
-        repository.retrieve(freedom.log.Node)[0].make_logger(__name__).info("close")
+        await main.wait_stop_requested()
+    finally:
+        logger.info("close")
+        await main.aclose_nodes()
 
 
 if __name__=="__main__":

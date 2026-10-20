@@ -3,13 +3,12 @@
 
 import asyncio
 import copy
-import sys
 
-from src import repository, freedom, job
+from src import abstract, repository, freedom, job
 from src.job.active import Node, Domain, Interface
 
 
-class Repository(repository.Repository[Node]):
+class Repository(repository.Repository[Node], abstract.Lifecycle):
     def __init__(self, config:dict):
         """ジョブ実行リポジトリ
         Args:
@@ -18,28 +17,30 @@ class Repository(repository.Repository[Node]):
         # 設定更新時は旧リポジトリを削除
         if old := repository.repository.retrieve(self.__class__):
             repository.repository.remove(old[0])
-            old[0]._task.cancel()
+            old[0].shutdown()
         super().__init__()
         self.domain = Domain(**config)
         self._access:Interface = getattr(job.active.access, self.domain.interface)(self.domain)
         self._logger = repository.repository.retrieve(freedom.log.Node)[0].make_logger(__name__)
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._prev_data = list()
         self._logger.info(f"launch: {self.domain}")
         repository.repository.append(self)
 
     async def _loop(self):
         """更新ループ"""
-        await self._init_node()
         try:
-            while sys.getrefcount(self) > 2:
+            await self._init_node()
+            while self.running:
                 await asyncio.gather(
                     self._update(),
                     asyncio.sleep(0),
                 )
         finally:
-            for node in self.data:
+            for node in list(self.data):
                 node.cancel()
+            await asyncio.gather(*(node.aclose() for node in list(self.data)))
+            await abstract.lifecycle.aclose(self._access)
 
     async def _init_node(self):
         """ジョブ実行ノード初期構築

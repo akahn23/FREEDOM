@@ -30,7 +30,7 @@ class Repository(repository.Repository[Node]):
             if node.domain not in domain.node_domain:
                 self.domain.node_domain.remove(node.domain)
                 self.data.remove(node)
-                node.close()
+                node.shutdown()
         for i, node_domain in enumerate(domain.node_domain):
             if node_domain in self.domain.node_domain:
                 j = self.domain.node_domain.index(node_domain)

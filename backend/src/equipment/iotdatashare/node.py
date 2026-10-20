@@ -4,14 +4,13 @@
 import aiohttp
 import asyncio
 import json
-import sys
 
 from src import abstract, freedom, util
 from src.repository import repository
 from src.equipment.iotdatashare import NodeDomain
 
 
-class Node(abstract.Node):
+class Node(abstract.Node, abstract.Lifecycle):
     def __init__(self, domain:NodeDomain):
         """IoT Data Shareノード
         Args:
@@ -24,13 +23,13 @@ class Node(abstract.Node):
         }
         self._session = aiohttp.ClientSession(f'http://{domain.ip}:{domain.port}', timeout=aiohttp.ClientTimeout(total=domain.timeout))
         self._controller_lock:dict[str, asyncio.Lock] = dict()
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
         """更新ループ"""
         try:
-            while sys.getrefcount(self) > 2:
+            while self.running:
                 await asyncio.gather(
                     self._update(),
                     asyncio.sleep(self.domain.update_cycle),
@@ -119,7 +118,7 @@ class Node(abstract.Node):
 
     def close(self):
         """切断"""
-        self._task.cancel()
+        self.shutdown()
 
     async def read_item(self, controller:str, item:str) -> int:
         """アイテム読込み

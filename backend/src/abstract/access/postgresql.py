@@ -8,12 +8,11 @@ import dataclasses
 from datetime import datetime, timedelta
 import json
 import logging
-import sys
 
 from src import abstract, util
 
 
-class PostgreSQL[D:abstract.database.Domain](abc.ABC):
+class PostgreSQL[D:abstract.database.Domain](abstract.Lifecycle, abc.ABC):
     def __init__(self, domain:D, logger:logging.Logger):
         """PostgreSQL接続抽象クラス
         Args:
@@ -23,12 +22,12 @@ class PostgreSQL[D:abstract.database.Domain](abc.ABC):
         self._domain = domain
         self._logger = logger
         self._pool:asyncpg.Pool = None
-        self._task = asyncio.create_task(self._loop())
+        self.start()
 
     async def _loop(self):
         """接続確認ループ"""
         try:
-            while sys.getrefcount(self) > 2:
+            while self.running:
                 if not await self._is_connect():
                     await self._connect()
                 await asyncio.sleep(self._domain.update_cycle)

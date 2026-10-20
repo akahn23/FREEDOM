@@ -2,30 +2,28 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import sys
 
-from src import freedom, robot, util
+from src import abstract, freedom, robot, util
 from src.repository import repository
 from src.robot.dummy import NodeDomain
 
 
-class Node(robot.Node[NodeDomain]):
+class Node(robot.Node[NodeDomain], abstract.Lifecycle):
     def __init__(self, domain:NodeDomain):
         super().__init__(domain)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__, f"[{self.domain.name}]")
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
-        while sys.getrefcount(self) > 2:
-            try:
+        try:
+            while self.running:
                 await asyncio.gather(
                     asyncio.sleep(self.domain.update_cycle),
                     self._update(),
                 )
-            except asyncio.CancelledError:
-                break
-        self._logger.info("close")
+        finally:
+            self._logger.info("close")
 
     def fetch_status(self) -> util.status.Status:
         """状態取得

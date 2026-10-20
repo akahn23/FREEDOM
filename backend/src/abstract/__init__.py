@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .domain import Domain
+from .lifecycle import Lifecycle
+from . import lifecycle
 from .node import Node
 from . import database
 from . import access
