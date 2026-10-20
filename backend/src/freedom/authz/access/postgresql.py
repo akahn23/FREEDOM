@@ -1,8 +1,6 @@
 # Copyright (c) 2026 TOYOTA MOTOR CORPORATION. ALL RIGHTS RESERVED.
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
-
 """AuthZ初期化用PostgreSQL定義
 - authzスキーマ作成
 - user_node_allow / user_node_deny / user_job_allow テーブル作成
@@ -10,6 +8,8 @@ from __future__ import annotations
 - index/unique 制約の整備
 - policy.seed.csvの初回自動投入(casbin_rule が空なら)
 """
+
+from __future__ import annotations
 
 from src import abstract, freedom
 from src.repository import repository

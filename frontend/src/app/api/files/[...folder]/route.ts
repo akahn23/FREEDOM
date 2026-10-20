@@ -61,6 +61,7 @@ function isSafePathSegment(segment: string): boolean {
   if (!segment) return false;
   if (segment === "." || segment === "..") return false;
   if (segment.includes("/") || segment.includes("\\")) return false;
+  // eslint-disable-next-line no-control-regex -- rejecting control characters is intended
   if (/[\u0000-\u001F\u007F]/u.test(segment)) return false;
 
   return true;

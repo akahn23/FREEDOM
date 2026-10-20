@@ -132,7 +132,7 @@ function AreaDialog({ payload, open, onClose }: DialogProps<Area[], Area[]>) {
   );
 }
 
-export function registerFieldArea() {
+export function RegisterFieldArea() {
   const dialogs = useDialogs();
 
   useEffect(() => {

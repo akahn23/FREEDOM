@@ -134,7 +134,6 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
   // “良い状態”のバックアップ（空読み時の自己復元に使用）
   const lastGoodFcRef = useRef<FeatureCollection | null>(null);
-  const rehydrateCooldownRef = useRef<number>(0);
   const suppressRehydrateOnceRef = useRef<boolean>(false);
 
   /** 名前キャッシュ更新 */
@@ -282,7 +281,7 @@ export default function MapDraw({ onChange, initialShapes = [] }: MapDrawProps) 
 
   /** 小リトライ + 空上書き抑止 + 自己復元 */
   const refreshWithRetry = useCallback(
-    async (tries = 12) => {
+    async () => {
       const arrRaw = ensureNames(readFromGeoman());
       const arr = arrRaw.map(f => {
         const ring = (f.geometry?.coordinates?.[0] ?? []) as [number, number][];

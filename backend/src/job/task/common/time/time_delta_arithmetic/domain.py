@@ -52,7 +52,6 @@ class Domain(abstract.value.Domain):
             "inputsInline": True,
             "output": ["Time", "TimeDelta", "Number"],
             "colour": 310,
-            "tooltip": "",
         }]
 
     @classmethod

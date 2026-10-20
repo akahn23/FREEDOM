@@ -132,7 +132,7 @@ function LocationDialog({ payload, open, onClose }: DialogProps<Location, Locati
   );
 }
 
-export function registerFieldLocation() {
+export function RegisterFieldLocation() {
   const dialogs = useDialogs();
 
   useEffect(() => {

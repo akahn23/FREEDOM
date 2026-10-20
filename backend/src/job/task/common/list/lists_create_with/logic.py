@@ -10,22 +10,6 @@ class Logic(abstract.value.Logic[Domain]):
     async def init(self):
         """ジョブ開始時処理"""
         await super().init()
-        for k,v in vars(self.domain).items():
-            if isinstance(v, abstract.value.Domain):
-                setattr(self, k, await v.make_logic(self._job_id, self._logger))
-
-    async def exec(self) -> list:
-        """タスク実行"""
-        add: list = list()
-        for name, logic in vars(self).items():
-            if name.startswith("ADD") and isinstance(logic, abstract.value.Logic):
-                add.append(name)
-        add.sort(key=lambda x:int(x[3:]))
-        return [await getattr(self, name).exec() for name in add]
-
-    async def init(self):
-        """ジョブ開始時処理"""
-        await super().init()
         self._add:dict[str, abstract.value.Logic] = dict()
         for k,v in vars(self.domain).items():
             if isinstance(v, abstract.value.Domain) and k.startswith("ADD"):

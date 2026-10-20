@@ -33,7 +33,7 @@ import { FormProps, FormMap } from "@/components/config/forms";
  * @param validate 検証イベント
  */
 export default function TableForm({ name, form, disabled, validate }: FormProps<TableFormResponse>) {
-  const { control, setError, clearErrors, watch, getValues } = useFormContext();
+  const { control, watch, getValues } = useFormContext();
   const { fields, append, replace } = useFieldArray({ control, name });
   const items = useWatch({ control, name });
   const translate = useTranslations("Config");
@@ -89,18 +89,20 @@ export default function TableForm({ name, form, disabled, validate }: FormProps<
 
   const VirtuosoTableComponents: TableComponents<any> = useMemo(
     () => ({
-      Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
-        <TableContainer {...props}
-          ref={(node: HTMLDivElement | null) => {
-            scrollerRef.current = node;
+      Scroller: React.forwardRef<HTMLDivElement>(function VirtuosoScroller(props, ref) {
+        return (
+          <TableContainer {...props}
+            ref={(node: HTMLDivElement | null) => {
+              scrollerRef.current = node;
 
-            if (typeof ref === 'function') {
-              ref(node);
-            } else if (ref) {
-              ref.current = node;
-            }
-          }} component={Paper} variant="outlined"/>
-      )),
+              if (typeof ref === 'function') {
+                ref(node);
+              } else if (ref) {
+                ref.current = node;
+              }
+            }} component={Paper} variant="outlined"/>
+        );
+      }),
       Table: (props) => (
         <Table {...props} size="small" stickyHeader sx={{
           borderCollapse: 'separate',
@@ -111,9 +113,11 @@ export default function TableForm({ name, form, disabled, validate }: FormProps<
       ),
       TableHead,
       TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
-      TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-        <TableBody {...props} ref={ref} />
-      )),
+      TableBody: React.forwardRef<HTMLTableSectionElement>(function VirtuosoTableBody(props, ref) {
+        return (
+          <TableBody {...props} ref={ref} />
+        );
+      }),
     }),
     [form.width],
   );

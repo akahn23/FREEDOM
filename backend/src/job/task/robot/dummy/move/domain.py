@@ -3,8 +3,6 @@
 
 import dataclasses
 
-from src.repository import repository
-from src import freedom
 from src.job.task import abstract
 
 

@@ -69,9 +69,11 @@ async function readApiErrorCode(res: Response): Promise<string | null> {
 }
 
 const VirtuosoComponents = {
-  Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
-    <TableContainer component={Paper} variant="outlined" {...props} ref={ref} />
-  )),
+  Scroller: React.forwardRef<HTMLDivElement>(function VirtuosoScroller(props, ref) {
+    return (
+      <TableContainer component={Paper} variant="outlined" {...props} ref={ref} />
+    );
+  }),
   Table: (props: any) => (
     <Table
       {...props}
@@ -84,9 +86,11 @@ const VirtuosoComponents = {
   ),
   TableHead,
   TableRow: (props: any) => <TableRow {...props} hover />,
-  TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-    <TableBody {...props} ref={ref} />
-  )),
+  TableBody: React.forwardRef<HTMLTableSectionElement>(function VirtuosoTableBody(props, ref) {
+    return (
+      <TableBody {...props} ref={ref} />
+    );
+  }),
 };
 
 export default function Page() {

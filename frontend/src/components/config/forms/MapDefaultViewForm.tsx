@@ -156,7 +156,7 @@ function MapDefaultViewDialog({ open, onClose, setValue, getValues }: DialogProp
 /**
  * mapDefaultView フォーム
  */
-export default function MapDefaultViewForm({ name, form }: FormProps) {
+export default function MapDefaultViewForm({ form }: FormProps) {
   const translate = useTranslations("Config");
   const dialog = useDialogs();
   const { getValues, control, setValue } = useFormContext();

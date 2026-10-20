@@ -78,9 +78,9 @@ function IntersectionDialog({ open, onClose, name, setValue, getValues }: Dialog
  * @param disabled 無効
  * @param validate 検証イベント
  */
-export default function MapImageForm({ name, form, disabled, validate }: FormProps<IntersectionFormResponse>) {
+export default function MapImageForm({ name, form }: FormProps<IntersectionFormResponse>) {
   const { control, getValues, setValue } = useFormContext();
-  const { fields, append, remove } = useFieldArray({
+  useFieldArray({
     control,
     name: name,
   });

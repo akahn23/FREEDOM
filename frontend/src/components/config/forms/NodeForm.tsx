@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect } from "react";
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
 import { useTranslations } from "next-intl";
 import { Button, Grid, Paper, Stack, Typography } from "@mui/material";
@@ -20,9 +19,9 @@ import { FormProps, FormMap } from "@/components/config/forms";
  * @param validate 検証イベント
  */
 export default function NodeForm({ name, form, disabled, validate }: FormProps<NodeFormResponse>) {
-  const { control, setError, clearErrors, watch } = useFormContext();
+  const { control, watch } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: name});
-  const items = useWatch({ control, name: name });
+  useWatch({ control, name: name });
   const translate = useTranslations("Config");
 
   /**

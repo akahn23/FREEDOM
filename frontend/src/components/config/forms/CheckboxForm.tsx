@@ -9,7 +9,6 @@ import {
   FormControlLabel,
   FormGroup,
   FormHelperText,
-  FormLabel,
 } from "@mui/material";
 import { CheckboxFormResponse } from "@/types/config";
 import { FormProps } from "@/components/config/forms";

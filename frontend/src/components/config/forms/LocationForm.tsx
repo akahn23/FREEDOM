@@ -80,9 +80,9 @@ function MapDialogComponent({ open, onClose, name, setValue, getValues }: Dialog
  * @param disabled 無効
  * @param validate 検証イベント
  */
-export default function MapImageForm({ name, form, disabled, validate }: FormProps<LocationFormResponse>) {
+export default function MapImageForm({ name, form }: FormProps<LocationFormResponse>) {
   const { control, getValues, setValue } = useFormContext();
-  const { fields, append, remove } = useFieldArray({
+  useFieldArray({
     control,
     name: name,
   });

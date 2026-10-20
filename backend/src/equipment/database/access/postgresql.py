@@ -5,7 +5,6 @@ import asyncio
 import asyncpg
 from datetime import datetime
 import json
-import logging
 from zoneinfo import ZoneInfo
 
 from src import util
