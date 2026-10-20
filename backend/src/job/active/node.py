@@ -2,14 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import sys
 
 from src import abstract, freedom, job
 from src.repository import repository
 from src.job.active import NodeDomain
 
 
-class Node(abstract.Node):
+class Node(abstract.Node, abstract.Lifecycle):
     def __init__(self, config:dict):
         """ジョブ実行ノード
         Args:
@@ -21,7 +20,7 @@ class Node(abstract.Node):
             f"[{self.domain.created_at}-{self.domain.name}]"
         )
         self._task_logic:job.task.abstract.statement.Logic = None
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._logger.info(f"launch: {self.domain}")
 
     async def _loop(self):
@@ -37,7 +36,7 @@ class Node(abstract.Node):
             self._logger.error(f"Failed to init: {type(e)} - {e}")
             self.domain.error_msg.add(str(e))
         try:
-            while sys.getrefcount(self) > 2:
+            while self.running:
                 await asyncio.sleep(0)
                 if self.domain.warning_msg and self.domain.warning_msg != prev_warning_msg:
                     self._logger.warning(f"job warning: {self.domain.warning_msg}")
@@ -94,7 +93,7 @@ class Node(abstract.Node):
 
     def cancel(self):
         """ジョブキャンセル"""
-        self._task.cancel()
+        self.shutdown()
         self._logger.info("cancel")
 
     async def exec_command(self, command, id:str|None=None):

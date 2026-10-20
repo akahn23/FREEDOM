@@ -3,12 +3,10 @@
 
 from aiohttp import web
 from aiohttp_middlewares import cors_middleware
-import asyncio
-import sys
 import asyncpg
 
 from src.repository import repository
-from src import freedom
+from src import abstract, freedom
 from src.freedom.user_interface import Domain, logic
 
 from src.freedom.middlewares.authz import authz_middleware
@@ -27,25 +25,41 @@ from src.freedom.authz.access.postgresql import (
 )
 
 
-class Node:
+class Node(abstract.Lifecycle):
+    @classmethod
+    def configure(cls, config:dict) -> "Node":
+        """UIノード構築・設定変更
+        起動済みなら設定を反映し、未起動なら新規に起動する
+        Args:
+            config (dict): 設定リスト
+        Returns:
+            Node: UIノード
+        """
+        if old := repository.retrieve(cls):
+            old[0].reconfigure(config)
+            return old[0]
+        return cls(config)
+
     def __init__(self, config:dict):
         """UIノード
         UIサーバとリクエストを管理する
+        起動済みノードの設定変更はconfigure()またはreconfigure()を使う
         Args:
             config (dict): 設定リスト
         """
-        # 設定変更時
-        if old := repository.retrieve(self.__class__):
-            self = old[0]
-            self.domain = Domain(**config)
-            self._logger.info(f"set domain: {self.domain}")
-            return
-        # 初回起動時
         self.domain = Domain(**config)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__)
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._logger.info(f"launch: self.domain={self.domain.__dict__}")
         repository.append(self)
+
+    def reconfigure(self, config:dict):
+        """設定変更
+        Args:
+            config (dict): 設定リスト
+        """
+        self.domain = Domain(**config)
+        self._logger.info(f"set domain: {self.domain}")
 
     async def _loop(self):
         """処理ループ"""
@@ -90,15 +104,13 @@ class Node:
             await runner.setup()
             site = web.TCPSite(runner, self.domain.ip, self.domain.port)
             try:
-                while sys.getrefcount(self) > 2:
+                while self.running:
                     try:
                         await site.start()
-                        break
                     except Exception:
-                        pass
-                self._logger.info("start server")
-                while sys.getrefcount(self) > 2:
-                    await asyncio.sleep(0)
+                        continue
+                    self._logger.info("start server")
+                    await self._stop_event.wait()
             finally:
                 # Casbin有効時のみ閉じる
                 if "auth_pool" in app:

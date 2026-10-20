@@ -2,15 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import sys
 
-from src import freedom, infrastructure, robot, util
+from src import abstract, freedom, infrastructure, robot, util
 from src.repository import repository
 from src.infrastructure.gate import NodeDomain, Interface, access
 from src.infrastructure.command import Button
 
 
-class Node(infrastructure.Node):
+class Node(infrastructure.Node, abstract.Lifecycle):
     """遮断機 ノード
     Attributes:
         domain (NodeDomain): ドメイン
@@ -28,13 +27,13 @@ class Node(infrastructure.Node):
         self._state = util.status.State.WAITING
         self._access: Interface = getattr(access, self.domain.interface)(self.domain)
         self._logger = repository.retrieve(freedom.log.Node)[0].make_logger(__package__, f"[{self.domain.name}]")
-        self._task = asyncio.create_task(self._loop())
+        self.start()
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
         """定期ループ処理"""
         try:
-            while sys.getrefcount(self) > 2:
+            while self.running:
                 await asyncio.gather(
                     asyncio.sleep(self.domain.update_cycle),
                     self._update(),
