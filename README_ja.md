@@ -14,12 +14,15 @@
 </p>
 <br>
 
+> **翻訳について:** 本READMEの英語版は [README.md](README.md) です。
+> 本ファイルを編集する際は、両者の内容が一致するよう同じ変更で [README.md](README.md) も更新してください（[CONTRIBUTING.md](CONTRIBUTING.md#documentation-translations) を参照）。
+
 ## はじめに
 FREEDOMは、AMRをはじめとする搬送ロボットを、工場内の各種インフラ設備と連携させて運用するための管制システムです。
 一般的な倉庫制御システム（WCS）の機能に加え、以下の特徴があります。
 
 - **ワンポータル化**
-   各種ロボットのAPIを取り込むことで、異なる座標系を持つ複数種のロボットを1つのFREEDOMから制御でき、現場作業者の負担を軽減できます。
+   各種ロボットのAPIを取り込むことで、異なる座標系を持つ複数種のロボットを1つのFREEDOMから制御できます。全設備の状態をリアルタイムに可視化する統合ダッシュボードにより、現場作業者の負担を軽減し、業務効率を向上できます。
 - **ジョブ作成機能**
    複数のタスクを組み合わせた1つのシーケンス（ジョブ）をWeb UI上で作成でき、現場作業者が自らの手で改善に取り組めます。
 - **インフラ連携エリア**
@@ -74,11 +77,11 @@ FREEDOM はマイクロサービスアーキテクチャの設計思想に基づ
 | [freedom/user_interface](backend/src/freedom/user_interface) | Web API機能（フロントエンド連携） |
 | [freedom/map](backend/src/freedom/map) | 地図表示機能 |
 | [freedom/log](backend/src/freedom/log) | ログ出力機能 |
-| [freedom/authz](backend/src/freedom/authz) | ユーザ認証機能 |
+| [freedom/authz](backend/src/freedom/authz) | ユーザ認可機能 |
 | [job/active](backend/src/job/active) | ジョブ実行機能 |
 | [job/create](backend/src/job/create) | ジョブ作成機能 |
 | [job/task](backend/src/job/task) | タスクブロック定義 |
-| [robot/dummy](backend/src/robot/dummy) | ダミーロボット（動作検証用） |
+| [robot/dummy](backend/src/robot/dummy) | ダミーロボット（デモ・動作検証用） |
 | [infrastructure/lamp](backend/src/infrastructure/lamp) | ランプ点灯/消灯制御 |
 | [infrastructure/shutter](backend/src/infrastructure/shutter) | シャッター開閉制御 |
 | [infrastructure/gate](backend/src/infrastructure/gate) | ゲート通過可/不可チェック |
@@ -100,6 +103,9 @@ IoT Data Shareを利用する場合には、同製品について定められた
 ### クイックスタート（推奨）
 以下のインストール手順に従い、ローカル環境でFREEDOMを起動してください。
 📖 [インストールガイドはこちら](docs/install_ja.md)
+
+インストール後、以下のURLからWeb UIにアクセスできます。
+http://localhost:3000
 
 #### 環境要件
 | 項目 | バージョン |
@@ -125,6 +131,7 @@ IoT Data Shareを利用する場合には、同製品について定められた
 本プロジェクトに関心をお持ちいただきありがとうございます。
 現在、外部からのPull Requestを受け付けるための体制・ガイドラインを整備中です（2026年内に開始予定）。
 それまでの間は、バグ報告や機能要望についてはIssueでお知らせいただけると助かります。
+ドキュメントやコードコメントの規約（英語版・日本語版ドキュメントの同期方法を含む）は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
 
 ## 開発・保守メンバー
 FREEDOM は現在、以下のメンバーによって開発・保守されています。

@@ -7,15 +7,15 @@ from src.job.task.common.map._area_is_inside import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """エリア内判定タスク処理"""
+    """Inside-area check task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._location = await self.domain.location.make_logic(self._job_id, self._logger)
         self._area_list = await self.domain.area_list.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> bool:
-        """タスク実行"""
+        """Execute the task"""
         location:list[float] = await self._location.exec()
         area_list:list[util.map.Area] = await self._area_list.exec()
         return util.map._is_inside(location, area_list)

@@ -16,9 +16,9 @@ if typing.TYPE_CHECKING:
 class Node(abstract.Node):
     @classmethod
     async def init(cls, config_name:str):
-        """初回システム構築
+        """Initial system build
         Args:
-            config_name (str): 設定ファイル名
+            config_name (str): Configuration file name
         """
         freedom.log.Node()
         self = cls(config_name)
@@ -34,10 +34,10 @@ class Node(abstract.Node):
                     self._logger.error(f"Failed to make node: {node_name=} {type(e)} - {e}")
 
     def __init__(self, config_name:str):
-        """Freedomシステムノード
-        各ノードの起動や更新を行う
+        """FREEDOM system node
+        Launches and updates each node
         Args:
-            config_name (str): 設定ファイル名
+            config_name (str): Configuration file name
         """
         conf:config.dummy = importlib.import_module(f"config.{config_name}")
         self.domain = conf.main
@@ -49,7 +49,7 @@ class Node(abstract.Node):
         repository.append(self)
 
     async def _init_loop(self):
-        """初期処理ループ"""
+        """Initialization loop"""
         while True:
             try:
                 await self.update_node("freedom.log")
@@ -58,9 +58,9 @@ class Node(abstract.Node):
                 await asyncio.sleep(0)
 
     def fetch_structure(self) -> dict[str, list[str]]:
-        """ノード構造取得
+        """Get the node structure
         Returns:
-            dict[str, list[str]]: ノード構造
+            dict[str, list[str]]: Node structure
         """
         ret = dict()
         for k,v in self.domain.conf.structure.items():
@@ -68,28 +68,28 @@ class Node(abstract.Node):
         return ret
 
     async def fetch_form(self, node:str) -> dict:
-        """フォーム取得
+        """Get a form
         Args:
-            node (str): ノード名
+            node (str): Node name
         Returns:
-            dict: フォーム
+            dict: Form
         """
         domain:abstract.Domain = getattr(importlib.import_module(f"src.{node}"), "Domain")
         return domain.make_form()
 
     async def fetch_config(self, node:str) -> dict:
-        """設定取得
+        """Get the settings
         Args:
-            node (str): ノード名
+            node (str): Node name
         Returns:
-            dict: 設定
+            dict: Settings
         """
         return await self._access.fetch(node)
 
     async def restart(self, version:str):
-        """プログラム再起動
+        """Restart the program
         Args:
-            version (str): バージョン名
+            version (str): Version name
         """
         # TODO: git checkout
         self._logger.info(f"restart: {version=}")
@@ -98,11 +98,11 @@ class Node(abstract.Node):
                 task.cancel()
 
     async def update_node(self, node:str, config:dict=None):
-        """ノード更新
-        DBに挿入後、ノード構築を行う
+        """Update a node
+        Builds the node after inserting it into the database
         Args:
-            node (str): ノード名
-            config (typing.Any): 設定
+            node (str): Node name
+            config (typing.Any): Settings
         """
         module = importlib.import_module(f"src.{node}")
         if config is not None:

@@ -12,16 +12,16 @@ from src.job.task.job.active.exec import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """ジョブ実行タスク処理"""
+    """Job execution task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._kwargs = await self.domain.kwargs.make_logic(self._job_id, self._logger)
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         self._var = next(node.retrieve_variables(id=self.domain.var["id"]))
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         kwargs:dict|None = await self._kwargs.exec()
         if kwargs is None:
             kwargs = dict()

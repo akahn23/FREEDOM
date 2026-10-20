@@ -6,7 +6,7 @@ from src.job.task.common.logic.logic_boolean import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """logic_booleanタスク処理"""
+    """logic_boolean task logic"""
     async def exec(self) -> bool:
-        """タスク実行"""
+        """Execute the task"""
         return self.domain.BOOL == "TRUE"

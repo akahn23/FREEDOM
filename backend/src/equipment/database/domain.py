@@ -9,18 +9,18 @@ from src import abstract, equipment
 
 @dataclasses.dataclass
 class NodeDomain(abstract.Domain):
-    """データベース ノードドメイン
+    """Database node domain
     Attributes:
-        enable (bool): 有効
-        name (str): 名前
-        interface (str): インターフェース名
-        dsn (str): DB接続先
-        schema (str): スキーマ名
-        table (str): テーブル名
-        timeout (float): 通信タイムアウト
-        update_cycle (float): 更新周期
-        location (list[float]): 位置
-        data (list[dict]): データ
+        enable (bool): Enabled
+        name (str): Name
+        interface (str): Interface name
+        dsn (str): Database connection string
+        schema (str): Schema name
+        table (str): Table name
+        timeout (float): Communication timeout
+        update_cycle (float): Update cycle
+        location (list[float]): Location
+        data (list[dict]): Data
     """
     enable: bool = True
     name: str = ""
@@ -33,12 +33,12 @@ class NodeDomain(abstract.Domain):
     location: list[float] = dataclasses.field(default_factory=lambda: [0.0, 0.0])
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.data:list[dict] = list()
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成"""
+        """Create the settings form"""
         return {
             "enable": {
                 "type": "switch",
@@ -86,17 +86,17 @@ class NodeDomain(abstract.Domain):
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """データベース ドメイン
+    """Database domain
     Attributes:
-        node_domain (list[NodeDomain]): ノード設定リスト
+        node_domain (list[NodeDomain]): List of node settings
     """
     node_domain:list[NodeDomain] = dataclasses.field(default_factory=list)
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "node_domain": {
@@ -109,5 +109,5 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.node_domain = [NodeDomain(**node_domain) for node_domain in self.node_domain if node_domain.get("enable", False)]

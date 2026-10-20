@@ -127,9 +127,9 @@ $$;
 
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
     def __init__(self, domain: Domain):
-        """AuthZ PostgreSQL接続
+        """AuthZ PostgreSQL connection
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         super().__init__(
             domain,
@@ -137,10 +137,10 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         )
 
     async def _on_connect(self):
-        """接続後イベント
-        - auth / authz スキーマ作成
-        - authz テーブル/制約/インデックス作成
-        - casbin policy seed（casbin_rule が空なら投入）
+        """Post-connection event
+        - Create the auth / authz schemas
+        - Create authz tables/constraints/indexes
+        - Seed the casbin policy (inserted if casbin_rule is empty)
         """
         await self._pool.execute(SQL_CREATE_AUTH_SCHEMA)
         await self._pool.execute(SQL_CREATE_AUTHZ_SCHEMA)

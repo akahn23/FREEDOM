@@ -9,20 +9,20 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.statement.Domain):
-    """条件待機タスク
+    """Wait-for-condition task
     Args:
-        type (str): タスク種類
-        id (str): タスクID
-        name (str): タスク名
-            UIにタスク名として表示される内容
-        next (Domain): 次タスク
-        can_recover (bool): 復帰可能判定
-            ジョブ停止時に復帰できる判定
-        finished (bool): 終了フラグ
-        command (list): コマンド内容
-        mode (typing.Literal["while", "until"]): 待機モード
-        cond (abstract.value.Domain): 条件
-        interval (abstract.value.Domain): 確認周期
+        type (str): Task type
+        id (str): Task ID
+        name (str): Task name
+            Text displayed as the task name in the UI
+        next (Domain): Next task
+        can_recover (bool): Whether the task can be resumed
+            Whether the job can be resumed after it is stopped
+        finished (bool): Finished flag
+        command (list): Command contents
+        mode (typing.Literal["while", "until"]): Wait mode
+        cond (abstract.value.Domain): Condition
+        interval (abstract.value.Domain): Check interval
     """
     name: str = "条件待機"
     mode: typing.Literal["while", "until"] = "while"
@@ -31,11 +31,11 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        カスタムブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "controls_wait_logic",
@@ -77,11 +77,11 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

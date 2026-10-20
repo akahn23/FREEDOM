@@ -8,15 +8,15 @@ from src.job.task.common.time.time_delta_arithmetic import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """時間差分計算処理"""
+    """Time difference calculation logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._LEFT = await self.domain.LEFT.make_logic(self._job_id, self._logger)
         self._RIGHT = await self.domain.RIGHT.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         LEFT:datetime = await self._LEFT.exec()
         RIGHT:datetime = await self._RIGHT.exec()
         operator = self.domain.operator

@@ -9,23 +9,23 @@ from src.infrastructure.gate import NodeDomain
 class Interface(abc.ABC):
     @abc.abstractmethod
     def __init__(self, domain:NodeDomain):
-        """遮断機接続インターフェース
+        """Gate connection interface
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def close(self):
-        """切断"""
+        """Disconnect"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         raise NotImplementedError()

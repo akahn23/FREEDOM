@@ -29,10 +29,10 @@ from src.freedom.authz.access.postgresql import (
 
 class Node:
     def __init__(self, config:dict):
-        """UIノード
-        UIサーバとリクエストを管理する
+        """UI node
+        Manages the UI server and requests
         Args:
-            config (dict): 設定リスト
+            config (dict): Settings list
         """
         # 設定変更時
         if old := repository.retrieve(self.__class__):
@@ -48,7 +48,7 @@ class Node:
         repository.append(self)
 
     async def _loop(self):
-        """処理ループ"""
+        """Processing loop"""
         try:
             conf = repository.retrieve(freedom.main.Node)[0].domain.conf
             if getattr(conf.main, "interface", None) != "PostgreSQL":

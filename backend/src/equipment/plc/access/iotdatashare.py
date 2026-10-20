@@ -7,51 +7,51 @@ from src.equipment.plc import NodeDomain, Interface
 
 
 class IoTDataShare(Interface):
-    """PLC IoTDataShare接続
+    """PLC IoTDataShare connection
     Attributes:
-        _domain (NodeDomain): ドメイン
+        _domain (NodeDomain): Domain
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self._domain = domain
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read_bit(self, address:int) -> bool:
-        """ビットアドレス読込み
+        """Read a bit address
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         return await repository.retrieve(equipment.iotdatashare.Repository)[0].read_bit(self._domain.ip, address)
 
     async def write_bit(self, address:int, data:bool):
-        """ビットアドレス書込み
+        """Write a bit address
         Args:
-            address (int): アドレス
-            data (bool): 書込み内容
+            address (int): Address
+            data (bool): Data to write
         """
         await repository.retrieve(equipment.iotdatashare.Repository)[0].write_bit(self._domain.ip, address, data)
 
     async def read_word(self, address:int) -> int:
-        """ワードアドレス読込み
+        """Read a word address
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            int: 読込み結果
+            int: Read result
         """
         return await repository.retrieve(equipment.iotdatashare.Repository)[0].read(self._domain.ip, address)
 
     async def write_word(self, address:int, data:int):
-        """ワードアドレス書込み
+        """Write a word address
         Args:
-            address (int): アドレス
-            data (int): 書込み内容
+            address (int): Address
+            data (int): Data to write
         """
         await repository.retrieve(equipment.iotdatashare.Repository)[0].write(self._domain.ip, address, data)

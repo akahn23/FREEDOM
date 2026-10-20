@@ -13,17 +13,17 @@ from src.equipment.database import NodeDomain
 
 
 class PostgreSQL:
-    """データベース PostgreSQL接続
+    """Database PostgreSQL connection
     Attributes:
-        _domain (NodeDomain): ドメイン
-        _pool (asyncpg.Pool|None): コネクションプール
-        _timezone (ZoneInfo|None): タイムゾーン
-        _task (asyncio.Task): 接続タスク
+        _domain (NodeDomain): Domain
+        _pool (asyncpg.Pool|None): Connection pool
+        _timezone (ZoneInfo|None): Time zone
+        _task (asyncio.Task): Connection task
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self._domain = domain
         self._pool:asyncpg.Pool|None = None
@@ -31,16 +31,16 @@ class PostgreSQL:
         self._task = asyncio.create_task(self._connect())
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         try:
             self._pool and await self._pool.close()
         except Exception:
             pass
 
     async def is_connected(self) -> bool:
-        """接続確認
+        """Check the connection
         Returns:
-            bool: 接続状態
+            bool: Connection state
         """
         if not self._pool:
             return False
@@ -51,10 +51,10 @@ class PostgreSQL:
             return False
 
     async def upsert(self, keys:list[str], data:dict):
-        """追加・更新
+        """Insert or update
         Args:
-            keys (list[str]): 一致キー
-            data (dict): 書込み値
+            keys (list[str]): Match keys
+            data (dict): Values to write
         """
         for k, v in data.items():
             if isinstance(v, datetime) and v.tzinfo is None:
@@ -70,7 +70,7 @@ class PostgreSQL:
         return await self._pool.execute(sql, *data.values())
 
     async def _connect(self):
-        """接続"""
+        """Connect"""
         while self._pool is None:
             try:
                 self._pool = await asyncpg.create_pool(
@@ -84,9 +84,9 @@ class PostgreSQL:
                 await asyncio.sleep(0)
 
     async def _init_connection(self, conn:asyncpg.Connection):
-        """接続時の初期化処理
+        """Initialization performed on connect
         Args:
-            conn (asyncpg.Connection): コネクタ
+            conn (asyncpg.Connection): Connection
         """
         await conn.set_type_codec("json", schema="pg_catalog", encoder=util.json.dumps, decoder=json.loads)
         await conn.set_type_codec("jsonb", schema="pg_catalog", encoder=util.json.dumps, decoder=json.loads)

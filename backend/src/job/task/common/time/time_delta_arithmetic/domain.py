@@ -8,13 +8,13 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """時間計算タスク
+    """Time arithmetic task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        LEFT (abstract.value.Domain): 左辺の値
-        RIGHT (abstract.value.Domain): 右辺の値
-        operator (str): 演算子
+        type (str): Block type
+        id (str): Block ID
+        LEFT (abstract.value.Domain): Left-hand value
+        RIGHT (abstract.value.Domain): Right-hand value
+        operator (str): Operator
     """
     LEFT: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
     RIGHT: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
@@ -22,11 +22,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "time_delta_arithmetic",
@@ -57,11 +57,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

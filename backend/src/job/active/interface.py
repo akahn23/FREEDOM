@@ -9,36 +9,36 @@ from src.job.active import Domain
 class Interface(abc.ABC):
     @abc.abstractmethod
     def __init__(self, domain:Domain):
-        """ジョブ実行DB接続インターフェース
+        """Active job database connection interface
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def insert(self, name:str, task:dict, variables:list[dict]) -> dict:
-        """実行ジョブ保存
+        """Save an active job
         Args:
-            name (str): ジョブ名
-            task (dict): タスク内容
-            variables (list[dict]): タスク変数
+            name (str): Job name
+            task (dict): Task contents
+            variables (list[dict]): Task variables
         Returns:
-            dict: 実行ジョブ設定
+            dict: Active job settings
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def fetch(self) -> list[dict]:
-        """実行ジョブ取得
+        """Get active jobs
         Returns:
-            list[dict]: 実行ジョブ設定
+            list[dict]: Active job settings
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def update(self, node_list:list[dict]):
-        """実行ジョブ更新
+        """Update an active job
         Args:
-            node_list (list[dict]): 実行ジョブ設定リスト
+            node_list (list[dict]): List of active job settings
         """
         raise NotImplementedError()

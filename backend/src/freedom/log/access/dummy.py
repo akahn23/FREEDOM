@@ -13,12 +13,12 @@ UTC = zoneinfo.ZoneInfo("UTC")
 class Dummy(Interface):
     @staticmethod
     def _keyword_match(values:list[str], keyword_item:str) -> bool:
-        """キーワード条件を満たすか判定
+        """Check whether a keyword condition is satisfied
         Args:
-            values (list[str]): 検索対象の値リスト
-            keyword_item (str): OR条件1項目（空白区切りでAND）
+            values (list[str]): List of values to search
+            keyword_item (str): One OR-condition item (whitespace-separated terms are ANDed)
         Returns:
-            bool: 条件を満たす場合はTrue
+            bool: True if the condition is satisfied
         """
         terms = [term.lower() for term in str(keyword_item).split() if term]
         if not terms:
@@ -27,20 +27,20 @@ class Dummy(Interface):
         return all(any(term in value for value in normalized_values) for term in terms)
 
     def _to_utc(self, dt:datetime) -> datetime:
-        """日時をUTCへ正規化
+        """Normalize a datetime to UTC
         Args:
-            dt (datetime): 変換元日時
+            dt (datetime): Source datetime
         Returns:
-            datetime: UTC日時
+            datetime: UTC datetime
         """
         if dt.tzinfo is None:
             return dt.replace(tzinfo=self._source_tz).astimezone(UTC)
         return dt.astimezone(UTC)
 
     def __init__(self, domain:Domain):
-        """ダミーログDB接続
+        """Dummy log database connection
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         self._retention_period = domain.retention_period
         self._log_list:list[Column] = list()
@@ -50,9 +50,9 @@ class Dummy(Interface):
             self._source_tz = datetime.now().astimezone().tzinfo
 
     async def insert(self, log_list:list[Column]):
-        """ログ挿入
+        """Insert logs
         Args:
-            log_list (list[Column]): ログリスト
+            log_list (list[Column]): List of logs
         """
         self._log_list.extend(log_list)
         for i, log in enumerate(self._log_list):
@@ -61,18 +61,18 @@ class Dummy(Interface):
                 return
 
     async def fetch(self, begin_time:datetime, end_time:datetime, row_count:int|None=None, cursor_time:datetime|None=None, keywords:list[str]|None=None, levelnames:list[str]|None=None, sort_field:str="time", sort_direction:str="desc") -> list[Column]:
-        """ログ取得
+        """Get logs
         Args:
-            begin_time (datetime): 開始日時
-            end_time (datetime): 終了日時
-            row_count (int|None): 取得件数 Noneで全取得
-            cursor_time (datetime|None): 追加取得時に基準にする時刻
-            keywords (list[str]|None): キーワード検索条件のリスト
-            levelnames (list[str]|None): ログレベル
-            sort_field (str): ソート対象カラム
-            sort_direction (str): ソート順 (asc/desc)
+            begin_time (datetime): Start date/time
+            end_time (datetime): End date/time
+            row_count (int|None): Number of rows to fetch; None fetches all
+            cursor_time (datetime|None): Reference time used when fetching additional rows
+            keywords (list[str]|None): List of keyword search conditions
+            levelnames (list[str]|None): Log levels
+            sort_field (str): Column to sort by
+            sort_direction (str): Sort order (asc/desc)
         Returns:
-            list[Column]: ログ
+            list[Column]: Logs
         """
         begin_utc = self._to_utc(begin_time)
         end_utc = self._to_utc(end_time)

@@ -6,17 +6,17 @@ from src.equipment.iotdatashare import Node, Domain
 
 
 class Repository(repository.Repository[Node]):
-    """IoTDataShare リポジトリ
-    初回and設定変更時ノード起動
-    各種送受信処理(接続先引数付き)
+    """IoTDataShare repository
+    Launch nodes on first run and when settings change
+    Send/receive operations (with target argument)
     Attributes:
-        data (list[Node]): ノードリスト
-        domain (Domain): ドメイン
+        data (list[Node]): List of nodes
+        domain (Domain): Domain
     """
     def __init__(self, config:dict):
-        """インスタンス化
+        """Instantiate
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         if old := repository.repository.retrieve(self.__class__):
             self = old[0]
@@ -41,11 +41,11 @@ class Repository(repository.Repository[Node]):
                 self.data.insert(i, Node(node_domain))
 
     def _retrieve_node(self, controller:str) -> Node:
-        """ノード取得
+        """Get a node
         Args:
-            controller (str): コントローラ名
+            controller (str): Controller name
         Returns:
-            Node: IoTDataShareノード
+            Node: IoTDataShare node
         """
         try:
             return next(node for node in self.data if controller in node.domain.connect_list)
@@ -53,45 +53,45 @@ class Repository(repository.Repository[Node]):
             raise Exception(f'{controller} was not found')
 
     async def read(self, ip:str, address:str) -> int:
-        """読込み
+        """Read
         Args:
-            ip (str): IPアドレス
-            address (str): 読込みアドレス
+            ip (str): IP address
+            address (str): Address to read
         Returns:
-            str: 読込み結果
+            str: Read result
         """
         node = self._retrieve_node(ip)
         return await node.read_item(ip, address)
 
     async def write(self, ip:str, address:str, data:int):
-        """書込み
+        """Write
         Args:
-            ip (str): IPアドレス
-            address (str): 書込みアドレス
-            data (int): 書込み内容
+            ip (str): IP address
+            address (str): Address to write
+            data (int): Data to write
         """
         node = self._retrieve_node(ip)
         await node.write_item(ip, address, data)
 
     async def read_bit(self, ip:str, address:str, bit:int) -> bool:
-        """ビット読込み
+        """Read a bit
         Args:
-            ip (str): IPアドレス
-            address (str): 読込みアドレス
-            bit (int): 読込みビット
+            ip (str): IP address
+            address (str): Address to read
+            bit (int): Bit to read
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         node = self._retrieve_node(ip)
         return await node.read_bit(ip, address, bit)
 
     async def write_bit(self, ip:str, address: str, bit:int, data:bool):
-        """ビット書込み
+        """Write a bit
         Args:
-            ip (str): IPアドレス
-            address (str): 書込みアドレス
-            bit (int): 書込みビット
-            data (bool): 書込み内容
+            ip (str): IP address
+            address (str): Address to write
+            bit (int): Bit to write
+            data (bool): Data to write
         """
         node = self._retrieve_node(ip)
         await node.write_bit(ip, address, bit, data)

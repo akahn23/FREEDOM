@@ -8,8 +8,8 @@ from src.job.task.common.control.controls_error_msg import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """異常内容取得タスク処理"""
+    """Get-error-contents task logic"""
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         j = repository.retrieve(job.active.Node, id=self._job_id)[0]
         return ", ".join(j.domain.error_msg)

@@ -6,7 +6,7 @@ from src.job.task.common.text.text import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """textタスク処理"""
+    """text task logic"""
     async def exec(self) -> str:
-        """タスク実行"""
+        """Execute the task"""
         return str(self.domain.TEXT)

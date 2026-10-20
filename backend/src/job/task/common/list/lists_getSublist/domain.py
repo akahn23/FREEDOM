@@ -8,15 +8,15 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """lists_getSublistタスク
+    """lists_getSublist task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        WHERE1 (str):開始位置設定
-        WHERE2 (str):終了位置設定
-        LIST (abstract.value.Domain): 処理対象
-        AT1 (abstract.value.Domain):開始位置
-        AT2 (abstract.value.Domain):終了位置
+        type (str): Block type
+        id (str): Block ID
+        WHERE1 (str): Start position mode
+        WHERE2 (str): End position mode
+        LIST (abstract.value.Domain): Target list
+        AT1 (abstract.value.Domain): Start position
+        AT2 (abstract.value.Domain): End position
     """
     WHERE1: str = ""
     WHERE2: str = ""
@@ -26,23 +26,23 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         Note:
-            デフォルトで定義済み
+            Defined by default
         """
         return []
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

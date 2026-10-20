@@ -10,13 +10,13 @@ from src.robot import Domain
 
 class Node[D:Domain](abstract.Node, abc.ABC):
     def __init__(self, domain:D):
-        """ロボット抽象ノード"""
+        """Abstract robot node"""
         self.domain = domain
         self.job:job.active.Node = None
 
     async def _update(self):
-        """状態更新
-        self.jobの更新
+        """Update the status
+        Update self.job
         """
         for node in repository.retrieve(job.active.Node):
             if next(node.retrieve_variables(type="Robot", value=self.domain.name), None):
@@ -26,8 +26,8 @@ class Node[D:Domain](abstract.Node, abc.ABC):
 
     @abc.abstractmethod
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         raise NotImplementedError("Subclasses must implement fetch_status method")

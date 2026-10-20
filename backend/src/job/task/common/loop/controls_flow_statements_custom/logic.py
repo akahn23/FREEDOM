@@ -7,13 +7,13 @@ from src.job.task.common.loop.controls_flow_statements_custom import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """controls_flow_statements_customタスク ロジック"""
+    """controls_flow_statements_custom task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         if self.domain.FLOW == "BREAK":
             raise LoopBreak()
         if self.domain.FLOW == "CONTINUE":

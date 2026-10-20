@@ -10,19 +10,19 @@ from src.job.task.abstract import statement
 
 @dataclasses.dataclass
 class Task:
-    """タスクコマンド
+    """Task command
     Args:
-        id (str): 先頭タスクID
-        type (str): コマンド種類
+        id (str): ID of the first task
+        type (str): Command type
     """
     id:str
     type:str = "task"
 
     async def exec(self, task:statement.Logic[statement.Domain], logger:logging.Logger):
-        """タスク実行
+        """Execute the task
         Args:
-            task (statement.Logic[statement.Domain]): タスク
-            logger (logging.Logger): ロガー
+            task (statement.Logic[statement.Domain]): Task
+            logger (logging.Logger): Logger
         """
         while task:
             if not task.domain.finished:
@@ -32,14 +32,14 @@ class Task:
             task = task.next
 
     def recover(self, task:statement.Domain|None, id:str, finished:bool=True) -> bool:
-        """タスク復帰
-        再帰関数
+        """Resume a task
+        Recursive function
         Args:
-            task (statement.Domain|None): タスク内容
-            id (str): 復帰タスクID
-            finished (bool): タスク終了
+            task (statement.Domain|None): Task contents
+            id (str): ID of the task to resume
+            finished (bool): Task finished
         Returns:
-            bool: タスク終了
+            bool: Task finished
         """
         if task is None:
             return finished
@@ -66,11 +66,11 @@ class Task:
 
 @dataclasses.dataclass
 class Button:
-    """ボタンコマンド
+    """Button command
     Args:
-        label (str): 表示文字
-        value (typing.Any): 応答内容
-        type (str): コマンド種類
+        label (str): Display text
+        value (typing.Any): Response value
+        type (str): Command type
     """
     label:str
     value:typing.Any
@@ -78,12 +78,12 @@ class Button:
 
 @dataclasses.dataclass
 class Switch:
-    """スイッチコマンド
+    """Switch command
     Args:
-        label_on(str): ONでの表示内容
-        label_off(str): OFFでの表示内容
-        value (bool): 応答内容
-        type (str): コマンド種類
+        label_on(str): Text shown when ON
+        label_off(str): Text shown when OFF
+        value (bool): Response value
+        type (str): Command type
     """
     label_on:str
     label_off:str
@@ -92,10 +92,10 @@ class Switch:
 
 @dataclasses.dataclass
 class Text:
-    """テキストコマンド
+    """Text command
     Args:
-        label (str): 表示文字
-        type (str): コマンド種類
+        label (str): Display text
+        type (str): Command type
     """
     label:str
     type:str = "text"

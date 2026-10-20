@@ -9,32 +9,32 @@ from src.infrastructure.lamp import NodeDomain
 class Interface(abc.ABC):
     @abc.abstractmethod
     def __init__(self, domain:NodeDomain):
-        """ランプ接続インターフェース
+        """Lamp connection interface
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def close(self):
-        """切断"""
+        """Disconnect"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def write(self, address:int, data:bool):
-        """書込み
+        """Write
         Args:
-            address (int): アドレス
-            data (bool): 書込み内容
+            address (int): Address
+            data (bool): Data to write
         """
         raise NotImplementedError()

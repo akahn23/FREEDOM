@@ -8,14 +8,14 @@ from src.job.task.infrastructure.get import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """インフラ設備取得タスク処理"""
+    """Infrastructure equipment get task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         if node := repository.retrieve(infrastructure.Node, name=self.domain.name):
             self._node = node[0]
         else:
             raise(f"Infrastructure {self.domain.name} does not exist")
 
     async def exec(self) -> infrastructure.Node:
-        """タスク実行"""
+        """Execute the task"""
         return self._node

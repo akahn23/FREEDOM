@@ -11,9 +11,9 @@ from src.job.task.common.loop.controls_whileUntil_manual import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """controls_whileUntil_manualタスク処理"""
+    """controls_whileUntil_manual task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         logger = self._logger if self.domain.should_log else logging.getLogger("loop")
         self._DO = await self.domain.DO.make_logic(self._job_id, logger) if self.domain.DO else None
@@ -23,7 +23,7 @@ class Logic(abstract.statement.Logic[Domain]):
                 self.domain.command.append(command.Task(self.domain.DO.id))
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         logger = self._logger if self.domain.should_log else logging.getLogger("loop")
         while True:
             try:
@@ -42,9 +42,9 @@ class Logic(abstract.statement.Logic[Domain]):
         self.domain.command.clear()
 
     async def exec_command(self, command:bool):
-        """コマンド実行
+        """Execute a command
         Args:
-            command (bool): コマンド内容
+            command (bool): Command contents
         """
         if type(command) is bool:
             self.domain.command[0].value = command

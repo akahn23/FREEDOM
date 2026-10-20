@@ -10,9 +10,9 @@ from src.job.create import Interface, Domain, Column
 
 class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
     def __init__(self, domain:Domain):
-        """ジョブ作成PostgreSQL接続
+        """Job creation PostgreSQL connection
         Args:
-            domain (Domain): 設定
+            domain (Domain): Settings
         """
         super().__init__(
             domain,
@@ -20,7 +20,7 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         )
 
     async def _on_connect(self):
-        """接続後イベント"""
+        """Post-connection event"""
         # テーブル作成
         columns = ', '.join(f"{field.name} {self._convert_type(field.type)}" for field in dataclasses.fields(Column))
         await self._pool.execute(f"""
@@ -31,12 +31,12 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         """)
 
     async def fetch_name_list(self, user_id:str|None=None, is_admin:bool=False) -> list[str]:
-        """ジョブ名リスト取得
+        """Get the list of job names
         Args:
-            user_id (str|None): ユーザID
-            is_admin (bool): 管理者フラグ(Trueで全件取得)
+            user_id (str|None): User ID
+            is_admin (bool): Admin flag (True fetches all)
         Returns:
-            list[str]: ジョブ名リスト
+            list[str]: List of job names
         """
         if is_admin:
             rows = await self._pool.fetch(f"""
@@ -61,11 +61,11 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         return [row["name"] for row in rows]
 
     async def fetch_workspace(self, name:str) -> dict:
-        """Blockly環境取得
+        """Get the Blockly workspace
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         Returns:
-            dict: Blockly環境
+            dict: Blockly workspace
         """
         return await self._pool.fetchval(f"""
             SELECT workspace
@@ -74,10 +74,10 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         """, name)
 
     async def update(self, name:str, workspace:dict):
-        """ジョブ更新
+        """Update a job
         Args:
-            name (str): ジョブ名
-            workspace (dict): Blockly環境
+            name (str): Job name
+            workspace (dict): Blockly workspace
         """
         await self._pool.execute(f"""
             INSERT INTO {self._domain.schema}.{self._domain.table}
@@ -86,9 +86,9 @@ class PostgreSQL(abstract.access.PostgreSQL[Domain], Interface):
         """, name, workspace)
 
     async def delete(self, name:str):
-        """ジョブ削除
+        """Delete a job
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         """
         async with self._pool.acquire() as conn:
             async with conn.transaction():

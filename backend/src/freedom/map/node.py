@@ -10,10 +10,10 @@ from src.freedom.map import Domain
 
 class Node:
     def __init__(self, config:dict):
-        """地図ノード
-        UIの地図情報を管理する
+        """Map node
+        Manages map information for the UI
         Args:
-            config (dict): 設定リスト
+            config (dict): Settings list
         """
         if old := repository.retrieve(self.__class__):
             repository.remove(old[0])
@@ -23,12 +23,12 @@ class Node:
         repository.append(self)
 
     def fetch_status(self, node_name:str=None, allow_set=None) -> list[util.status.Status]:
-        """状態取得
+        """Get the status
         Args:
-            node_name (str): ノード名 指定なしの場合全取得
-            allow_set (set[tuple[str,str]]|None): 閲覧を許可するノード Noneで絞り込み無し
+            node_name (str): Node name; fetches all if omitted
+            allow_set (set[tuple[str,str]]|None): Nodes the user is allowed to view; None applies no filtering
         Returns:
-            list[util.status.Status]: 状態リスト
+            list[util.status.Status]: List of statuses
         """
         ret = list()
         if node_name:

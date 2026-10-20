@@ -8,13 +8,13 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """text_charAtタスク
+    """text_charAt task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        WHERE (str): 始点
-        VALUE (abstract.value.Domain): 処理対象
-        AT (abstract.value.Domain): 始点からの要素数
+        type (str): Block type
+        id (str): Block ID
+        WHERE (str): Origin
+        VALUE (abstract.value.Domain): Target value
+        AT (abstract.value.Domain): Number of elements from the origin
     """
     WHERE: str = ""
     VALUE: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
@@ -22,23 +22,23 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         Note:
-            デフォルトで定義済み
+            Defined by default
         """
         return []
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

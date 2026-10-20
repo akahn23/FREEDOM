@@ -15,20 +15,20 @@ from src.freedom.log import Domain, Column, Interface, access, logic
 class Node(abstract.Node):
     @staticmethod
     def _normalize_keywords(keywords:list[str]|None) -> list[str]|None:
-        """キーワード正規化
+        """Normalize keywords
         Args:
-            keywords (list[str]|None): キーワード検索条件のリスト
+            keywords (list[str]|None): List of keyword search conditions
         Returns:
-            list[str]|None: 前後空白除去・空要素除外後のリスト
+            list[str]|None: List with surrounding whitespace stripped and empty items removed
         """
         normalized = [item.strip() for item in (keywords or []) if isinstance(item, str) and item.strip()]
         return normalized or None
 
     def __init__(self, config:dict=None):
-        """Freedomログノード
-        システム内のログ情報を管理、保存する
+        """FREEDOM log node
+        Manages and stores log information in the system
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         # 設定変更時
         if old := repository.retrieve(self.__class__):
@@ -54,7 +54,7 @@ class Node(abstract.Node):
         repository.append(self)
 
     async def _loop(self):
-        """処理ループ"""
+        """Processing loop"""
         #TODO: システム終了時、最後までログを出力出来るようにする
         #TODO: ループ内でのエラー表示方法を考える
         temp_log_list:list[Column] = list()
@@ -72,12 +72,12 @@ class Node(abstract.Node):
                 continue
 
     def make_logger(self, name:str, prefix:str=None) -> logic.Adapter:
-        """ロガー作成
+        """Create a logger
         Args:
-            name (str): ロガー名
-            prefix (str): 接頭辞
+            name (str): Logger name
+            prefix (str): Prefix
         Returns:
-            logic.Adapter: ロガー
+            logic.Adapter: Logger
         """
         logger = logging.getLogger(name)
         logger.setLevel(logging.DEBUG)
@@ -88,19 +88,19 @@ class Node(abstract.Node):
         return logger
 
     async def fetch(self, begin_time:str, end_time:str, row_count:int|None=None, cursor_time:str|None=None, all_rows:bool=False, keywords:list[str]|None=None, levelnames:list[str]|None=None, sort_field:str="time", sort_direction:str="desc") -> list[dict]:
-        """ログ取得
+        """Get logs
         Args:
-            begin_time (str): 開始日時
-            end_time (str): 終了日時
-            row_count (int|None): 取得件数 Noneで全取得
-            cursor_time (str|None): 追加取得時に基準にする時刻
-            all_rows (bool): Trueで全件取得
-            keywords (list[str]|None): キーワード検索条件のリスト
-            levelnames (list[str]|None): ログレベル
-            sort_field (str): ソート対象カラム
-            sort_direction (str): ソート順 (asc/desc)
+            begin_time (str): Start date/time
+            end_time (str): End date/time
+            row_count (int|None): Number of rows to fetch; None fetches all
+            cursor_time (str|None): Reference time used when fetching additional rows
+            all_rows (bool): True fetches all rows
+            keywords (list[str]|None): List of keyword search conditions
+            levelnames (list[str]|None): Log levels
+            sort_field (str): Column to sort by
+            sort_direction (str): Sort order (asc/desc)
         Returns:
-            list[dict]: ログ
+            list[dict]: Logs
         """
         effective_row_count = None if all_rows else (row_count if isinstance(row_count, int) else 100)
         effective_keywords = self._normalize_keywords(keywords)

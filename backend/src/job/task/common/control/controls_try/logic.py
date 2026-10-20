@@ -9,9 +9,9 @@ from src.job.task.common.control.controls_try import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """順次例外処理タスク処理"""
+    """Sequential exception-handling task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._init_task = None
         self._try_task = None
@@ -32,7 +32,7 @@ class Logic(abstract.statement.Logic[Domain]):
             self._finally_task = await domain.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         try:
             if self._init_task is not None:
                 self._logger.info(f"{self.domain.name} init_task start")

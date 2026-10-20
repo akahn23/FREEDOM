@@ -14,8 +14,8 @@ def _read_policy_seed_csv() -> str:
 
 async def seed_policy_if_empty(conn: asyncpg.Connection) -> bool:
     """
-    authz.casbin_ruleが空の場合ならpolicy.seed.csvを実行
-    既にpolicyが入っている場合はスキップ
+    Run policy.seed.csv if authz.casbin_rule is empty
+    Skip if a policy already exists
     """
     count = await conn.fetchval("SELECT COUNT(*) FROM authz.casbin_rule;")
     if count and int(count) > 0:

@@ -8,8 +8,8 @@ from src.job.task.infrastructure.is_accepted import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """インフラ設備通行許可判定タスク処理"""
+    """Infrastructure equipment passage-permission check task logic"""
     async def exec(self) -> bool:
-        """タスク実行"""
+        """Execute the task"""
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         return await node.accept_infrastructure()

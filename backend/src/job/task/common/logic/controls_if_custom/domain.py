@@ -8,42 +8,42 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.statement.Domain):
-    """条件分岐タスク
+    """Conditional branch task
     Args:
-        type (str): タスク種類
-        id (str): タスクID
-        name (str): タスク名
-            UIにタスク名として表示される内容
-        next (Domain): 次タスク
-        should_show (bool): 表示判定
-            ジョブ実行時に表示する判定
-        can_recover (bool): 復帰可能判定
-            ジョブ停止時に復帰できる判定
-        finished (bool): 終了フラグ
-        command (list): コマンド内容
-        IF0 (abstract.value.Domain): 条件0
-        DO0 (abstract.statement.Domain): 処理0
-        IF1 (abstract.value.Domain): 条件1
-        DO1 (abstract.statement.Domain): 処理1
+        type (str): Task type
+        id (str): Task ID
+        name (str): Task name
+            Text displayed as the task name in the UI
+        next (Domain): Next task
+        should_show (bool): Whether to display
+            Whether to display while the job is running
+        can_recover (bool): Whether the task can be resumed
+            Whether the job can be resumed after it is stopped
+        finished (bool): Finished flag
+        command (list): Command contents
+        IF0 (abstract.value.Domain): Condition 0
+        DO0 (abstract.statement.Domain): Statements 0
+        IF1 (abstract.value.Domain): Condition 1
+        DO1 (abstract.statement.Domain): Statements 1
         ...
-        ELSE (abstract.statement.Domain): 処理
+        ELSE (abstract.statement.Domain): Else statements
     """
     name: str = "条件分岐"
 
     def __new__(cls, type:str, id=str, name="条件分岐", next=None, should_show=True, can_recover=True, finished=False, command=list(), **kwargs):
-        """インスタンス前処理
-        追加分の入力を含めたdataclassを作成して返却
+        """Pre-instantiation processing
+        Build and return a dataclass that includes the additional inputs
         Args:
-            type (str): タスク種類
-            id (str): タスクID
-            name (str): タスク名
-            next (Domain): 次タスク
-            should_show (bool): 表示判定
-            can_recover (bool): 復帰可能判定
-            finished (bool): 終了フラグ
-            command (list): コマンド内容
+            type (str): Task type
+            id (str): Task ID
+            name (str): Task name
+            next (Domain): Next task
+            should_show (bool): Whether to display
+            can_recover (bool): Whether the task can be resumed
+            finished (bool): Finished flag
+            command (list): Command contents
         Returns:
-            Domain: 条件分岐タスク
+            Domain: Conditional branch task
         """
         fields = list()
         for k in kwargs.keys():
@@ -59,13 +59,13 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        カスタムブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         Note:
-            タスク名のためデフォルトから変更
+            Changed from the default to set the task name
         """
         return [{
             'type': 'controls_if_custom',
@@ -109,11 +109,11 @@ class Domain(abstract.statement.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

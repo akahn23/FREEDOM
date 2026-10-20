@@ -8,10 +8,10 @@ from src import abstract, job
 
 @dataclasses.dataclass
 class Column:
-    """カラム定義
+    """Column definition
     Args:
-        name (str): ジョブ名
-        workspace (dict): Blockly環境
+        name (str): Job name
+        workspace (dict): Blockly workspace
     """
     name:str
     workspace:dict
@@ -19,24 +19,24 @@ class Column:
 
 @dataclasses.dataclass
 class Domain(abstract.database.Domain):
-    """ジョブ作成設定
+    """Job creation settings
     Args:
-        interface (str): インターフェース名
-        dsn (str): DB接続先
-        schema (str): スキーマ名
-        table (str): テーブル名
-        update_cycle (float): 更新周期
+        interface (str): Interface name
+        dsn (str): Database connection string
+        schema (str): Schema name
+        table (str): Table name
+        update_cycle (float): Update cycle
     """
     table:str = "job_create"
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form(job.create.access)
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__(job.create.access)

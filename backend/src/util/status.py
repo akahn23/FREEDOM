@@ -6,8 +6,8 @@ import enum
 
 
 class State(enum.IntEnum):
-    """状態
-    数値は描画レイヤー順
+    """State
+    Numeric values define the rendering layer order
     """
     HIDE = -1
     DISCONNECT = 0
@@ -20,15 +20,15 @@ class State(enum.IntEnum):
 
 @dataclasses.dataclass
 class Status:
-    """ノード状態
+    """Node status
     Args:
-        name (str): 名前
-        state (State): 状態
-        location (list[float]): 位置
-        info (list[str]]): 情報
-        detail (list[str]]): 詳細
-        command (list[dict]): コマンド
-        node (str): ノード名
+        name (str): Name
+        state (State): State
+        location (list[float]): Location
+        info (list[str]]): Information
+        detail (list[str]]): Details
+        command (list[dict]): Commands
+        node (str): Node name
     """
     name:str
     state:State = State.HIDE

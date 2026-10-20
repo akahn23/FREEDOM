@@ -13,20 +13,20 @@ from src.job.task.abstract.statement import Logic
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """抽象ステートメントタスクドメイン
-    上下接続があるブロックはこれを継承する
+    """Abstract statement task domain
+    Blocks with top/bottom connections inherit from this
     Args:
-        type (str): タスク種類
-        id (str): タスクID
-        name (str): タスク名
-            UIにタスク名として表示される内容
-        next (Domain): 次タスク
-        should_show (bool): 表示判定
-            ジョブ実行時に表示する判定
-        can_recover (bool): 復帰可能判定
-            ジョブ停止時に復帰できる判定
-        finished (bool): 終了フラグ
-        command (list): コマンド内容
+        type (str): Task type
+        id (str): Task ID
+        name (str): Task name
+            Text displayed as the task name in the UI
+        next (Domain): Next task
+        should_show (bool): Whether to display
+            Whether to display while the job is running
+        can_recover (bool): Whether the task can be resumed
+            Whether the job can be resumed after it is stopped
+        finished (bool): Finished flag
+        command (list): Command contents
     """
     name:str
     next:typing.Optional['Domain'] = None
@@ -36,27 +36,27 @@ class Domain(abstract.value.Domain):
     command:list = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__()
         self.command = self._to_command(self.command)
 
     def _to_command(self, cmd:list[dict]) -> list:
-        """コマンドクラス変換
+        """Convert to command classes
         Args:
-            cmd (list[dict]): 変換前
+            cmd (list[dict]): Before conversion
         Returns:
-            list: 変換後
+            list: After conversion
         """
         command_cls = inspect.getmembers(command, inspect.isclass)
         convert = {getattr(cls, "type"): cls for _, cls in command_cls if dataclasses.is_dataclass(cls)}
         return [convert[c.get("type")](**c) for c in cmd]
 
     async def make_logic(self, job_id:int, logger:logging.Logger) -> Logic:
-        """タスク処理クラス作成
+        """Create the task logic class
         Args:
-            job_id (int): ジョブID
-            logger (logging.Logger): ロガー
+            job_id (int): Job ID
+            logger (logging.Logger): Logger
         Returns:
-            Logic: タスク処理クラス
+            Logic: Task logic class
         """
         return await super().make_logic(job_id, logger)

@@ -9,29 +9,29 @@ from src.infrastructure.shutter import NodeDomain
 class Interface(abc.ABC):
     @abc.abstractmethod
     def __init__(self, domain: NodeDomain):
-        """シャッター接続インターフェース
+        """Shutter connection interface
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def close(self):
-        """切断"""
+        """Disconnect"""
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def read(self) -> bool:
-        """読込み
+        """Read
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def write(self, data:bool):
-        """書込み
+        """Write
         Args:
-            data (bool): 書込み内容
+            data (bool): Data to write
         """
         raise NotImplementedError()

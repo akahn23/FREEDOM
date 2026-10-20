@@ -1,8 +1,11 @@
 # FREEDOM Installation Guide
+> **Translations:** This guide is also available in Japanese: [install_ja.md](install_ja.md).
+> When editing this file, update [install_ja.md](install_ja.md) in the same change so both stay equivalent (see [CONTRIBUTING.md](../CONTRIBUTING.md#documentation-translations)).
+
 This guide walks you through installing FREEDOM in a local environment.
 Adjust the settings as needed to fit your environment.
 All examples below use Windows.
-For macOS/Linux, replace `\` with `/` and adjust commands accordingly.
+For macOS/Linux, replace `\` with `/` and adjust commands accordingly (e.g. `.venv\Scripts\activate` → `source .venv/bin/activate`).
 
 ## 1. Install Required Software
 ### 1.1. Install Python 3.13.3
@@ -93,7 +96,7 @@ main = freedom.main.Domain(
 ```
 #### `dsn` Format
 ```text
-postgresql://user:password@ip:port/database_name
+postgresql://user:password@host:port/database_name
 ```
 #### Example
 ```text
@@ -137,6 +140,9 @@ user_interface = freedom.user_interface.Domain(
 
 ### 4.2. Create a `.env` File for the Frontend
 1. Move to the `frontend` directory.
+   ```bash
+   C:\your-directory\freedom> cd .\frontend\
+   ```
 2. Copy `.env.example` to `.env`.
    `.env.example` contains the following entries:
    ```env

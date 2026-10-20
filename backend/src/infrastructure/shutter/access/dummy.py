@@ -8,35 +8,35 @@ from src.infrastructure.shutter import NodeDomain, Interface
 
 class Dummy(Interface):
     def __init__(self, domain:NodeDomain):
-        """シャッターダミー接続
+        """Shutter dummy connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._domain = domain
         self._state = not self._domain.open_state
         self._task:asyncio.Task = None
 
     async def _open(self):
-        """開くまでのディレイ処理"""
+        """Delay before opening"""
         if self._state != self._domain.open_state:
             await asyncio.sleep(3)
             self._state = self._domain.open_state
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read(self) -> bool:
-        """読込み
+        """Read
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         return self._state
 
     async def write(self, data:bool):
-        """書込み
+        """Write
         Args:
-            data (bool): 書込み内容
+            data (bool): Data to write
         """
         if data:
             if not self._task or self._task.done():

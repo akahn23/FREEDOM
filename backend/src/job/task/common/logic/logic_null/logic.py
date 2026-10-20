@@ -6,7 +6,7 @@ from src.job.task.common.logic.logic_null import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """logic_nullタスク処理"""
+    """logic_null task logic"""
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         return None

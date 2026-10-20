@@ -9,9 +9,9 @@ from src.infrastructure.lamp import NodeDomain, Interface
 
 class IoLogic(Interface):
     def __init__(self, domain:NodeDomain):
-        """ランプIoLogic接続
+        """Lamp IoLogic connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._headers = {
             'Accept': 'vdn.dac.v1',
@@ -23,15 +23,15 @@ class IoLogic(Interface):
         )
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         await self._session.close()
 
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         async with self._session.get("/api/slot/0/io/do", headers=self._headers) as resp:
             if resp.status != 200:
@@ -40,10 +40,10 @@ class IoLogic(Interface):
             return bool(ret['io']['do'][address]['doStatus'])
 
     async def write(self, address:int, data:bool):
-        """書込み
+        """Write
         Args:
-            address (int): アドレス
-            data (bool): 書込み内容
+            address (int): Address
+            data (bool): Data to write
         """
         async with self._session.get("/api/slot/0/io/do", headers=self._headers) as resp:
             if resp.status != 200:

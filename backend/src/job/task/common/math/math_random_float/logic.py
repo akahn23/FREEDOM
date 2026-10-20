@@ -8,8 +8,8 @@ from src.job.task.common.math.math_random_float import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """math_random_floatタスク処理"""
+    """math_random_float task logic"""
 
     async def exec(self) -> float:
-        """タスク実行"""
+        """Execute the task"""
         return random.random()

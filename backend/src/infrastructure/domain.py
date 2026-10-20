@@ -9,12 +9,12 @@ from src import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.Domain, abc.ABC):
-    """インフラ設備抽象ノード設定
+    """Abstract infrastructure equipment node settings
     Args:
-        enable (bool): 有効
-        name (str): 名前
-        location (list[float]): 位置
-        priority (int): 優先度
+        enable (bool): Enabled
+        name (str): Name
+        location (list[float]): Location
+        priority (int): Priority
     """
     enable:bool = True
     name:str = ""
@@ -23,9 +23,9 @@ class Domain(abstract.Domain, abc.ABC):
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "enable": {

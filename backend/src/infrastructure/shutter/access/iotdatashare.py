@@ -8,29 +8,29 @@ from src.infrastructure.shutter import NodeDomain, Interface
 
 class IoTDataShare(Interface):
     def __init__(self, domain:NodeDomain):
-        """シャッターIoTDataShare接続
+        """Shutter IoTDataShare connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._domain = domain
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read(self) -> bool:
-        """読込み
+        """Read
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         str_address = f"DI{self._domain.read_address}"
         data = await repository.retrieve(equipment.iotdatashare.Repository)[0].read(self._domain.ip, str_address)
         return bool(data)
 
     async def write(self, data:bool):
-        """書込み
+        """Write
         Args:
-            data (bool): 書込み内容
+            data (bool): Data to write
         """
         str_address = f"DO{self._domain.write_address}"
         await repository.retrieve(equipment.iotdatashare.Repository)[0].write(self._domain.ip, str_address, int(data))

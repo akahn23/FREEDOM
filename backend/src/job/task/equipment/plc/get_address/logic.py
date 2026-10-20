@@ -10,10 +10,10 @@ from src.job.task.equipment.plc.get_address import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """アドレス取得タスク処理"""
+    """Address get task logic"""
 
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         try:
             self._plc, self._address = json.loads(self.domain.address)
@@ -26,5 +26,5 @@ class Logic(abstract.value.Logic[Domain]):
             raise ValueError(f"PLC {self._plc} not found")
 
     async def exec(self) -> tuple[str, str]:
-        """タスク実行"""
+        """Execute the task"""
         return self._plc, self._address

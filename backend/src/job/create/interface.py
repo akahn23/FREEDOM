@@ -9,46 +9,46 @@ from src.job.create import Domain
 class Interface(abc.ABC):
     @abc.abstractmethod
     def __init__(self, domain:Domain):
-        """ジョブ作成DB接続インターフェース
+        """Job creation database connection interface
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def fetch_name_list(self, user_id:str|None=None, is_admin:bool=False) -> list[str]:
-        """ジョブ名リスト取得
+        """Get the list of job names
         Args:
-            user_id (str|None): ユーザID
-            is_admin (bool): 管理者フラグ(Trueで全件取得)
+            user_id (str|None): User ID
+            is_admin (bool): Admin flag (True fetches all)
         Returns:
-            list[str]: ジョブ名リスト
+            list[str]: List of job names
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def fetch_workspace(self, name:str) -> dict:
-        """Blockly環境取得
+        """Get the Blockly workspace
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         Returns:
-            dict: Blockly環境
+            dict: Blockly workspace
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def update(self, name:str, workspace:dict):
-        """ジョブ更新
+        """Update a job
         Args:
-            name (str): ジョブ名
-            workspace (dict): Blockly環境
+            name (str): Job name
+            workspace (dict): Blockly workspace
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
     async def delete(self, name:str):
-        """ジョブ削除
+        """Delete a job
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         """
         raise NotImplementedError()

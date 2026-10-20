@@ -12,9 +12,9 @@ from src.job.create import Domain, Interface, access
 
 class Node(abstract.Node):
     def __init__(self, config:dict):
-        """ジョブ作成ノード
+        """Job creation node
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         if old := repository.retrieve(self.__class__):
             repository.remove(old[0])
@@ -25,12 +25,12 @@ class Node(abstract.Node):
         repository.append(self)
 
     def _parse_block(self, block:dict) -> dict:
-        """ブロック内容分析
-        再帰用関数
+        """Analyze block contents
+        Recursive helper
         Args:
-            block (dict): ブロック内容
+            block (dict): Block contents
         Returns:
-            dict: タスク内容
+            dict: Task contents
         """
         fields:dict = block.get("fields", dict())
         inputs:dict[str,dict] = dict()
@@ -48,21 +48,21 @@ class Node(abstract.Node):
         return ret
 
     def _to_task(self, workspace:dict) -> tuple[dict, list[dict]]:
-        """Blockly環境 → タスク変換
-        先頭ジョブのみ処理
+        """Convert a Blockly workspace to tasks
+        Only the first job is processed
         Args:
-            workspace (dict): Blockly環境
+            workspace (dict): Blockly workspace
         Returns:
-            tuple[dict, list]: タスク内容, タスク変数
+            tuple[dict, list]: Task contents, task variables
         """
         blocks = workspace.get("blocks", dict()).get("blocks", list())
         task = self._parse_block(blocks[0]) if blocks else dict()
         return task, workspace.get("variables", list())
 
     async def fetch_define(self) -> tuple[list[dict], list[dict]]:
-        """ブロック・ツールボックス定義取得
+        """Get block and toolbox definitions
         Returns:
-            tuple[list[dict], list[dict]]: ブロック定義, ツールボックス定義
+            tuple[list[dict], list[dict]]: Block definitions, toolbox definitions
         """
         node_name:list[str] = list()
         structure = repository.retrieve(freedom.main.Node)[0].domain.conf.structure
@@ -101,48 +101,48 @@ class Node(abstract.Node):
         return block, toolbox
 
     async def fetch_name_list(self, user_id:str|None=None, is_admin:bool=False) -> list[str]:
-        """ジョブ名リスト取得
+        """Get the list of job names
         Args:
-            user_id (str|None): ユーザID
-            is_admin (bool): 管理者フラグ(Trueで全件取得)
+            user_id (str|None): User ID
+            is_admin (bool): Admin flag (True fetches all)
         Returns:
-            list[str]: ジョブ名リスト
+            list[str]: List of job names
         """
         return await self._access.fetch_name_list(user_id=user_id, is_admin=is_admin)
 
     async def fetch_workspace(self, name:str) -> dict:
-        """Blockly環境取得
+        """Get the Blockly workspace
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         Returns:
-            dict: Blockly環境
+            dict: Blockly workspace
         """
         return await self._access.fetch_workspace(name)
 
     async def update(self, name:str, workspace:dict):
-        """ジョブ保存
+        """Save a job
         Args:
-            name (str): ジョブ名
-            workspace (dict): Blockly環境
+            name (str): Job name
+            workspace (dict): Blockly workspace
         """
         await self._access.update(name, workspace)
         self._logger.info(f"update: {name=} {workspace=}")
 
     async def delete(self, name:str):
-        """ジョブ削除
+        """Delete a job
         Args:
-            name (str): ジョブ名
+            name (str): Job name
         """
         await self._access.delete(name)
         self._logger.info(f"delete: {name=}")
 
     async def active(self, name:str, **kwargs) -> str:
-        """ジョブ実行
+        """Run a job
         Args:
-            name (str): ジョブ名
-            **kwargs (dict): タスク変数の初期値
+            name (str): Job name
+            **kwargs (dict): Initial values of task variables
         Returns:
-            str: ジョブID
+            str: Job ID
         """
         workspace = await self._access.fetch_workspace(name)
         task, variables = self._to_task(workspace)

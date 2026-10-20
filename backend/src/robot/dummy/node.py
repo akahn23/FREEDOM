@@ -28,9 +28,9 @@ class Node(robot.Node[NodeDomain]):
         self._logger.info("close")
 
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         info = list()
         if self.job:

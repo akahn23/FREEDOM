@@ -10,15 +10,15 @@ if typing.TYPE_CHECKING:
 
 @dataclasses.dataclass
 class Domain:
-    """Freedom設定
+    """FREEDOM settings
     Args:
-        interface (str): インターフェース名
-        dsn (str): DB接続先
-        schema (str): スキーマ名
-        table (str): テーブル名
-        update_cycle (float): 更新周期
+        interface (str): Interface name
+        dsn (str): Database connection string
+        schema (str): Schema name
+        table (str): Table name
+        update_cycle (float): Update cycle
     Note:
-        conf (config.dummy): 初期化時設定
+        conf (config.dummy): Initial settings
     """
     interface:str
     dsn:str
@@ -28,11 +28,11 @@ class Domain:
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
-        ここでは作成しない freedom.user_interface.logic.freedom.main.Configを参照
+        """Create the settings form
+        Not created here; see freedom.user_interface.logic.freedom.main.Config
         """
         pass
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.conf:config.dummy = None

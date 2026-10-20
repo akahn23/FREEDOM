@@ -6,23 +6,23 @@ import dataclasses
 
 @dataclasses.dataclass
 class Area:
-    """エリア設定
+    """Area settings
     Args:
-        name (str): 名前
-        vertex_list (list[list[float]]): 頂点リスト
-            右または左回りにすること
+        name (str): Name
+        vertex_list (list[list[float]]): List of vertices
+            Vertices must be ordered clockwise or counterclockwise
     """
     name:str
     vertex_list:list[list[float]]
 
 def _is_inside(location:list[float,float], area_list:list[Area]) -> bool:
-    """エリア内判定
-    レイキャスティング法でエリア内判定
+    """Inside-area check
+    Inside-area check using the ray casting method
     Args:
-        location (list[float,float]): 緯度, 経度
-        area_list (list[util.map.Area]): エリアリスト
+        location (list[float,float]): Latitude, longitude
+        area_list (list[util.map.Area]): List of areas
     Returns:
-        bool: エリア内判定
+        bool: Whether inside the area
     """
     px, py = location
     inside = False

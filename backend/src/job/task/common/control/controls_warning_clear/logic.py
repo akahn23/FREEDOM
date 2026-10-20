@@ -8,8 +8,8 @@ from src.job.task.common.control.controls_warning_clear import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """警告リセットタスク処理"""
+    """Warning reset task logic"""
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         node.domain.warning_msg.clear()

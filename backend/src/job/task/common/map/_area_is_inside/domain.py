@@ -8,23 +8,23 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """エリア内判定タスク
+    """Inside-area check task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        location (abstract.Domain): 位置
-        area_list (abstract.Domain) エリアリスト
+        type (str): Block type
+        id (str): Block ID
+        location (abstract.Domain): Location
+        area_list (abstract.Domain) List of areas
     """
     location: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
     area_list: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "_area_is_inside",
@@ -50,11 +50,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

@@ -9,15 +9,15 @@ from src.job.task.common.control.controls_wait_logic import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """条件待機タスク処理"""
+    """Wait-for-condition task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._cond = await self.domain.cond.make_logic(self._job_id, self._logger)
         self._interval = await self.domain.interval.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         interval:timedelta = await self._interval.exec()
         while True:
             cond = await self._cond.exec()

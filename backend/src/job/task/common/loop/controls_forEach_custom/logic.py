@@ -13,9 +13,9 @@ from src.job.task.common.loop.controls_forEach_custom import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """controls_forEach_customタスク ロジック"""
+    """controls_forEach_custom task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         if not self.domain.command:
             self.domain.count = 0
@@ -30,7 +30,7 @@ class Logic(abstract.statement.Logic[Domain]):
         self._DO = await self.domain.DO.make_logic(self._job_id, logger) if self.domain.DO else None
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         values = await self._LIST.exec()
         logger = self._logger if self.domain.should_log else logging.getLogger("loop")
         self._logger.info(f"{self.domain.name} list={values}")

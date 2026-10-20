@@ -6,17 +6,17 @@ from src.job.task.common.math.math_modulo import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """math_moduloタスク処理"""
+    """math_modulo task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._DIVIDEND = await self.domain.DIVIDEND.make_logic(self._job_id, self._logger)
         self._DIVISOR = await self.domain.DIVISOR.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> int:
-        """タスク実行
+        """Execute the task
         Args:
-            robot (robot.Node): ロボット
+            robot (robot.Node): Robot
         """
         DIVIDEND = await self._DIVIDEND.exec()
         DIVISOR = await self._DIVISOR.exec()

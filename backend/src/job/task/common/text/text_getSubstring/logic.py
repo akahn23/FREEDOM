@@ -6,16 +6,16 @@ from src.job.task.common.text.text_getSubstring import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """text_getSubstringタスク処理"""
+    """text_getSubstring task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._STRING = await self.domain.STRING.make_logic(self._job_id, self._logger)
         self._AT1 = await self.domain.AT1.make_logic(self._job_id, self._logger)
         self._AT2 = await self.domain.AT2.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> str:
-        """タスク実行"""
+        """Execute the task"""
         STRING = str(await self._STRING.exec())
         AT1 = int(await self._AT1.exec()) if self._AT1 else 1
         AT2 = int(await self._AT2.exec()) if self._AT2 else 1

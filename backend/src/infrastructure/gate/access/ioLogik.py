@@ -9,9 +9,9 @@ from src.infrastructure.gate import NodeDomain, Interface
 
 class IoLogic(Interface):
     def __init__(self, domain:NodeDomain):
-        """遮断機IoLogic接続
+        """Gate IoLogic connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._headers = {
             'Accept': 'vdn.dac.v1',
@@ -23,15 +23,15 @@ class IoLogic(Interface):
         )
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         await self._session.close()
 
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         async with self._session.get("/api/slot/0/io/di", headers=self._headers) as resp:
             if resp.status != 200:

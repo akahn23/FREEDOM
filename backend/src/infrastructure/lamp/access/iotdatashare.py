@@ -8,32 +8,32 @@ from src.infrastructure.lamp import NodeDomain, Interface
 
 class IoTDataShare(Interface):
     def __init__(self, domain:NodeDomain):
-        """ランプIoTDataShare接続
+        """Lamp IoTDataShare connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._domain = domain
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         str_address = f"DO{address}"
         data = await repository.retrieve(equipment.iotdatashare.Repository)[0].read(self._domain.ip, str_address)
         return bool(data)
 
     async def write(self, address:int, data:bool):
-        """書込み
+        """Write
         Args:
-            address (int): アドレス
-            data (bool): 書込み内容
+            address (int): Address
+            data (bool): Data to write
         """
         str_address = f"DO{address}"
         await repository.retrieve(equipment.iotdatashare.Repository)[0].write(self._domain.ip, str_address, int(data))

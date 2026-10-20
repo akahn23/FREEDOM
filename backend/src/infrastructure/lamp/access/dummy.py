@@ -6,29 +6,29 @@ from src.infrastructure.lamp import NodeDomain, Interface
 
 class Dummy(Interface):
     def __init__(self, domain:NodeDomain):
-        """ランプダミー接続
+        """Lamp dummy connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._state = False
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def read(self, address:int) -> bool:
-        """読込み
+        """Read
         Args:
-            address (int): アドレス
+            address (int): Address
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         return self._state
 
     async def write(self, address:int, data:bool):
-        """書込み
+        """Write
         Args:
-            address (int): アドレス
-            data (bool): 書込み内容
+            address (int): Address
+            data (bool): Data to write
         """
         self._state = data

@@ -9,12 +9,12 @@ from src import abstract, freedom
 
 @dataclasses.dataclass
 class Column:
-    """ログのカラム定義
+    """Log column definition
     Args:
-        time (datetime): ログの発生日時
-        name (str): ログの名前
-        levelname (str): ログレベル名
-        message (str): ログメッセージ
+        time (datetime): When the log was emitted
+        name (str): Logger name
+        levelname (str): Log level name
+        message (str): Log message
     """
     time:datetime
     name:str
@@ -24,23 +24,23 @@ class Column:
 
 @dataclasses.dataclass
 class Domain(abstract.database.Domain):
-    """ログ設定
+    """Log settings
     Args:
-        interface (str): インターフェース名
-        dsn (str): DB接続先
-        schema (str): スキーマ名
-        table (str): テーブル名
-        update_cycle (float): 更新周期
-        retention_period (int): 保存期間（日単位）
+        interface (str): Interface name
+        dsn (str): Database connection string
+        schema (str): Schema name
+        table (str): Table name
+        update_cycle (float): Update cycle
+        retention_period (int): Retention period (days)
     """
     table:str = "freedom_log"
     retention_period:int = 90
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form(freedom.log.access) | {
             "retention_period": {
@@ -53,5 +53,5 @@ class Domain(abstract.database.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__(freedom.log.access)

@@ -11,9 +11,9 @@ from src.job.task.robot.select import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """ロボット選択タスク"""
+    """Robot selection task"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         node = repository.retrieve(job.active.Node, id=self._job_id)[0]
         self._var = next(node.retrieve_variables(id=self.domain.VAR["id"]))
@@ -24,7 +24,7 @@ class Logic(abstract.statement.Logic[Domain]):
         self._result = None
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         self._var.value = None
         try:
             while self._result is None:
@@ -43,9 +43,9 @@ class Logic(abstract.statement.Logic[Domain]):
         self.domain.command.append(command.Text(f"選択ロボット: {self._var.value}"))
 
     async def exec_command(self, command:str):
-        """コマンド実行
+        """Execute a command
         Args:
-            command (str): コマンド内容
+            command (str): Command contents
         """
         if r := repository.retrieve(robot.Node, name=command):
             if await self._can_select(r[0]):
@@ -58,11 +58,11 @@ class Logic(abstract.statement.Logic[Domain]):
             await super().exec_command(command)
 
     async def _can_select(self, node:robot.Node[robot.Domain]) -> bool:
-        """選択可能か
+        """Whether selectable
         Args:
-            node (robot.Node[robot.Domain]): ロボットノード
+            node (robot.Node[robot.Domain]): Robot node
         Returns:
-            bool: 選択可能
+            bool: Selectable
         """
         if node.job:
             return False

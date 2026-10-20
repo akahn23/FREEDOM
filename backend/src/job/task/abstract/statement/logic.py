@@ -11,14 +11,14 @@ if typing.TYPE_CHECKING:
 
 
 class Logic[D:Domain](abstract.value.Logic[D], abc.ABC):
-    """抽象ステートメントタスク処理
+    """Abstract statement task logic
     Args:
-        domain (D): 設定
-        job_id (int): ジョブID
-        logger (logging.Logger): ロガー
+        domain (D): Settings
+        job_id (int): Job ID
+        logger (logging.Logger): Logger
     """
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         if self.domain.next:
             self.next = await self.domain.next.make_logic(self._job_id, self._logger)
@@ -26,22 +26,22 @@ class Logic[D:Domain](abstract.value.Logic[D], abc.ABC):
             self.next = None
 
     async def exec_command(self, command:typing.Any) -> typing.Any:
-        """コマンド実行
+        """Execute a command
         Args:
-            command (typing.Any): コマンド内容
+            command (typing.Any): Command contents
         Returns:
-            typing.Any: 実行結果
+            typing.Any: Execution result
         """
         self._logger.error(f"Failed to exec_command: name={self.domain.name=} {command=}")
         raise Exception(f"Failed to command")
 
     def retrieve_task(self, id:str|None=None) -> typing.Optional["Logic[Domain]"]:
-        """タスク探索
+        """Search tasks
         Args:
-            id (str|None): ブロックID
-                Noneで実行中タスク取得
+            id (str|None): Block ID
+                None returns the running task
         Returns:
-            Logic: タスク
+            Logic: Task
         """
         if self.domain.id == id:
             return self

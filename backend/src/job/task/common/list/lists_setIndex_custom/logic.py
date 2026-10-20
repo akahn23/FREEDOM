@@ -6,16 +6,16 @@ from src.job.task.common.list.lists_setIndex_custom import Domain
 
 
 class Logic(abstract.statement.Logic[Domain]):
-    """lists_setIndex_customタスク処理"""
+    """lists_setIndex_custom task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._LIST = await self.domain.LIST.make_logic(self._job_id, self._logger)
         self._AT = await self.domain.AT.make_logic(self._job_id, self._logger)
         self._TO = await self.domain.TO.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> list:
-        """タスク実行"""
+        """Execute the task"""
         LIST:list = await self._LIST.exec()
         AT = int(await self._AT.exec())
         TO = await self._TO.exec()

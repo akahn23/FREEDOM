@@ -6,15 +6,15 @@ from src.robot.dummy import Node, Domain
 
 
 class Repository(repository.Repository[Node]):
-    """ダミーロボット リポジトリ
+    """Dummy robot repository
     Attributes:
-        data (list[Node]): ノードリスト
-        domain (Domain): ドメイン
+        data (list[Node]): List of nodes
+        domain (Domain): Domain
     """
     def __init__(self, config:dict):
-        """インスタンス化
+        """Instantiate
         Args:
-            config (dict): 設定
+            config (dict): Settings
         """
         if old := repository.repository.retrieve(self.__class__):
             self = old[0]

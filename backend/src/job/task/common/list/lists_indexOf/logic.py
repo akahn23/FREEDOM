@@ -6,15 +6,15 @@ from src.job.task.common.list.lists_indexOf import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """lists_indexOfタスク処理"""
+    """lists_indexOf task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._VALUE = await self.domain.VALUE.make_logic(self._job_id, self._logger)
         self._FIND = await self.domain.FIND.make_logic(self._job_id, self._logger) if self.domain.FIND else None
 
     async def exec(self) -> int:
-        """タスク実行"""
+        """Execute the task"""
         VALUE = list(await self._VALUE.exec())
         FIND = await self._FIND.exec() if self._FIND else []
         if FIND not in VALUE:

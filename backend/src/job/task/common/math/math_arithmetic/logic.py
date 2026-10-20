@@ -6,15 +6,15 @@ from src.job.task.common.math.math_arithmetic import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """math_arithmeticタスク処理"""
+    """math_arithmetic task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._A = await self.domain.A.make_logic(self._job_id, self._logger)
         self._B = await self.domain.B.make_logic(self._job_id, self._logger)
 
     async def exec(self) -> float | int:
-        """タスク実行"""
+        """Execute the task"""
         A = await self._A.exec()
         B = await self._B.exec()
         if self.domain.OP == "ADD":

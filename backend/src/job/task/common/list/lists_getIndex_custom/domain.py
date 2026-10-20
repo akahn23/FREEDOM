@@ -8,15 +8,15 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """lists_getIndex_customタスク
-    MODEがREMOVE時にステートメントブロックになるため定義変更
+    """lists_getIndex_custom task
+    Definition changed because the block becomes a statement block when MODE is REMOVE
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        VALUE (abstract.value.Domain): 処理対象
-        MODE (str): 処理方法
-        WHERE (str): 始点
-        AT (abstract.value.Domain): 始点からの要素数
+        type (str): Block type
+        id (str): Block ID
+        VALUE (abstract.value.Domain): Target value
+        MODE (str): Operation mode
+        WHERE (str): Origin
+        AT (abstract.value.Domain): Number of elements from the origin
     """
     VALUE: abstract.value.Domain = dataclasses.field(default_factory=abstract.value.Domain)
     MODE: str = ""
@@ -25,11 +25,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         """
         return [{
             "type": "lists_getIndex_custom",
@@ -73,11 +73,11 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

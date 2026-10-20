@@ -8,13 +8,13 @@ from src.job.task import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.value.Domain):
-    """logic_ternaryタスク
+    """logic_ternary task
     Args:
-        type (str): ブロック種類
-        id (str): ブロックID
-        IF (abstract.value.Domain): 項1(テスト)
-        THEN (abstract.value.Domain): 項2(true)
-        ELSE (abstract.value.Domain): 項3(false)
+        type (str): Block type
+        id (str): Block ID
+        IF (abstract.value.Domain): Operand 1 (test)
+        THEN (abstract.value.Domain): Operand 2 (true)
+        ELSE (abstract.value.Domain): Operand 3 (false)
     """
     IF: abstract.value.Domain = None
     THEN: abstract.value.Domain = None
@@ -22,23 +22,23 @@ class Domain(abstract.value.Domain):
 
     @classmethod
     def define_block(cls) -> list[dict]:
-        """ブロック定義
-        自作ブロックの形状を定義する
+        """Block definition
+        Define the shape of the custom block
         https://developers.google.com/blockly/guides/create-custom-blocks/define/block-definitions?hl=ja
         Returns:
-            list[dict]: ブロック定義
+            list[dict]: Block definitions
         Note:
-            デフォルトで定義済み
+            Defined by default
         """
         return []
 
     @classmethod
     def define_toolbox(cls) -> list[dict]:
-        """ツールボックス定義
-        フィールド値や出力ブロックの初期値を定義する
+        """Toolbox definition
+        Define initial values for fields and output blocks
         https://developers.google.com/blockly/guides/configure/web/toolboxes/category?hl=ja
         Returns:
-            list[dict]: ツールボックス定義
+            list[dict]: Toolbox definitions
         """
         return [{
             "kind": "block",

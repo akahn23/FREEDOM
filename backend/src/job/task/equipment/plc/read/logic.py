@@ -8,14 +8,14 @@ from src.job.task.equipment.plc.read import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """PLC読込みタスク処理"""
+    """PLC read task logic"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._plc_address = await self.domain.plc_address.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         plc, address = await self._plc_address.exec()
         plc:equipment.plc.Node = repository.retrieve(equipment.plc.Node, name=plc)[0]
         try:

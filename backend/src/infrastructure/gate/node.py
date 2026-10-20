@@ -11,18 +11,18 @@ from src.infrastructure.command import Button
 
 
 class Node(infrastructure.Node):
-    """遮断機 ノード
+    """Gate node
     Attributes:
-        domain (NodeDomain): ドメイン
-        _state (util.status.State): 状態
-        _access (Interface): インターフェース
-        _logger (freedom.log.Logger): ロガー
-        _task (asyncio.Task): 定期処理タスク
+        domain (NodeDomain): Domain
+        _state (util.status.State): State
+        _access (Interface): Interface
+        _logger (freedom.log.Logger): Logger
+        _task (asyncio.Task): Periodic processing task
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self.domain = domain
         self._state = util.status.State.WAITING
@@ -32,7 +32,7 @@ class Node(infrastructure.Node):
         self._logger.info(f"launch: {self.domain=}")
 
     async def _loop(self):
-        """定期ループ処理"""
+        """Periodic loop"""
         try:
             while sys.getrefcount(self) > 2:
                 await asyncio.gather(
@@ -44,7 +44,7 @@ class Node(infrastructure.Node):
             self._logger.info("end")
 
     async def _update(self):
-        """状態更新"""
+        """Update the status"""
         try:
             await self._confirm()
         except Exception as e:
@@ -53,9 +53,9 @@ class Node(infrastructure.Node):
             self._state = util.status.State.DISCONNECT
 
     async def _confirm(self) -> bool:
-        """通行可能確認
+        """Check whether passable
         Returns:
-            bool: 通行可能
+            bool: Passable
         """
         if await self._access.read(self.domain.read_address) == self.domain.open_state:
             if self._state != util.status.State.ACTIVE:
@@ -67,9 +67,9 @@ class Node(infrastructure.Node):
             self._state = util.status.State.WAITING
 
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         info = list()
         if self._state == util.status.State.DISCONNECT:
@@ -85,9 +85,9 @@ class Node(infrastructure.Node):
         )
 
     def fetch_command(self) -> list:
-        """手動操作取得
+        """Get manual operations
         Returns:
-            list: 操作内容
+            list: Operation contents
         """
         if type(self._access) is access.Dummy:
             return [
@@ -98,9 +98,9 @@ class Node(infrastructure.Node):
             return []
 
     async def accept(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携許可
+        """Grant infrastructure handshake permission to a robot
         Args:
-            robot (robot.Node): ロボット
+            robot (robot.Node): Robot
         """
         if not robot.domain.location:
             return True
@@ -111,17 +111,17 @@ class Node(infrastructure.Node):
             return True
 
     async def cancel(self, robot:robot.Node[robot.Domain]) -> bool:
-        """連携終了
+        """End the infrastructure handshake for a robot
         Args:
-            robot (robot.Node): ロボットノード
+            robot (robot.Node): Robot node
         """
         pass
 
     def set_state(self, state:bool):
-        """状態変更
-        ダミーテスト用
+        """Change the state
+        For dummy testing
         Args:
-            state (bool): 状態
+            state (bool): State
         """
         if type(self._access) is access.Dummy:
             self._access.state = state

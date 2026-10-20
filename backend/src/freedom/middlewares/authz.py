@@ -14,7 +14,7 @@ from src.freedom.authz.enforcer import CasbinAuthz
 
 
 def _parse_target(path: str) -> Tuple[str, str]:
-    """kindとnameの抽出"""
+    """Extract kind and name"""
     if path.startswith("/node/"):
         return "node", path[len("/node/"):]
     if path.startswith("/domain/"):

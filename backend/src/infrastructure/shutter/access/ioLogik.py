@@ -9,9 +9,9 @@ from src.infrastructure.shutter import NodeDomain, Interface
 
 class IoLogic(Interface):
     def __init__(self, domain:NodeDomain):
-        """シャッターIoLogic接続
+        """Shutter IoLogic connection
         Args:
-            domain (Domain): ドメイン
+            domain (Domain): Domain
         """
         self._domain = domain
         self._headers = {
@@ -24,13 +24,13 @@ class IoLogic(Interface):
         )
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         await self._session.close()
 
     async def read(self) -> bool:
-        """読込み
+        """Read
         Returns:
-            bool: 読込み結果
+            bool: Read result
         """
         async with self._session.get("/api/slot/0/io/di", headers=self._headers) as resp:
             if resp.status != 200:
@@ -39,9 +39,9 @@ class IoLogic(Interface):
             return bool(ret['io']['di'][self._domain.read_address]['diStatus'])
 
     async def write(self, data:bool):
-        """書込み
+        """Write
         Args:
-            data (bool): 書込み内容
+            data (bool): Data to write
         """
         async with self._session.get("/api/slot/0/io/do", headers=self._headers) as resp:
             if resp.status != 200:

@@ -8,7 +8,7 @@ from src.job.task.common.time._time_now import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """現在時刻取得タスク処理"""
+    """Current time get task logic"""
     async def exec(self) -> datetime:
-        """タスク実行"""
+        """Execute the task"""
         return datetime.now()

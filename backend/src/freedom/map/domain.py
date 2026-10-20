@@ -8,11 +8,11 @@ from src import abstract
 
 @dataclasses.dataclass
 class DefaultView:
-    """地図初期設定
+    """Initial map view settings
     Args:
-        center (list[float,float]]): 座標 (緯度,経度)
-        zoom (int): 拡大
-        rotate (float): 回転 (deg)
+        center (list[float,float]]): Coordinates (latitude, longitude)
+        zoom (int): Zoom level
+        rotate (float): Rotation (deg)
     """
     center:list[float, float] = dataclasses.field(default_factory=lambda:[0.0, 0.0])
     zoom:int = 0
@@ -21,11 +21,11 @@ class DefaultView:
 
 @dataclasses.dataclass
 class Image:
-    """地図画像設定
+    """Map image settings
     Args:
-        name (str): 画像名
-        visible (bool): 表示/非表示
-        corners (list[list[float,float,float,float]]): 角座標 (左上,右上,左下,右下)
+        name (str): Image name
+        visible (bool): Shown/hidden
+        corners (list[list[float,float,float,float]]): Corner coordinates (top-left, top-right, bottom-left, bottom-right)
     """
     name:str
     visible:bool
@@ -34,19 +34,19 @@ class Image:
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """地図設定
+    """Map settings
     Args:
-        default_view (list[float, float, float, float]): 位置設定
-        image_list (list[Image]): 画像設定
+        default_view (list[float, float, float, float]): View settings
+        image_list (list[Image]): Image settings
     """
     default_view:DefaultView = dataclasses.field(default_factory=DefaultView)
     image_list:list[Image] = dataclasses.field(default_factory=list)
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "default_view": {
@@ -60,7 +60,7 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         if type(self.default_view) is not DefaultView:
             self.default_view = DefaultView(**self.default_view)
         for i, image in enumerate(self.image_list):

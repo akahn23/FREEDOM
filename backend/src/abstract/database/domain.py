@@ -12,13 +12,13 @@ from src.repository import repository
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """抽象データベース設定
+    """Abstract database settings
     Args:
-        interface (str): インターフェース名
-        dsn (str): DB接続先
-        schema (str): スキーマ名
-        table (str): テーブル名
-        update_cycle (float): 更新周期
+        interface (str): Interface name
+        dsn (str): Database connection string
+        schema (str): Schema name
+        table (str): Table name
+        update_cycle (float): Update cycle
     """
     interface:str = ""
     dsn:str = ""
@@ -29,11 +29,11 @@ class Domain(abstract.Domain):
     @classmethod
     @abc.abstractmethod
     def make_form(cls, access:types.ModuleType):
-        """設定フォーム作成
+        """Create the settings form
         Args:
-            access (types.ModuleType): アクセス層モジュール
+            access (types.ModuleType): Access layer module
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "interface": {
@@ -63,10 +63,10 @@ class Domain(abstract.Domain):
 
     @abc.abstractmethod
     def __post_init__(self, access:types.ModuleType):
-        """初期化後処理
-        初回DB構築時はfreedom.mainのDB設定で構築する
+        """Post-initialization processing
+        On the first database build, the freedom.main database settings are used
         Args:
-            access (types.ModuleType): アクセス層モジュール
+            access (types.ModuleType): Access layer module
         """
         if not self.interface and repository.retrieve(freedom.main.Node):
             main_domain = repository.retrieve(freedom.main.Node)[0].domain

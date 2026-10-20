@@ -7,15 +7,15 @@ from src.job.task.common.text.text_charAt import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """text_charAtタスク処理"""
+    """text_charAt task logic"""
     async def init(self):
-        """ジョブ開始時処理"""
+        """Called when the job starts"""
         await super().init()
         self._VALUE = await self.domain.VALUE.make_logic(self._job_id, self._logger)
         self._AT = await self.domain.AT.make_logic(self._job_id, self._logger) if self.domain.AT else None
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         VALUE = str(await self._VALUE.exec())
         AT = int(await self._AT.exec()) if self._AT else 1
         if self.domain.WHERE == "FROM_START":

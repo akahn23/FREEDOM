@@ -10,12 +10,12 @@ from src import abstract, job
 
 @dataclasses.dataclass
 class Variable:
-    """ジョブ変数
+    """Job variable
     Args:
-        id (str): ブロックID
-        name (str): 名前
-        type (str): 型
-        value (typing.Any): 内容
+        id (str): Block ID
+        name (str): Name
+        type (str): Type
+        value (typing.Any): Value
     """
     id: str
     name: str
@@ -25,17 +25,17 @@ class Variable:
 
 @dataclasses.dataclass
 class NodeDomain:
-    """ジョブ実行ノード設定
+    """Active job node settings
     Args:
-        id (str): ノードID
-        created_at (datetime.datetime): 生成日時
-        name (str): 名前
-        task (task.abstract.Domain): タスク内容
-        variables (Variable): タスク変数
-        command (Task): タスク実行管理
-        error_msg (set): 異常メッセージ
-        warning_msg (set): 警告メッセージ
-        visible (bool): 可視化フラグ
+        id (str): Node ID
+        created_at (datetime.datetime): Creation date/time
+        name (str): Name
+        task (task.abstract.Domain): Task contents
+        variables (Variable): Task variables
+        command (Task): Task execution control
+        error_msg (set): Error messages
+        warning_msg (set): Warning messages
+        visible (bool): Visibility flag
     """
     id:str
     created_at:datetime.datetime
@@ -48,7 +48,7 @@ class NodeDomain:
     visible:bool = True
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.id = str(self.id)
         self.task = job.task.abstract.statement.Domain.to_domain(self.task)
         self.variables = [Variable(**v) for v in self.variables]
@@ -62,24 +62,24 @@ class NodeDomain:
 
 @dataclasses.dataclass
 class Domain(abstract.database.Domain):
-    """ジョブ実行設定
+    """Active job settings
     Args:
-        interface (str): インターフェース名
-        dsn (str): DB接続先
-        schema (str): スキーマ名
-        table (str): テーブル名
-        update_cycle (float): 更新周期
+        interface (str): Interface name
+        dsn (str): Database connection string
+        schema (str): Schema name
+        table (str): Table name
+        update_cycle (float): Update cycle
     """
     table:str = "job_active"
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form(job.active.access)
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         super().__post_init__(job.active.access)

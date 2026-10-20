@@ -7,13 +7,13 @@ from src.job.task.robot.get_domain import Domain
 
 
 class Logic(abstract.value.Logic[Domain]):
-    """ドメイン取得タスク"""
+    """Task that gets a domain"""
     async def init(self):
-        """ジョブ開始・復帰時処理"""
+        """Called when the job starts or resumes"""
         await super().init()
         self._robot = await self.domain.robot.make_logic(self._job_id, self._logger)
 
     async def exec(self):
-        """タスク実行"""
+        """Execute the task"""
         node:robot.Node = await self._robot.exec()
         return getattr(node.domain, self.domain.config, None)

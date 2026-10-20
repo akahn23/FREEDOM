@@ -9,20 +9,20 @@ from src.equipment.plc import NodeDomain, BitAddress, CycleBitAddress, Interface
 
 
 class Node(abstract.Node):
-    """PLC ノード
+    """PLC node
     Attributes:
-        domain (NodeDomain): ドメイン
-        _state (util.status.State): 状態
-        _address_map (dict[str, set[str]]): アドレスとジョブIDのマッピング
-        _logger (freedom.log.Logger): ロガー
-        _access (Interface): インターフェース
-        _task (asyncio.Task): 定期処理タスク
-        _heartbeat_task (list[asyncio.Task]): ハートビート処理タスク
+        domain (NodeDomain): Domain
+        _state (util.status.State): State
+        _address_map (dict[str, set[str]]): Mapping of addresses to job IDs
+        _logger (freedom.log.Logger): Logger
+        _access (Interface): Interface
+        _task (asyncio.Task): Periodic processing task
+        _heartbeat_task (list[asyncio.Task]): Heartbeat tasks
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self.domain = domain
         self._state = util.status.State.WAITING
@@ -34,13 +34,13 @@ class Node(abstract.Node):
         self._logger.info(f"launch: {self.domain=}")
 
     def close(self):
-        """切断"""
+        """Disconnect"""
         self._task.cancel()
 
     def fetch_status(self) -> util.status.Status:
-        """状態取得
+        """Get the status
         Returns:
-            util.status.Status: 状態
+            util.status.Status: Status
         """
         if self._state == util.status.State.DISCONNECT:
             state = util.status.State.ERROR
@@ -56,11 +56,11 @@ class Node(abstract.Node):
         )
 
     async def read(self, name:str) -> bool|int:
-        """読込み
+        """Read
         Args:
-            name (str): アドレス名
+            name (str): Address name
         Returns:
-            bool|int: 読込み結果
+            bool|int: Read result
         """
         for address in self.domain.bit_addresses + self.domain.word_addresses:
             if address.name == name:
@@ -74,11 +74,11 @@ class Node(abstract.Node):
             raise ValueError(f"Address not found: {name=}")
 
     async def write(self, name:str, data:bool|int, job_id:str|None=None):
-        """書込み
+        """Write
         Args:
-            name (str): アドレス名
-            data (bool|int): 書込み内容
-            job_id (str|None): ジョブID
+            name (str): Address name
+            data (bool|int): Data to write
+            job_id (str|None): Job ID
         """
         for address in self.domain.bit_addresses + self.domain.word_addresses:
             if address.name == name:
@@ -105,7 +105,7 @@ class Node(abstract.Node):
             raise ValueError(f"Address not found: {name=}")
 
     async def _loop(self):
-        """定期処理"""
+        """Periodic processing"""
         try:
             while True:
                 await asyncio.gather(
@@ -119,7 +119,7 @@ class Node(abstract.Node):
             self._logger.info("end")
 
     async def _update(self):
-        """状態更新"""
+        """Update the status"""
         try:
             for bit_address in self.domain.bit_addresses:
                 data = await self._access.read_bit(bit_address.address, bit_address.bit)
@@ -156,7 +156,7 @@ class Node(abstract.Node):
             self._state = util.status.State.DISCONNECT
 
     async def _heartbeat_loop(self, address:CycleBitAddress):
-        """ハートビート処理"""
+        """Heartbeat processing"""
         while True:
             try:
                 data = await self._access.read_bit(address.address, address.bit)

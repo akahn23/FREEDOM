@@ -6,33 +6,33 @@ from src.equipment.database.interface import Interface
 
 
 class Dummy(Interface):
-    """データベース ダミー接続
+    """Database dummy connection
     Attributes:
-        data (list[dict]): データ
+        data (list[dict]): Data
     """
     def __init__(self, domain:NodeDomain):
-        """インスタンス化
+        """Instantiate
         Args:
-            domain (NodeDomain): ドメイン
+            domain (NodeDomain): Domain
         """
         self.data:list[dict] = list()
 
     async def close(self):
-        """切断"""
+        """Disconnect"""
         pass
 
     async def is_connected(self) -> bool:
-        """接続確認
+        """Check the connection
         Returns:
-            bool: 接続状態
+            bool: Connection state
         """
         return True
 
     async def upsert(self, keys:list[str], data:dict):
-        """追加・更新
+        """Insert or update
         Args:
-            keys (list[str]): 一致キー
-            data (dict): 書込み値
+            keys (list[str]): Match keys
+            data (dict): Values to write
         """
         if keys:
             for i, d in enumerate(self.data):

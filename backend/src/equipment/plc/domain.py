@@ -9,11 +9,11 @@ from src import abstract, equipment
 
 @dataclasses.dataclass
 class Address(abstract.Domain):
-    """アドレス設定 基底クラス
+    """Base class for address settings
     Attributes:
-        enable (bool): 有効
-        name (str): 名前
-        address (str): アドレス
+        enable (bool): Enabled
+        name (str): Name
+        address (str): Address
     """
     enable: bool = True
     name:str =""
@@ -21,9 +21,9 @@ class Address(abstract.Domain):
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "enable": {
@@ -43,27 +43,27 @@ class Address(abstract.Domain):
 
 @dataclasses.dataclass
 class BitAddress(Address):
-    """ビットアドレス設定
+    """Bit address settings
     Attributes:
-        enable (bool): 有効
-        name (str): 名前
-        address (str): アドレス
-        bit (int): ビット
-        default (bool|None): 初期値
-        data (bool): データ
+        enable (bool): Enabled
+        name (str): Name
+        address (str): Address
+        bit (int): Bit
+        default (bool|None): Initial value
+        data (bool): Data
     """
     bit: int = 0
     default: bool|None = None
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.data = self.default if self.default is not None else False
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form() | {
             "bit": {
@@ -84,40 +84,40 @@ class BitAddress(Address):
 
 @dataclasses.dataclass
 class WordAddress(Address):
-    """ワードアドレス設定
+    """Word address settings
     Attributes:
-        enable (bool): 有効
-        name (str): 名前
-        address (str): アドレス
-        data (int): データ
+        enable (bool): Enabled
+        name (str): Name
+        address (str): Address
+        data (int): Data
     """
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.data = 0
 
 
 @dataclasses.dataclass
 class CycleBitAddress(Address):
-    """周期ビットアドレス設定
+    """Cyclic bit address settings
     Attributes:
-        enable (bool): 有効
-        name (str): 名前
-        address (str): アドレス
-        bit (int): ビット
-        interval (float): 更新周期秒
+        enable (bool): Enabled
+        name (str): Name
+        address (str): Address
+        bit (int): Bit
+        interval (float): Update cycle in seconds
     """
     bit: int = 0
     interval: float = 1.0
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.data = False
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return super().make_form() | {
             "bit": {
@@ -137,19 +137,19 @@ class CycleBitAddress(Address):
 
 @dataclasses.dataclass
 class NodeDomain(abstract.Domain):
-    """PLC ノードドメイン
+    """PLC node domain
     Attributes:
-        enable (bool): 有効
-        name (str): 名前
-        location (list[float]): 位置
-        interface (str): インターフェース
-        ip (str): IPアドレス
-        port (int): ポート番号
-        timeout (float): 通信タイムアウト
-        update_cycle (float): 更新周期
-        bit_addresses: (list[BitAddress]): ビットアドレス設定リスト
-        word_addresses: (list[WordAddress]): ワードアドレス設定リスト
-        heartbeat_addresses: (list[CycleBitAddress]): ハートビートアドレス設定リスト
+        enable (bool): Enabled
+        name (str): Name
+        location (list[float]): Location
+        interface (str): Interface
+        ip (str): IP address
+        port (int): Port number
+        timeout (float): Communication timeout
+        update_cycle (float): Update cycle
+        bit_addresses: (list[BitAddress]): List of bit address settings
+        word_addresses: (list[WordAddress]): List of word address settings
+        heartbeat_addresses: (list[CycleBitAddress]): List of heartbeat address settings
     """
     enable: bool = True
     name: str = ""
@@ -165,9 +165,9 @@ class NodeDomain(abstract.Domain):
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "enable": {
@@ -228,7 +228,7 @@ class NodeDomain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.bit_addresses = [BitAddress(**address) for address in self.bit_addresses if address.get("enable", False)]
         self.word_addresses = [WordAddress(**address) for address in self.word_addresses if address.get("enable", False)]
         self.heartbeat_addresses = [CycleBitAddress(**address) for address in self.heartbeat_addresses if address.get("enable", False)]
@@ -236,17 +236,17 @@ class NodeDomain(abstract.Domain):
 
 @dataclasses.dataclass
 class Domain(abstract.Domain):
-    """PLC ドメイン
+    """PLC domain
     Attributes:
-        node_domain (list[NodeDomain]): ノード設定リスト
+        node_domain (list[NodeDomain]): List of node settings
     """
     node_domain:list[NodeDomain] = dataclasses.field(default_factory=list)
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "node_domain": {
@@ -260,5 +260,5 @@ class Domain(abstract.Domain):
         }
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.node_domain = [NodeDomain(**node_domain) for node_domain in self.node_domain if node_domain.get("enable", False)]

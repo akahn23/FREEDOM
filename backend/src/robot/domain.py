@@ -9,27 +9,27 @@ from src import abstract
 
 @dataclasses.dataclass
 class Domain(abstract.Domain, abc.ABC):
-    """ロボット抽象ノード設定
+    """Abstract robot node settings
     Args:
-        enable (bool): 有効
-        name (str): 名前
-        update_cycle (float): 更新周期
+        enable (bool): Enabled
+        name (str): Name
+        update_cycle (float): Update cycle
     Note:
-        location (list[float]): 位置
+        location (list[float]): Location
     """
     enable:bool = True
     name:str = ""
     update_cycle:float = 1.0
 
     def __post_init__(self):
-        """初期化後処理"""
+        """Post-initialization processing"""
         self.location:list[float, float] = None
 
     @classmethod
     def make_form(cls):
-        """設定フォーム作成
+        """Create the settings form
         Returns:
-            dict: 設定フォーム
+            dict: Settings form
         """
         return {
             "enable": {
