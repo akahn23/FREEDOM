@@ -111,6 +111,16 @@ http://localhost:3000
 | Node.js | `24+` |
 | PostgreSQL | `16+` |
 
+### Running backend tests
+The backend unit tests (`backend/tests/`) use pytest with mocked/fake database clients, so no PostgreSQL or frontend is required.
+```bash
+cd backend
+python3.13 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest
+```
+Configuration lives in `backend/pytest.ini` (`asyncio_mode = auto`, `pythonpath = .`), so run pytest from the `backend/` directory.
+
 ## Usage
 The setup guide and user manual are currently under preparation (planned for release in 2026).
 
