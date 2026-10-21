@@ -172,7 +172,7 @@ def test_post_serializes_with_util_json_dumps(repo, fake_module, monkeypatch):
     dumps = MagicMock(name="dumps", side_effect=real_dumps)
     monkeypatch.setattr(node_module.util.json, "dumps", dumps)
     result = {
-        "payload": Payload("p", datetime.datetime(2026, 1, 2, 3, 4, 5)),
+        "payload": Payload("p", datetime.datetime(2026, 1, 2, 3, 4, 5, tzinfo=datetime.UTC)),
         "ids": {"only"},
         "day": datetime.date(2026, 1, 2),
     }
@@ -184,7 +184,7 @@ def test_post_serializes_with_util_json_dumps(repo, fake_module, monkeypatch):
 
     dumps.assert_called_once_with(result)
     assert json.loads(resp.text) == {
-        "payload": {"name": "p", "at": "2026-01-02T03:04:05"},
+        "payload": {"name": "p", "at": "2026-01-02T03:04:05+00:00"},
         "ids": ["only"],
         "day": "2026-01-02",
     }
